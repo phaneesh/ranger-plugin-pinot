@@ -35,17 +35,17 @@ Actions CI/release automation, and end-to-end integration tests against real Pin
 **Depends on**: Nothing (first phase)
 **Requirements**: FOUND-01, FOUND-02, FOUND-03, FOUND-04, CLASSLOAD-01, CLASSLOAD-02, CI-01, CI-02, CI-03
 **Success Criteria** (what must be TRUE):
-  1. `mvn clean verify` succeeds on a fresh checkout, building both `ranger-pinot-plugin` and `ranger-pinot-plugin-shim` modules
-  2. Ranger Admin can register a `pinot` service instance using `ranger-servicedef-pinot.json` — Test Connection and table-name autocomplete both work against a real Pinot controller
-  3. `ranger-pinot-plugin-shim`'s classloader correctly isolates the impl module's dependencies from a host classpath (verified with a unit/integration test that simulates classpath conflicts)
-  4. GitHub Actions CI runs checkstyle + Apache RAT + SpotBugs on every push/PR, with checkstyle/RAT failures blocking merge and SpotBugs findings surfaced but non-blocking
+  1. `mvn clean verify` succeeds on a fresh checkout, building both `ranger-pinot-plugin` and `ranger-pinot-plugin-shim` modules — DONE, verified locally under JDK 17 (2026-09-17)
+  2. Ranger Admin can register a `pinot` service instance using `ranger-servicedef-pinot.json` — Test Connection and table-name autocomplete both work against a real Pinot controller — CODE DONE, NOT YET VERIFIED against a live Ranger Admin + Pinot controller (needs an integration harness — carry into Phase 2's test work)
+  3. `ranger-pinot-plugin-shim`'s classloader correctly isolates the impl module's dependencies from a host classpath (verified with a unit/integration test that simulates classpath conflicts) — CODE DONE (mechanism matches Ranger's own shim pattern, confirmed via `javap` that impl/shim FQCNs and bytecode are correct), NO automated test written yet — carry into Phase 2
+  4. GitHub Actions CI runs checkstyle + Apache RAT + SpotBugs on every push/PR, with checkstyle/RAT failures blocking merge and SpotBugs findings surfaced but non-blocking — workflow written and passes locally (`mvn clean verify` green under JDK 17); not yet exercised on a real GitHub Actions run (repo not yet pushed to a remote)
 **Plans**: TBD
 
 Plans:
-- [ ] 01-01: Maven project skeleton (parent pom, module layout, dependency management)
-- [ ] 01-02: Classloader shim (`RangerPluginClassLoader` wiring, `PluginClassLoaderActivator` pattern)
-- [ ] 01-03: Service-def + `RangerServicePinot` (test connection, lookup, default policies)
-- [ ] 01-04: GitHub Actions CI (checkstyle, RAT, spotbugs, JDK 17 build)
+- [x] 01-01: Maven project skeleton (parent pom, module layout, dependency management)
+- [x] 01-02: Classloader shim (`RangerPluginClassLoader` wiring; note: published `ranger-plugin-classloader:2.8.0` lacks the `PluginClassLoaderActivator` helper, so uses direct activate/try-finally/deactivate instead — matches Ranger's own Kafka shim at this release)
+- [x] 01-03: Service-def + `RangerServicePinot` (test connection, lookup) — minimal `table` resource + `query`/`all` accessTypes for now; `getDefaultRangerPolicies()` uses base-class default, not overridden
+- [x] 01-04: GitHub Actions CI (checkstyle, RAT, spotbugs, JDK 17 build) — config written, `mvn clean verify` passes locally under JDK 17; not yet run on a pushed GitHub remote
 
 ### Phase 2: Broker Enforcement
 **Goal**: Pinot's broker enforces Ranger table-level ACL policies on every query, with audit logging and fail-closed behavior.
@@ -114,7 +114,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase                              | Plans Complete | Status      | Completed |
 | ----------------------------------- | --------------- | ----------- | --------- |
-| 1. Foundation & Scaffolding          | 0/4             | Not started | -         |
+| 1. Foundation & Scaffolding          | 4/4             | In progress (live verification pending) | -         |
 | 2. Broker Enforcement                | 0/3             | Not started | -         |
 | 3. Row Filtering & Column Masking     | 0/2             | Not started | -         |
 | 4. Controller (Admin API) Enforcement | 0/3             | Not started | -         |

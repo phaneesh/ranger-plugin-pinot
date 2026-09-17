@@ -76,15 +76,15 @@
 
 | Requirement  | Phase   | Status  |
 | ------------ | ------- | ------- |
-| FOUND-01     | Phase 1 | Pending |
-| FOUND-02     | Phase 1 | Pending |
-| FOUND-03     | Phase 1 | Pending |
-| FOUND-04     | Phase 1 | Pending |
-| CLASSLOAD-01 | Phase 1 | Pending |
-| CLASSLOAD-02 | Phase 1 | Pending |
-| CI-01        | Phase 1 | Pending |
-| CI-02        | Phase 1 | Pending |
-| CI-03        | Phase 1 | Pending |
+| FOUND-01     | Phase 1 | In Progress |
+| FOUND-02     | Phase 1 | In Progress |
+| FOUND-03     | Phase 1 | In Progress (code done, live Ranger Admin verification pending) |
+| FOUND-04     | Phase 1 | In Progress (code done, live Ranger Admin verification pending) |
+| CLASSLOAD-01 | Phase 1 | In Progress (code done, no automated isolation test yet) |
+| CLASSLOAD-02 | Phase 1 | In Progress (direct activate/deactivate used instead of PluginClassLoaderActivator — not published in ranger-plugin-classloader:2.8.0) |
+| CI-01        | Phase 1 | In Progress (passes locally under JDK 17, not yet run on GitHub) |
+| CI-02        | Phase 1 | In Progress (passes locally under JDK 17, not yet run on GitHub) |
+| CI-03        | Phase 1 | In Progress (passes locally under JDK 17, not yet run on GitHub) |
 | BROKER-01    | Phase 2 | Pending |
 | BROKER-02    | Phase 2 | Pending |
 | BROKER-03    | Phase 2 | Pending |
