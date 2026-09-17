@@ -85,18 +85,18 @@
 | CI-01        | Phase 1 | In Progress (passes locally under JDK 17, not yet run on GitHub) |
 | CI-02        | Phase 1 | In Progress (passes locally under JDK 17, not yet run on GitHub) |
 | CI-03        | Phase 1 | In Progress (passes locally under JDK 17, not yet run on GitHub) |
-| BROKER-01    | Phase 2 | Pending |
-| BROKER-02    | Phase 2 | Pending |
-| BROKER-03    | Phase 2 | Pending |
-| BROKER-04    | Phase 2 | Pending |
-| BROKER-05    | Phase 2 | Pending |
-| ADMIN-03     | Phase 2 | Pending |
+| BROKER-01    | Phase 2 | Complete |
+| BROKER-02    | Phase 2 | Complete |
+| BROKER-03    | Phase 2 | Complete |
+| BROKER-04    | Phase 2 | Complete |
+| BROKER-05    | Phase 2 | Complete (setPolicies mechanism verified; live poll path in Phase 5) |
+| ADMIN-03     | Phase 2 | Complete |
 | MASK-01      | Phase 3 | Complete |
 | MASK-02      | Phase 3 | Infeasible with current Pinot SPI (see requirement note) |
 | MASK-03      | Phase 3 | Complete (row-filter only; masking infeasible) |
-| ADMIN-01     | Phase 4 | Pending |
-| ADMIN-02     | Phase 4 | Pending |
-| TAG-01       | Phase 4 | Pending |
+| ADMIN-01     | Phase 4 | Complete |
+| ADMIN-02     | Phase 4 | Complete |
+| TAG-01       | Phase 4 | Complete (tag policy engine verified in unit test; Atlas tag-sync is live-infra, Phase 5) |
 | PKG-01       | Phase 5 | Pending |
 | PKG-02       | Phase 5 | Pending |
 | PKG-03       | Phase 5 | Pending |

@@ -116,6 +116,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | ----------------------------------- | --------------- | ----------- | --------- |
 | 1. Foundation & Scaffolding          | 4/4             | Complete (live Ranger-Admin/Pinot-controller check deferred to Phase 5) | 2026-09-17 |
 | 2. Broker Enforcement                | 3/3             | Complete (core logic verified; live Ranger-Admin-poll path deferred to Phase 5) | 2026-09-17 |
-| 3. Row Filtering & Column Masking     | 0/2             | Not started | -         |
-| 4. Controller (Admin API) Enforcement | 0/3             | Not started | -         |
+| 3. Row Filtering & Column Masking     | 2/2             | Complete (row-filter only; column masking infeasible with current Pinot SPI) | 2026-09-17 |
+| 4. Controller (Admin API) Enforcement | 3/3             | Complete (unit-verified incl. tag policies; live 403 checks in Phase 5) | 2026-09-17 |
 | 5. Packaging & Release               | 0/3             | Not started | -         |
