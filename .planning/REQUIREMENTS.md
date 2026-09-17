@@ -45,7 +45,7 @@
 
 - [x] **PKG-01**: A release build produces `ranger-<version>-pinot-plugin.tar.gz` with Ranger's tarball layout: `lib/` (shim + classloader jars), `lib/ranger-pinot-plugin-impl/` (impl jar + all transitive deps as flat jars), `install/`, `conf.templates/{enable,disable,default}/`, `install.properties`, `enable-pinot-plugin.sh`/`disable-pinot-plugin.sh`/`upgrade-pinot-plugin.sh`, `version` file — complete: `ranger-pinot-plugin-distro` module, maven-assembly descriptor modeled on Ranger's plugin-kafka.xml, 43-jar impl dir, verified layout + no host pinot jars (05-01)
 - [x] **PKG-02**: Install/enable/disable scripts are adapted for Pinot's property-based config format (not Hadoop `*-site.xml`/JCEKS credential provider flow) — complete: sed-based property renderer, idempotent broker/controller .conf key wiring, no JCEKS, enable/disable/upgrade smoke-tested end-to-end (05-01)
-- [ ] **PKG-03**: GitHub Actions publishes the tarball as a GitHub Release asset automatically when a version tag (e.g. `v1.0.0`) is pushed
+- [x] **PKG-03**: GitHub Actions publishes the tarball as a GitHub Release asset automatically when a version tag (e.g. `v1.0.0`) is pushed — complete: `release.yml` (05-02), tag push → JDK 17 `mvn clean verify` → tarball uploaded via `softprops/action-gh-release@v2` with `fail_on_unmatched_files: true`; not yet exercised on a real remote (repo not yet pushed)
 
 ### CI / Build Quality
 
@@ -97,10 +97,10 @@
 | ADMIN-01     | Phase 4 | Complete |
 | ADMIN-02     | Phase 4 | Complete |
 | TAG-01       | Phase 4 | Complete (tag policy engine verified in unit test; Atlas tag-sync is live-infra, Phase 5) |
-| PKG-01       | Phase 5 | Pending |
-| PKG-02       | Phase 5 | Pending |
-| PKG-03       | Phase 5 | Pending |
-| CI-04        | Phase 5 | Pending |
+| PKG-01       | Phase 5 | Complete (05-01) |
+| PKG-02       | Phase 5 | Complete (05-01) |
+| PKG-03       | Phase 5 | Complete (05-02; untested on a real remote — repo not yet pushed) |
+| CI-04        | Phase 5 | Pending (05-03) |
 | COMPAT-01    | Phase 5 | Pending |
 | COMPAT-02    | Phase 5 | Pending |
 

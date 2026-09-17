@@ -97,14 +97,14 @@ Plans:
 **Depends on**: Phase 3, Phase 4
 **Requirements**: PKG-01, PKG-02, PKG-03, CI-04, COMPAT-01, COMPAT-02
 **Success Criteria** (what must be TRUE):
-  1. [x] Pushing a version tag produces a `ranger-<version>-pinot-plugin.tar.gz` GitHub Release asset with the correct internal layout (`lib/ranger-pinot-plugin-impl/`, install scripts, conf templates, version file) — layout DONE (05-01, verified tarball); the tag→Release automation is 05-02
+  1. [x] Pushing a version tag produces a `ranger-<version>-pinot-plugin.tar.gz` GitHub Release asset with the correct internal layout (`lib/ranger-pinot-plugin-impl/`, install scripts, conf templates, version file) — layout DONE (05-01, verified tarball); tag→Release automation DONE (05-02, `release.yml`: tag push → `mvn clean verify` → tarball uploaded via `softprops/action-gh-release@v2` with `fail_on_unmatched_files`); NOT yet exercised on a real pushed remote (repo has no remote yet)
   2. [x] `enable-pinot-plugin.sh` successfully wires the plugin into a real Pinot broker+controller install without requiring Hadoop JCEKS tooling — script DONE (05-01, smoke-tested against a synthetic $PINOT_HOME); live-cluster run is 05-03
   3. The integration-test job passes against both a Pinot 1.4.x and a Pinot 1.5.x target, using the same built artifact
 **Plans**: TBD
 
 Plans:
 - [x] 05-01: Distro assembly (tarball layout, install/enable/disable/upgrade scripts)
-- [ ] 05-02: GitHub Actions release-on-tag workflow
+- [x] 05-02: GitHub Actions release-on-tag workflow (`release.yml`: `v*` tag → JDK 17 verify build → distro tarball published as GitHub Release asset, PKG-03; untested on a real remote — repo not yet pushed)
 - [ ] 05-03: Integration test matrix (Pinot 1.4.x + 1.5.x via docker-compose/testcontainers)
 
 ## Progress
@@ -118,4 +118,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Broker Enforcement                | 3/3             | Complete (core logic verified; live Ranger-Admin-poll path deferred to Phase 5) | 2026-09-17 |
 | 3. Row Filtering & Column Masking     | 2/2             | Complete (row-filter only; column masking infeasible with current Pinot SPI) | 2026-09-17 |
 | 4. Controller (Admin API) Enforcement | 3/3             | Complete (unit-verified incl. tag policies; live 403 checks in Phase 5) | 2026-09-17 |
-| 5. Packaging & Release               | 0/3             | Not started | -         |
+| 5. Packaging & Release               | 2/3             | In progress (05-03 integration matrix remains) | -         |

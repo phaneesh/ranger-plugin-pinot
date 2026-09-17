@@ -9,17 +9,17 @@ See: .planning/PROJECT.md (updated 2026-09-17)
 
 ## Current Position
 
-Phase: 5 of 5 (Packaging & Release) - plan 05-01 complete
-Plan: 1 of 3 in current phase (05-01 done)
-Status: Plan 05-01 (distro assembly) complete: new `ranger-pinot-plugin-distro` module produces `ranger-<version>-pinot-plugin.tar.gz` (maven-assembly descriptor modeled on Ranger 2.8.0's plugin-kafka.xml; `lib/` = shim + ranger-plugin-classloader jars, `lib/ranger-pinot-plugin-impl/` = impl jar + 43 curated transitive deps, host-provided jackson/jersey/slf4j/log4j/reload4j/pinot excluded). Pinot-specific install scripts (property-based, no JCEKS): enable/disable/upgrade smoke-tested end-to-end against a synthetic $PINOT_HOME (install jars, render Ranger XML configs via changes.cfg + sed, wire `pinot.broker.access.control.class`/`controller.admin.access.control.factory.class`/`pinot.broker.enable.row.column.level.auth` into broker/controller .conf files; disable removes exactly what enable added). PKG-01 + PKG-02 complete. 2 consecutive green `mvn clean verify` runs (18+2 tests).
-Last activity: Plan 05-01 distro assembly implemented and verified (tarball layout asserted, no host pinot jars in impl dir, scripts bash -n clean).
+Phase: 5 of 5 (Packaging & Release) - plans 05-01 and 05-02 complete
+Plan: 2 of 3 in current phase (05-03 integration matrix remains)
+Status: Plans 05-01 (distro assembly) and 05-02 (release-on-tag workflow) complete. 05-02: `.github/workflows/release.yml` publishes the distro tarball as a GitHub Release asset on `v*` tag push (JDK 17 `mvn clean verify` gate, `softprops/action-gh-release@v2`, `fail_on_unmatched_files: true`); never exercised on a real remote (repo not yet pushed). PKG-01/02/03 complete; CI-04, COMPAT-01/02 remain (05-03).
+Last activity: 05-02 closed out in ROADMAP/REQUIREMENTS/STATE (work committed as 8b39e96); next is planning 05-03.
 
-Progress: [██████░░░░] ~90% (Phase 5: 1 of 3 plans done; 05-02 release workflow and 05-03 integration matrix remain)
+Progress: [█████████░] ~93% (Phase 5: 2 of 3 plans done; only 05-03 integration matrix remains)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10 (Phase 1: 4, Phase 2: 3, Phase 4: 3)
+- Total plans completed: 11 (Phase 1: 4, Phase 2: 3, Phase 4: 3, Phase 5: 2 so far)
 - Average duration: - min
 - Total execution time: - hours
 
@@ -29,7 +29,9 @@ Progress: [██████░░░░] ~90% (Phase 5: 1 of 3 plans done; 05-
 | ----- | ----- | ----- | -------- |
 | 1     | 4/4   | -     | -        |
 | 2     | 3/3   | -     | -        |
+| 3     | 2/2   | -     | -        |
 | 4     | 3/3   | -     | -        |
+| 5     | 2/3   | -     | -        |
 
 **Recent Trend:**
 - Last 5 plans: -
