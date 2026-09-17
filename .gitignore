@@ -6,3 +6,7 @@ target/
 .project
 .factorypath
 .settings/
+bin/
+.project
+.classpath
+.settings/
