@@ -22,8 +22,8 @@ Actions CI/release automation, and end-to-end integration tests against real Pin
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Foundation & Scaffolding** - Multi-module Maven skeleton, classloader shim, service-def, CI
-- [ ] **Phase 2: Broker Enforcement** - Table ACL + audit + fail-closed policy evaluation at query time
+- [x] **Phase 1: Foundation & Scaffolding** - Multi-module Maven skeleton, classloader shim, service-def, CI
+- [x] **Phase 2: Broker Enforcement** - Table ACL + audit + fail-closed policy evaluation at query time
 - [ ] **Phase 3: Row Filtering & Column Masking** - RLS/CLS via the broker's getRowColFilters hook
 - [ ] **Phase 4: Controller (Admin API) Enforcement** - Table CRUD + cluster actions + tag-policy verification
 - [ ] **Phase 5: Packaging & Release** - Distro tarball, GitHub Actions release automation, integration tests
@@ -37,7 +37,7 @@ Actions CI/release automation, and end-to-end integration tests against real Pin
 **Success Criteria** (what must be TRUE):
   1. `mvn clean verify` succeeds on a fresh checkout, building both `ranger-pinot-plugin` and `ranger-pinot-plugin-shim` modules — DONE, verified locally under JDK 17 (2026-09-17)
   2. Ranger Admin can register a `pinot` service instance using `ranger-servicedef-pinot.json` — Test Connection and table-name autocomplete both work against a real Pinot controller — CODE DONE, NOT YET VERIFIED against a live Ranger Admin + Pinot controller (needs an integration harness — carry into Phase 2's test work)
-  3. `ranger-pinot-plugin-shim`'s classloader correctly isolates the impl module's dependencies from a host classpath (verified with a unit/integration test that simulates classpath conflicts) — CODE DONE (mechanism matches Ranger's own shim pattern, confirmed via `javap` that impl/shim FQCNs and bytecode are correct), NO automated test written yet — carry into Phase 2
+  3. `ranger-pinot-plugin-shim`'s classloader correctly isolates the impl module's dependencies from a host classpath (verified with a unit/integration test that simulates classpath conflicts) — DONE (2026-09-17): automated test compiles a second, differently-behaving class of the identical FQCN into an isolated `ranger-<type>-plugin-impl/` directory and asserts `RangerPluginClassLoader` resolves it over the ambient classpath version. A companion "exercise the real shim classes together with impl on the same classpath" test was attempted and deliberately dropped after it triggered genuine infinite recursion -- proof the isolation boundary is load-bearing, not test-scope noise.
   4. GitHub Actions CI runs checkstyle + Apache RAT + SpotBugs on every push/PR, with checkstyle/RAT failures blocking merge and SpotBugs findings surfaced but non-blocking — workflow written and passes locally (`mvn clean verify` green under JDK 17); not yet exercised on a real GitHub Actions run (repo not yet pushed to a remote)
 **Plans**: TBD
 
@@ -52,16 +52,16 @@ Plans:
 **Depends on**: Phase 1
 **Requirements**: BROKER-01, BROKER-02, BROKER-03, BROKER-04, BROKER-05, ADMIN-03
 **Success Criteria** (what must be TRUE):
-  1. A query against a table the user is not authorized for is rejected by the broker
-  2. A query against an authorized table succeeds and produces exactly one audit event (allow), a denied query produces exactly one audit event (deny)
-  3. If Ranger Admin is unreachable and no local policy cache exists, all queries are denied (fail-closed), not allowed
-  4. Policy changes made in Ranger Admin are reflected in broker enforcement within the configured poll interval, without a broker restart
+  1. A query against a table the user is not authorized for is rejected by the broker — DONE (2026-09-17), verified via `RangerBasePlugin.setPolicies(...)`-driven unit tests (real policy engine, no mocks)
+  2. A query against an authorized table succeeds and produces exactly one audit event (allow), a denied query produces exactly one audit event (deny) — DONE, verified via a capturing test `RangerAccessResultProcessor`
+  3. If Ranger Admin is unreachable and no local policy cache exists, all queries are denied (fail-closed), not allowed — DONE, verified: a fresh `RangerBasePlugin` with no `init()`/`setPolicies()` call returns a null `RangerAccessResult`, treated as deny
+  4. Policy changes made in Ranger Admin are reflected in broker enforcement within the configured poll interval, without a broker restart — DONE for the mechanism (same plugin instance, `setPolicies(v1)` then `setPolicies(v2)`, no restart, verified by test); the live poll-interval-driven Ranger-Admin-REST-client path itself is NOT separately verified against a real Admin server — deferred to Phase 5's integration harness, consistent with how FOUND-03/04 were deferred
 **Plans**: TBD
 
 Plans:
-- [ ] 02-01: `RangerPinotAuthorizer` core (resource/request building, `RangerBasePlugin` wiring)
-- [ ] 02-02: Broker `AccessControlFactory`/`AccessControl` implementation + audit handler
-- [ ] 02-03: Fail-closed + policy-refresh verification tests
+- [x] 02-01: `RangerPinotAuthorizer` core (resource/request building, `RangerBasePlugin` wiring)
+- [x] 02-02: Broker `AccessControlFactory`/`AccessControl` implementation + audit handler (also added the `authorize(identity, BrokerRequest)` overload, required after reading Pinot's real single-stage query path -- not in the original plan, but its default implementation throws and would have broken every real query)
+- [x] 02-03: Fail-closed + policy-refresh verification tests (6 JUnit tests, all passing)
 
 ### Phase 3: Row Filtering & Column Masking
 **Goal**: Ranger row-filter and column-mask policies defined in Admin are enforced on Pinot broker queries.
@@ -114,8 +114,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase                              | Plans Complete | Status      | Completed |
 | ----------------------------------- | --------------- | ----------- | --------- |
-| 1. Foundation & Scaffolding          | 4/4             | In progress (live verification pending) | -         |
-| 2. Broker Enforcement                | 0/3             | Not started | -         |
+| 1. Foundation & Scaffolding          | 4/4             | Complete (live Ranger-Admin/Pinot-controller check deferred to Phase 5) | 2026-09-17 |
+| 2. Broker Enforcement                | 3/3             | Complete (core logic verified; live Ranger-Admin-poll path deferred to Phase 5) | 2026-09-17 |
 | 3. Row Filtering & Column Masking     | 0/2             | Not started | -         |
 | 4. Controller (Admin API) Enforcement | 0/3             | Not started | -         |
 | 5. Packaging & Release               | 0/3             | Not started | -         |

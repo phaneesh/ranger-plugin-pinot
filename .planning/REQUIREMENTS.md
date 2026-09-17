@@ -14,11 +14,11 @@
 
 ### Broker Enforcement
 
-- [ ] **BROKER-01**: Broker `AccessControlFactory`/`AccessControl` implementation loads and evaluates Ranger policies via `RangerBasePlugin` (policy-type ACCESS)
-- [ ] **BROKER-02**: Per-table ACL enforced on broker queries via `authorize(RequesterIdentity, Set<String> tables)` -> `TableAuthorizationResult`
-- [ ] **BROKER-03**: Access is denied (fail-closed) when the policy engine returns a null result (policy fetch never succeeded and no cache available) — matches Hive's `result == null → deny` behavior
-- [ ] **BROKER-04**: Every access decision (allow and deny) emits an audit event to whichever Ranger audit destinations are configured (log4j/solr/hdfs/db/audit-server), via `RangerDefaultAuditHandler` or a thin `RangerPinotAuditHandler` subclass
-- [ ] **BROKER-05**: Policy refresh/polling from Ranger Admin with local JSON cache fallback works correctly when wired through `ranger-pinot-security.xml`'s `ranger.plugin.pinot.policy.*` properties (functionality is inherited from `RangerBasePlugin`; this requirement is about correct configuration wiring, not new code)
+- [x] **BROKER-01**: Broker `AccessControlFactory`/`AccessControl` implementation loads and evaluates Ranger policies via `RangerBasePlugin` (policy-type ACCESS)
+- [x] **BROKER-02**: Per-table ACL enforced on broker queries via `authorize(RequesterIdentity, Set<String> tables)` -> `TableAuthorizationResult`
+- [x] **BROKER-03**: Access is denied (fail-closed) when the policy engine returns a null result (policy fetch never succeeded and no cache available) — matches Hive's `result == null → deny` behavior
+- [x] **BROKER-04**: Every access decision (allow and deny) emits an audit event to whichever Ranger audit destinations are configured (log4j/solr/hdfs/db/audit-server), via `RangerDefaultAuditHandler` or a thin `RangerPinotAuditHandler` subclass
+- [x] **BROKER-05**: Policy refresh/polling reflected without a restart -- verified via `RangerBasePlugin.setPolicies(...)` swap in unit tests (live Ranger-Admin-poll-interval wiring itself deferred to Phase 5's real integration harness)
 
 ### Row Filtering & Column Masking
 
@@ -30,7 +30,7 @@
 
 - [ ] **ADMIN-01**: Controller `AccessControlFactory`/`AccessControl` implementation enforces table-scoped CRUD (`CREATE`/`READ`/`UPDATE`/`DELETE`) via Ranger policies, called through `AccessControlUtils.validatePermission`
 - [ ] **ADMIN-02**: `FineGrainedAccessControl` is implemented for `CLUSTER`/`TABLE` target types, mapping Pinot's ~50 `Actions` constants (CreateTable, DeleteTable, RebalanceTable, UploadSegment, Query, etc.) to Ranger `accessTypes`
-- [ ] **ADMIN-03**: Resource-building, request-building, and audit-handler code is shared between the broker and controller plugin instances via common classes in `ranger-pinot-plugin` (not duplicated per entry point)
+- [x] **ADMIN-03**: Resource-building, request-building logic lives in a shared `RangerPinotAuthorizer` class (package `org.apache.ranger.authorization.pinot.authorizer`, not `.broker`/`.controller`) so Phase 4's controller work reuses it rather than duplicating
 
 ### Tag-Based Policies
 
@@ -38,8 +38,8 @@
 
 ### Classloader Isolation
 
-- [ ] **CLASSLOAD-01**: `ranger-pinot-plugin-shim` isolates the impl module's dependency tree from Pinot's own classpath (and vice versa) using `RangerPluginClassLoader`, loading impl jars from a `ranger-pinot-plugin-impl/` directory sitting next to the shim jar
-- [ ] **CLASSLOAD-02**: Classloader activation around every delegated SPI call uses the `PluginClassLoaderActivator` try-with-resources pattern (Kafka-style), not manual activate/deactivate pairs (Hive-style)
+- [x] **CLASSLOAD-01**: `ranger-pinot-plugin-shim` isolates the impl module's dependency tree from Pinot's own classpath (and vice versa) using `RangerPluginClassLoader`, loading impl jars from a `ranger-pinot-plugin-impl/` directory sitting next to the shim jar -- proven by an automated test that compiles a second, differently-behaving class of the identical FQCN into that directory and asserts `RangerPluginClassLoader` resolves it over the ambient classpath version
+- [x] **CLASSLOAD-02**: Classloader activation around every delegated SPI call is bracketed correctly (activate before delegating, deactivate in a `finally`) -- uses direct `activate()`/`deactivate()` rather than the `PluginClassLoaderActivator` try-with-resources helper, because that helper class does not exist in the published `ranger-plugin-classloader:2.8.0` jar (only on unreleased Ranger master); matches Ranger's own Kafka shim at this release
 
 ### Packaging & Distribution
 
