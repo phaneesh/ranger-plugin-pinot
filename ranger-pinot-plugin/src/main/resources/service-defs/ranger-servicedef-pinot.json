@@ -1,0 +1,37 @@
+{
+  "id":           1000,
+  "name":         "pinot",
+  "displayName":  "pinot",
+  "implClass":    "org.apache.ranger.services.pinot.RangerServicePinot",
+  "label":        "Pinot",
+  "description":  "Apache Pinot",
+  "resources": [
+    {
+      "itemId":            1,
+      "name":              "table",
+      "parent":            "",
+      "level":             1,
+      "type":              "string",
+      "mandatory":         true,
+      "lookupSupported":   true,
+      "excludesSupported": true,
+      "matcher":           "org.apache.ranger.plugin.resourcematcher.RangerDefaultResourceMatcher",
+      "matcherOptions":    { "wildCard": true, "ignoreCase": true },
+      "label":             "Table",
+      "description":       "Table",
+      "accessTypeRestrictions": [
+        "query", "all"
+      ]
+    }
+  ],
+  "accessTypes": [
+    { "itemId": 1, "name": "query", "label": "Query",     "category": "READ" },
+    { "itemId": 2, "name": "all",   "label": "All",       "category": "MANAGE", "impliedGrants": [ "query" ] }
+  ],
+  "configs": [
+    { "itemId": 1, "name": "username",                 "type": "string",   "mandatory": false, "label": "Username" },
+    { "itemId": 2, "name": "password",                 "type": "password", "mandatory": false, "label": "Password" },
+    { "itemId": 3, "name": "controller.url",            "type": "string",   "mandatory": true,  "label": "Pinot Controller URL", "defaultValue": "http://localhost:9000" },
+    { "itemId": 4, "name": "commonNameForCertificate",  "type": "string",   "mandatory": false, "label": "Ranger Plugin SSL CName" }
+  ]
+}

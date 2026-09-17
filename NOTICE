@@ -1,0 +1,9 @@
+Ranger Plugin for Apache Pinot
+Copyright 2026 The Contributors
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+This project is an independent plugin that integrates Apache Pinot
+(https://pinot.apache.org/) with Apache Ranger (https://ranger.apache.org/)
+authorization. It is modeled on, but is not part of, the apache/ranger project.
