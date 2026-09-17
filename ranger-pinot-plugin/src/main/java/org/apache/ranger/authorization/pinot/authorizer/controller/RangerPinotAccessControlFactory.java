@@ -25,8 +25,9 @@ import org.apache.pinot.controller.api.access.AccessControlFactory;
 /**
  * Impl-side factory, loaded in isolation by {@code RangerPluginClassLoader} from the shim
  * module's class of the exact same fully-qualified name (Ranger's own classloader-delegation
- * convention — see the shim module's class for the mechanism). Phase 1 is an allow-all stub;
- * {@code RangerBasePlugin} wiring for real controller-side enforcement lands in Phase 4.
+ * convention — see the shim module's class for the mechanism). Phase 4: {@code create()} now
+ * returns the Ranger-enforcing {@link RangerPinotAccessControl} (shared
+ * {@code RangerPinotAuthorizer} per ADMIN-03).
  */
 public class RangerPinotAccessControlFactory implements AccessControlFactory {
     @Override

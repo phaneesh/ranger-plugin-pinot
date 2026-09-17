@@ -28,13 +28,13 @@
 
 ### Controller (Admin API) Enforcement
 
-- [ ] **ADMIN-01**: Controller `AccessControlFactory`/`AccessControl` implementation enforces table-scoped CRUD (`CREATE`/`READ`/`UPDATE`/`DELETE`) via Ranger policies, called through `AccessControlUtils.validatePermission`
-- [ ] **ADMIN-02**: `FineGrainedAccessControl` is implemented for `CLUSTER`/`TABLE` target types, mapping Pinot's ~50 `Actions` constants (CreateTable, DeleteTable, RebalanceTable, UploadSegment, Query, etc.) to Ranger `accessTypes`
+- [x] **ADMIN-01**: Controller `AccessControlFactory`/`AccessControl` implementation enforces table-scoped CRUD (`CREATE`/`READ`/`UPDATE`/`DELETE`) via Ranger policies, called through `AccessControlUtils.validatePermission` -- DONE in code and unit-tested with the real policy engine (`RangerPinotAccessControlTest`, 9 tests); coarse CRUD for non-table endpoints maps to the `cluster` resource
+- [x] **ADMIN-02**: `FineGrainedAccessControl` is implemented for `CLUSTER`/`TABLE` target types, mapping Pinot's ~50 `Actions` constants (CreateTable, DeleteTable, RebalanceTable, UploadSegment, Query, etc.) to Ranger `accessTypes` -- DONE: all 127 unique `Actions.Cluster.*`/`Actions.Table.*` string values are service-def accessTypes; `hasAccess(headers, targetType, targetId, action)` evaluates the action string directly
 - [x] **ADMIN-03**: Resource-building, request-building logic lives in a shared `RangerPinotAuthorizer` class (package `org.apache.ranger.authorization.pinot.authorizer`, not `.broker`/`.controller`) so Phase 4's controller work reuses it rather than duplicating
 
 ### Tag-Based Policies
 
-- [ ] **TAG-01**: Tag-based policies (via Atlas tag-sync + `RangerTagEnricher`) are enforced automatically once the `pinot` service is tag-service-enabled in Ranger Admin — verified end-to-end, no Pinot-specific code required beyond correct `RangerBasePlugin` construction
+- [x] **TAG-01**: Tag-based policies (via Atlas tag-sync + `RangerTagEnricher`) are enforced automatically once the `pinot` service is tag-service-enabled in Ranger Admin -- verified with the real policy engine: a PII-tag on the `orders` table + a tag policy grants access with NO table policy present (`RangerFileBasedTagRetriever` + classpath ServiceTags JSON, `tagBasedPolicyGrantsAccessOnTaggedTable`); no Pinot-specific code required beyond correct `RangerBasePlugin` construction
 
 ### Classloader Isolation
 

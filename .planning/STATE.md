@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-09-17)
 
 **Core value:** A Ranger admin defines one set of table-level policies (ACL + tag + row-filter) enforced consistently on both Pinot's broker and controller, with audit and fail-closed behavior.
-**Current focus:** Phase 4 - Controller (Admin API) Enforcement (ready to plan)
+**Current focus:** Phase 5 - Packaging & Release (ready to plan)
 
 ## Current Position
 
-Phase: 4 of 5 (Controller Admin-API Enforcement) - ready to plan
-Plan: 0 of 2 in current phase
-Status: Phases 1, 2 and 3 complete. Phase 3 (row filtering) verified via unit tests against the real Ranger policy engine: getRowColFilters returns the row-filter policy's SQL predicate, unrestricted when no policy matches, unrestricted (documented fail-open for filters; access already failed closed at authorize() time) when the policy engine is null. Column masking (MASK-02) confirmed INFEASIBLE: Pinot 1.4.x/1.5.x broker SPI has no masking channel (TableRowColAccessResult carries only RLS predicates), so no dataMaskDef was added. Two deliberately-deferred live-infra verification items remain, folded into Phase 5's integration harness.
-Last activity: Phase 3 row filtering implemented and verified (3 consecutive green `mvn clean verify` runs, 11/11 tests).
+Phase: 5 of 5 (Packaging & Release) - ready to plan
+Plan: 0 in current phase
+Status: Phases 1-4 complete. Phase 4 (controller admin-API enforcement) verified via unit tests against the real Ranger policy engine: `RangerPinotAccessControl` implements coarse CRUD (`table` resource for table endpoints, `cluster` resource for non-table) + fine-grained `Actions`-named accessTypes; all 127 unique Actions string values are service-def accessTypes; TAG-01 proven with a PII tag + tag-policy test using `RangerFileBasedTagRetriever` (9 controller tests, 18 total green, 2 consecutive clean `mvn clean verify` runs). Live-infra 403 checks and Atlas tag-sync remain deferred to Phase 5's integration harness.
+Last activity: Phase 4 controller enforcement implemented and verified (2 consecutive green `mvn clean verify` runs, 18/18 tests).
 
-Progress: [████░░░░░░] ~50% (3 of 5 phases complete; Phases 4-5 remain)
+Progress: [█████░░░░░] ~80% (4 of 5 phases complete; Phase 5 remains)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7 (Phase 1: 4, Phase 2: 3)
+- Total plans completed: 10 (Phase 1: 4, Phase 2: 3, Phase 4: 3)
 - Average duration: - min
 - Total execution time: - hours
 
@@ -29,6 +29,7 @@ Progress: [████░░░░░░] ~50% (3 of 5 phases complete; Phases 
 | ----- | ----- | ----- | -------- |
 | 1     | 4/4   | -     | -        |
 | 2     | 3/3   | -     | -        |
+| 4     | 3/3   | -     | -        |
 
 **Recent Trend:**
 - Last 5 plans: -
@@ -65,5 +66,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-09-17
-Stopped at: Phases 1 and 2 complete and committed (7c9723e is HEAD). Next up is Phase 3 (row filtering & column masking via the broker's `getRowColFilters` hook) — needs `rowFilterDef`/`dataMaskDef` added to the service-def JSON and `RangerBasePlugin.evalRowFilterPolicies`/`evalDataMaskPolicies` wired into `RangerPinotAccessControl`. Notebook pages `pinot-auth-spi`, `ranger-plugin-architecture`, `ranger-plugin-api-facts` hold all research needed to start Phase 3 without re-deriving facts.
+Stopped at: Phases 1-4 complete and committed. Next up is Phase 5 (packaging & release: distro tarball with `lib/ranger-pinot-plugin-impl/` layout, install scripts, conf templates, GitHub Actions release automation, integration tests). Notebook pages `pinot-auth-spi`, `ranger-plugin-architecture`, `ranger-plugin-api-facts`, `phase-3-row-filtering` hold prior research; Phase 4 added the cluster-resource + Actions-accessType service-def model (see `service-defs/ranger-servicedef-pinot.json`) and the tag-policy test harness pattern (`RangerFileBasedTagRetriever` + classpath ServiceTags JSON + tag-serviceDef with `pinot:`-prefixed accessTypes, prefix stripped by normalization).
 Resume file: None

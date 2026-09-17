@@ -1,45 +1,1029 @@
 {
-  "id":           1000,
-  "name":         "pinot",
-  "displayName":  "pinot",
-  "implClass":    "org.apache.ranger.services.pinot.RangerServicePinot",
-  "label":        "Pinot",
-  "description":  "Apache Pinot",
+  "id": 1000,
+  "name": "pinot",
+  "displayName": "pinot",
+  "implClass": "org.apache.ranger.services.pinot.RangerServicePinot",
+  "label": "Pinot",
+  "description": "Apache Pinot",
   "resources": [
     {
-      "itemId":            1,
-      "name":              "table",
-      "parent":            "",
-      "level":             1,
-      "type":              "string",
-      "mandatory":         true,
-      "lookupSupported":   true,
+      "itemId": 1,
+      "name": "table",
+      "parent": "",
+      "level": 1,
+      "type": "string",
+      "mandatory": true,
+      "lookupSupported": true,
       "excludesSupported": true,
-      "matcher":           "org.apache.ranger.plugin.resourcematcher.RangerDefaultResourceMatcher",
-      "matcherOptions":    { "wildCard": true, "ignoreCase": true },
-      "label":             "Table",
-      "description":       "Table",
-      "accessTypeRestrictions": [
-        "query", "all"
-      ]
+      "matcher": "org.apache.ranger.plugin.resourcematcher.RangerDefaultResourceMatcher",
+      "matcherOptions": {
+        "wildCard": true,
+        "ignoreCase": true
+      },
+      "label": "Table",
+      "description": "Table",
+      "isValidLeaf": true
+    },
+    {
+      "itemId": 2,
+      "name": "cluster",
+      "parent": "",
+      "level": 10,
+      "type": "string",
+      "mandatory": false,
+      "lookupSupported": true,
+      "excludesSupported": true,
+      "matcher": "org.apache.ranger.plugin.resourcematcher.RangerDefaultResourceMatcher",
+      "matcherOptions": {
+        "wildCard": true,
+        "ignoreCase": true
+      },
+      "label": "Cluster",
+      "description": "Pinot cluster",
+      "isValidLeaf": true
     }
   ],
   "accessTypes": [
-    { "itemId": 1, "name": "query", "label": "Query",     "category": "READ" },
-    { "itemId": 2, "name": "all",   "label": "All",       "category": "MANAGE", "impliedGrants": [ "query" ] }
+    {
+      "itemId": 1,
+      "name": "query",
+      "label": "Query",
+      "category": "READ"
+    },
+    {
+      "itemId": 2,
+      "name": "create",
+      "label": "Create",
+      "category": "CREATE"
+    },
+    {
+      "itemId": 3,
+      "name": "read",
+      "label": "Read",
+      "category": "READ"
+    },
+    {
+      "itemId": 4,
+      "name": "update",
+      "label": "Update",
+      "category": "UPDATE"
+    },
+    {
+      "itemId": 5,
+      "name": "delete",
+      "label": "Delete",
+      "category": "DELETE"
+    },
+    {
+      "itemId": 6,
+      "name": "BuildRouting",
+      "label": "Build Routing",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 7,
+      "name": "CancelQuery",
+      "label": "Cancel Query",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 8,
+      "name": "CancelRebalance",
+      "label": "Cancel Rebalance",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 9,
+      "name": "CleanupTask",
+      "label": "Cleanup Task",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 10,
+      "name": "CommitSegment",
+      "label": "Commit Segment",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 11,
+      "name": "CreateInstance",
+      "label": "Create Instance",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 12,
+      "name": "CreateInstancePartitions",
+      "label": "Create Instance Partitions",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 13,
+      "name": "CreateSchema",
+      "label": "Create Schema",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 14,
+      "name": "CreateTable",
+      "label": "Create Table",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 15,
+      "name": "CreateTask",
+      "label": "Create Task",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 16,
+      "name": "CreateTenant",
+      "label": "Create Tenant",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 17,
+      "name": "CreateUser",
+      "label": "Create User",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 18,
+      "name": "DebugResourceUsage",
+      "label": "Debug Resource Usage",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 19,
+      "name": "DebugTask",
+      "label": "Debug Task",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 20,
+      "name": "DeleteClusterConfig",
+      "label": "Delete Cluster Config",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 21,
+      "name": "DeleteDatabase",
+      "label": "Delete Database",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 22,
+      "name": "DeleteIngestionMetrics",
+      "label": "Delete Ingestion Metrics",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 23,
+      "name": "DeleteInstance",
+      "label": "Delete Instance",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 24,
+      "name": "DeleteInstancePartitions",
+      "label": "Delete Instance Partitions",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 25,
+      "name": "DeleteQueryWorkloadConfig",
+      "label": "Delete Query Workload Config",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 26,
+      "name": "DeleteResponseStore",
+      "label": "Delete Response Store",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 27,
+      "name": "DeleteRouting",
+      "label": "Delete Routing",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 28,
+      "name": "DeleteSchema",
+      "label": "Delete Schema",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 29,
+      "name": "DeleteSegment",
+      "label": "Delete Segment",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 30,
+      "name": "DeleteTable",
+      "label": "Delete Table",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 31,
+      "name": "DeleteTask",
+      "label": "Delete Task",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 32,
+      "name": "DeleteTenant",
+      "label": "Delete Tenant",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 33,
+      "name": "DeleteTimeBoundary",
+      "label": "Delete Time Boundary",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 34,
+      "name": "DeleteUser",
+      "label": "Delete User",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 35,
+      "name": "DeleteZnode",
+      "label": "Delete Znode",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 36,
+      "name": "DisableTable",
+      "label": "Disable Table",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 37,
+      "name": "DownloadSegment",
+      "label": "Download Segment",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 38,
+      "name": "EnableTable",
+      "label": "Enable Table",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 39,
+      "name": "EstimateUpsertMemory",
+      "label": "Estimate Upsert Memory",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 40,
+      "name": "ExecuteTask",
+      "label": "Execute Task",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 41,
+      "name": "ForceCommit",
+      "label": "Force Commit",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 42,
+      "name": "GetAdminInfo",
+      "label": "Get Admin Info",
+      "category": "READ"
+    },
+    {
+      "itemId": 43,
+      "name": "GetAppConfig",
+      "label": "Get App Config",
+      "category": "READ"
+    },
+    {
+      "itemId": 44,
+      "name": "GetApplicationQueryQuota",
+      "label": "Get Application Query Quota",
+      "category": "READ"
+    },
+    {
+      "itemId": 45,
+      "name": "GetAuth",
+      "label": "Get Auth",
+      "category": "READ"
+    },
+    {
+      "itemId": 46,
+      "name": "GetBroker",
+      "label": "Get Broker",
+      "category": "READ"
+    },
+    {
+      "itemId": 47,
+      "name": "GetClusterConfig",
+      "label": "Get Cluster Config",
+      "category": "READ"
+    },
+    {
+      "itemId": 48,
+      "name": "GetConsumingSegments",
+      "label": "Get Consuming Segments",
+      "category": "READ"
+    },
+    {
+      "itemId": 49,
+      "name": "GetControllerJobs",
+      "label": "Get Controller Jobs",
+      "category": "READ"
+    },
+    {
+      "itemId": 50,
+      "name": "GetDatabase",
+      "label": "Get Database",
+      "category": "READ"
+    },
+    {
+      "itemId": 51,
+      "name": "GetDatabaseQueryQuota",
+      "label": "Get Database Query Quota",
+      "category": "READ"
+    },
+    {
+      "itemId": 52,
+      "name": "GetDatabaseQuota",
+      "label": "Get Database Quota",
+      "category": "READ"
+    },
+    {
+      "itemId": 53,
+      "name": "GetDebugInfo",
+      "label": "Get Debug Info",
+      "category": "READ"
+    },
+    {
+      "itemId": 54,
+      "name": "GetExternalView",
+      "label": "Get External View",
+      "category": "READ"
+    },
+    {
+      "itemId": 55,
+      "name": "GetForceCommitStatus",
+      "label": "Get Force Commit Status",
+      "category": "READ"
+    },
+    {
+      "itemId": 56,
+      "name": "GetGroovyStaticAnalyzerConfig",
+      "label": "Get Groovy Static Analyzer Config",
+      "category": "READ"
+    },
+    {
+      "itemId": 57,
+      "name": "GetHealth",
+      "label": "Get Health",
+      "category": "READ"
+    },
+    {
+      "itemId": 58,
+      "name": "GetIdealState",
+      "label": "Get Ideal State",
+      "category": "READ"
+    },
+    {
+      "itemId": 59,
+      "name": "GetInstance",
+      "label": "Get Instance",
+      "category": "READ"
+    },
+    {
+      "itemId": 60,
+      "name": "GetInstancePartitions",
+      "label": "Get Instance Partitions",
+      "category": "READ"
+    },
+    {
+      "itemId": 61,
+      "name": "GetInstanceQueryWorkloadConfig",
+      "label": "Get Instance Query Workload Config",
+      "category": "READ"
+    },
+    {
+      "itemId": 62,
+      "name": "GetLogFile",
+      "label": "Get Log File",
+      "category": "READ"
+    },
+    {
+      "itemId": 63,
+      "name": "GetLogger",
+      "label": "Get Logger",
+      "category": "READ"
+    },
+    {
+      "itemId": 64,
+      "name": "GetMetadata",
+      "label": "Get Metadata",
+      "category": "READ"
+    },
+    {
+      "itemId": 65,
+      "name": "GetPauseStatus",
+      "label": "Get Pause Status",
+      "category": "READ"
+    },
+    {
+      "itemId": 66,
+      "name": "GetQueryWorkloadConfig",
+      "label": "Get Query Workload Config",
+      "category": "READ"
+    },
+    {
+      "itemId": 67,
+      "name": "GetRebalanceStatus",
+      "label": "Get Rebalance Status",
+      "category": "READ"
+    },
+    {
+      "itemId": 68,
+      "name": "GetResponseStore",
+      "label": "Get Response Store",
+      "category": "READ"
+    },
+    {
+      "itemId": 69,
+      "name": "GetRoutingTable",
+      "label": "Get Routing Table",
+      "category": "READ"
+    },
+    {
+      "itemId": 70,
+      "name": "GetRunningQuery",
+      "label": "Get Running Query",
+      "category": "READ"
+    },
+    {
+      "itemId": 71,
+      "name": "GetSchedulerInfo",
+      "label": "Get Scheduler Info",
+      "category": "READ"
+    },
+    {
+      "itemId": 72,
+      "name": "GetSchedulerJobDetails",
+      "label": "Get Scheduler Job Details",
+      "category": "READ"
+    },
+    {
+      "itemId": 73,
+      "name": "GetSchema",
+      "label": "Get Schema",
+      "category": "READ"
+    },
+    {
+      "itemId": 74,
+      "name": "GetSchemasInfo",
+      "label": "Get Schemas Info",
+      "category": "READ"
+    },
+    {
+      "itemId": 75,
+      "name": "GetSegment",
+      "label": "Get Segment",
+      "category": "READ"
+    },
+    {
+      "itemId": 76,
+      "name": "GetSegmentLineage",
+      "label": "Get Segment Lineage",
+      "category": "READ"
+    },
+    {
+      "itemId": 77,
+      "name": "GetSegmentMap",
+      "label": "Get Segment Map",
+      "category": "READ"
+    },
+    {
+      "itemId": 78,
+      "name": "GetSegmentReloadStatus",
+      "label": "Get Segment Reload Status",
+      "category": "READ"
+    },
+    {
+      "itemId": 79,
+      "name": "GetSegmentStatus",
+      "label": "Get Segment Status",
+      "category": "READ"
+    },
+    {
+      "itemId": 80,
+      "name": "GetServerMap",
+      "label": "Get Server Map",
+      "category": "READ"
+    },
+    {
+      "itemId": 81,
+      "name": "GetServerRoutingStats",
+      "label": "Get Server Routing Stats",
+      "category": "READ"
+    },
+    {
+      "itemId": 82,
+      "name": "GetSize",
+      "label": "Get Size",
+      "category": "READ"
+    },
+    {
+      "itemId": 83,
+      "name": "GetState",
+      "label": "Get State",
+      "category": "READ"
+    },
+    {
+      "itemId": 84,
+      "name": "GetStorageTier",
+      "label": "Get Storage Tier",
+      "category": "READ"
+    },
+    {
+      "itemId": 85,
+      "name": "GetTable",
+      "label": "Get Table",
+      "category": "READ"
+    },
+    {
+      "itemId": 86,
+      "name": "GetTableConfig",
+      "label": "Get Table Config",
+      "category": "READ"
+    },
+    {
+      "itemId": 87,
+      "name": "GetTableConfigs",
+      "label": "Get Table Configs",
+      "category": "READ"
+    },
+    {
+      "itemId": 88,
+      "name": "GetTableLeader",
+      "label": "Get Table Leader",
+      "category": "READ"
+    },
+    {
+      "itemId": 89,
+      "name": "GetTableQueryQuota",
+      "label": "Get Table Query Quota",
+      "category": "READ"
+    },
+    {
+      "itemId": 90,
+      "name": "GetTask",
+      "label": "Get Task",
+      "category": "READ"
+    },
+    {
+      "itemId": 91,
+      "name": "GetTaskCount",
+      "label": "Get Task Count",
+      "category": "READ"
+    },
+    {
+      "itemId": 92,
+      "name": "GetTenant",
+      "label": "Get Tenant",
+      "category": "READ"
+    },
+    {
+      "itemId": 93,
+      "name": "GetTimeBoundary",
+      "label": "Get Time Boundary",
+      "category": "READ"
+    },
+    {
+      "itemId": 94,
+      "name": "GetUser",
+      "label": "Get User",
+      "category": "READ"
+    },
+    {
+      "itemId": 95,
+      "name": "GetVersion",
+      "label": "Get Version",
+      "category": "READ"
+    },
+    {
+      "itemId": 96,
+      "name": "GetZnode",
+      "label": "Get Znode",
+      "category": "READ"
+    },
+    {
+      "itemId": 97,
+      "name": "IngestFile",
+      "label": "Ingest File",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 98,
+      "name": "PauseConsumption",
+      "label": "Pause Consumption",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 99,
+      "name": "Query",
+      "label": "Query",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 100,
+      "name": "RebalanceTable",
+      "label": "Rebalance Table",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 101,
+      "name": "RebalanceTenantTables",
+      "label": "Rebalance Tenant Tables",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 102,
+      "name": "RebuildBrokerResource",
+      "label": "Rebuild Broker Resource",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 103,
+      "name": "RecommendConfig",
+      "label": "Recommend Config",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 104,
+      "name": "RefreshRouting",
+      "label": "Refresh Routing",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 105,
+      "name": "ReloadSegment",
+      "label": "Reload Segment",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 106,
+      "name": "ReplaceSegment",
+      "label": "Replace Segment",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 107,
+      "name": "ResetSegment",
+      "label": "Reset Segment",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 108,
+      "name": "ResumeConsumption",
+      "label": "Resume Consumption",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 109,
+      "name": "ResumeTask",
+      "label": "Resume Task",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 110,
+      "name": "StopTask",
+      "label": "Stop Task",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 111,
+      "name": "UpdateApplicationQuota",
+      "label": "Update Application Quota",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 112,
+      "name": "UpdateBrokerResource",
+      "label": "Update Broker Resource",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 113,
+      "name": "UpdateClusterConfig",
+      "label": "Update Cluster Config",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 114,
+      "name": "UpdateDatabaseQuota",
+      "label": "Update Database Quota",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 115,
+      "name": "UpdateGroovyStaticAnalyzerConfig",
+      "label": "Update Groovy Static Analyzer Config",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 116,
+      "name": "UpdateInstance",
+      "label": "Update Instance",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 117,
+      "name": "UpdateInstancePartitions",
+      "label": "Update Instance Partitions",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 118,
+      "name": "UpdateLogger",
+      "label": "Update Logger",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 119,
+      "name": "UpdateQPS",
+      "label": "Update Q P S",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 120,
+      "name": "UpdateQueryWorkloadConfig",
+      "label": "Update Query Workload Config",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 121,
+      "name": "UpdateSchema",
+      "label": "Update Schema",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 122,
+      "name": "UpdateTableConfig",
+      "label": "Update Table Config",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 123,
+      "name": "UpdateTableConfigs",
+      "label": "Update Table Configs",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 124,
+      "name": "UpdateTaskQueue",
+      "label": "Update Task Queue",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 125,
+      "name": "UpdateTenant",
+      "label": "Update Tenant",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 126,
+      "name": "UpdateTenantMetadata",
+      "label": "Update Tenant Metadata",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 127,
+      "name": "UpdateTimeInterval",
+      "label": "Update Time Interval",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 128,
+      "name": "UpdateUser",
+      "label": "Update User",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 129,
+      "name": "UpdateZnode",
+      "label": "Update Znode",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 130,
+      "name": "UploadSegment",
+      "label": "Upload Segment",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 131,
+      "name": "ValidateSchema",
+      "label": "Validate Schema",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 132,
+      "name": "ValidateTableConfigs",
+      "label": "Validate Table Configs",
+      "category": "MANAGE"
+    },
+    {
+      "itemId": 133,
+      "name": "all",
+      "label": "All",
+      "category": "MANAGE",
+      "impliedGrants": [
+        "BuildRouting",
+        "CancelQuery",
+        "CancelRebalance",
+        "CleanupTask",
+        "CommitSegment",
+        "CreateInstance",
+        "CreateInstancePartitions",
+        "CreateSchema",
+        "CreateTable",
+        "CreateTask",
+        "CreateTenant",
+        "CreateUser",
+        "DebugResourceUsage",
+        "DebugTask",
+        "DeleteClusterConfig",
+        "DeleteDatabase",
+        "DeleteIngestionMetrics",
+        "DeleteInstance",
+        "DeleteInstancePartitions",
+        "DeleteQueryWorkloadConfig",
+        "DeleteResponseStore",
+        "DeleteRouting",
+        "DeleteSchema",
+        "DeleteSegment",
+        "DeleteTable",
+        "DeleteTask",
+        "DeleteTenant",
+        "DeleteTimeBoundary",
+        "DeleteUser",
+        "DeleteZnode",
+        "DisableTable",
+        "DownloadSegment",
+        "EnableTable",
+        "EstimateUpsertMemory",
+        "ExecuteTask",
+        "ForceCommit",
+        "GetAdminInfo",
+        "GetAppConfig",
+        "GetApplicationQueryQuota",
+        "GetAuth",
+        "GetBroker",
+        "GetClusterConfig",
+        "GetConsumingSegments",
+        "GetControllerJobs",
+        "GetDatabase",
+        "GetDatabaseQueryQuota",
+        "GetDatabaseQuota",
+        "GetDebugInfo",
+        "GetExternalView",
+        "GetForceCommitStatus",
+        "GetGroovyStaticAnalyzerConfig",
+        "GetHealth",
+        "GetIdealState",
+        "GetInstance",
+        "GetInstancePartitions",
+        "GetInstanceQueryWorkloadConfig",
+        "GetLogFile",
+        "GetLogger",
+        "GetMetadata",
+        "GetPauseStatus",
+        "GetQueryWorkloadConfig",
+        "GetRebalanceStatus",
+        "GetResponseStore",
+        "GetRoutingTable",
+        "GetRunningQuery",
+        "GetSchedulerInfo",
+        "GetSchedulerJobDetails",
+        "GetSchema",
+        "GetSchemasInfo",
+        "GetSegment",
+        "GetSegmentLineage",
+        "GetSegmentMap",
+        "GetSegmentReloadStatus",
+        "GetSegmentStatus",
+        "GetServerMap",
+        "GetServerRoutingStats",
+        "GetSize",
+        "GetState",
+        "GetStorageTier",
+        "GetTable",
+        "GetTableConfig",
+        "GetTableConfigs",
+        "GetTableLeader",
+        "GetTableQueryQuota",
+        "GetTask",
+        "GetTaskCount",
+        "GetTenant",
+        "GetTimeBoundary",
+        "GetUser",
+        "GetVersion",
+        "GetZnode",
+        "IngestFile",
+        "PauseConsumption",
+        "Query",
+        "RebalanceTable",
+        "RebalanceTenantTables",
+        "RebuildBrokerResource",
+        "RecommendConfig",
+        "RefreshRouting",
+        "ReloadSegment",
+        "ReplaceSegment",
+        "ResetSegment",
+        "ResumeConsumption",
+        "ResumeTask",
+        "StopTask",
+        "UpdateApplicationQuota",
+        "UpdateBrokerResource",
+        "UpdateClusterConfig",
+        "UpdateDatabaseQuota",
+        "UpdateGroovyStaticAnalyzerConfig",
+        "UpdateInstance",
+        "UpdateInstancePartitions",
+        "UpdateLogger",
+        "UpdateQPS",
+        "UpdateQueryWorkloadConfig",
+        "UpdateSchema",
+        "UpdateTableConfig",
+        "UpdateTableConfigs",
+        "UpdateTaskQueue",
+        "UpdateTenant",
+        "UpdateTenantMetadata",
+        "UpdateTimeInterval",
+        "UpdateUser",
+        "UpdateZnode",
+        "UploadSegment",
+        "ValidateSchema",
+        "ValidateTableConfigs",
+        "create",
+        "delete",
+        "query",
+        "read",
+        "update"
+      ]
+    }
   ],
   "configs": [
-    { "itemId": 1, "name": "username",                 "type": "string",   "mandatory": false, "label": "Username" },
-    { "itemId": 2, "name": "password",                 "type": "password", "mandatory": false, "label": "Password" },
-    { "itemId": 3, "name": "controller.url",            "type": "string",   "mandatory": true,  "label": "Pinot Controller URL", "defaultValue": "http://localhost:9000" },
-    { "itemId": 4, "name": "commonNameForCertificate",  "type": "string",   "mandatory": false, "label": "Ranger Plugin SSL CName" }
+    {
+      "itemId": 1,
+      "name": "username",
+      "type": "string",
+      "mandatory": false,
+      "label": "Username"
+    },
+    {
+      "itemId": 2,
+      "name": "password",
+      "type": "password",
+      "mandatory": false,
+      "label": "Password"
+    },
+    {
+      "itemId": 3,
+      "name": "controller.url",
+      "type": "string",
+      "mandatory": true,
+      "label": "Pinot Controller URL",
+      "defaultValue": "http://localhost:9000"
+    },
+    {
+      "itemId": 4,
+      "name": "commonNameForCertificate",
+      "type": "string",
+      "mandatory": false,
+      "label": "Ranger Plugin SSL CName"
+    }
   ],
   "rowFilterDef": {
     "accessTypes": [
-      { "name": "query" }
+      {
+        "name": "query"
+      }
     ],
     "resources": [
-      { "name": "table", "matcherOptions": { "wildCard": "false" }, "lookupSupported": true, "mandatory": true, "uiHint": "{ \"singleValue\":true }" }
+      {
+        "name": "table",
+        "matcherOptions": {
+          "wildCard": "false"
+        },
+        "lookupSupported": true,
+        "mandatory": true,
+        "uiHint": "{ \"singleValue\":true }"
+      }
     ]
   }
 }

@@ -25,7 +25,7 @@ Actions CI/release automation, and end-to-end integration tests against real Pin
 - [x] **Phase 1: Foundation & Scaffolding** - Multi-module Maven skeleton, classloader shim, service-def, CI
 - [x] **Phase 2: Broker Enforcement** - Table ACL + audit + fail-closed policy evaluation at query time
 - [x] **Phase 3: Row Filtering** - RLS via the broker's getRowColFilters hook (column masking infeasible: Pinot 1.4.x/1.5.x broker SPI has no masking channel)
-- [ ] **Phase 4: Controller (Admin API) Enforcement** - Table CRUD + cluster actions + tag-policy verification
+- [x] **Phase 4: Controller (Admin API) Enforcement** - Table CRUD + cluster actions + tag-policy verification (done: 9 controller tests incl. tag-policy test, real policy engine, 2 green verify runs)
 - [ ] **Phase 5: Packaging & Release** - Distro tarball, GitHub Actions release automation, integration tests
 
 ## Phase Details
@@ -88,9 +88,9 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 04-01: Controller `AccessControlFactory`/`AccessControl` + `FineGrainedAccessControl` implementation
-- [ ] 04-02: Action-to-accessType mapping (Pinot's `Actions` constants → service-def accessTypes)
-- [ ] 04-03: Tag-policy end-to-end verification (broker + controller)
+- [x] 04-01: Controller `AccessControlFactory`/`AccessControl` + `FineGrainedAccessControl` implementation
+- [x] 04-02: Action-to-accessType mapping (Pinot's `Actions` constants → service-def accessTypes)
+- [x] 04-03: Tag-policy end-to-end verification (broker + controller)
 
 ### Phase 5: Packaging & Release
 **Goal**: A tagged release produces a Ranger-style plugin tarball, published automatically to GitHub Releases, verified against real Pinot 1.4.x and 1.5.x clusters.

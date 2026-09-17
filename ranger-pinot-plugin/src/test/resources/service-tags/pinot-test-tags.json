@@ -1,0 +1,35 @@
+{
+  "op" : "add_or_update",
+  "serviceName" : "pinot-test",
+  "tagVersion" : 1,
+  "tagDefinitions" : {
+    "1" : {
+      "id" : 1,
+      "guid" : "tagdef-pii-guid",
+      "name" : "PII",
+      "source" : "test"
+    }
+  },
+  "tags" : {
+    "1" : {
+      "id" : 1,
+      "guid" : "tag-pii-orders-guid",
+      "type" : "PII"
+    }
+  },
+  "serviceResources" : [ {
+    "id" : 1,
+    "guid" : "resource-orders-guid",
+    "serviceName" : "pinot-test",
+    "resourceElements" : {
+      "table" : {
+        "values" : [ "orders" ]
+      }
+    }
+  } ],
+  "resourceToTagIds" : {
+    "1" : [ 1 ]
+  },
+  "isDelta" : false,
+  "isTagsDeduped" : false
+}
