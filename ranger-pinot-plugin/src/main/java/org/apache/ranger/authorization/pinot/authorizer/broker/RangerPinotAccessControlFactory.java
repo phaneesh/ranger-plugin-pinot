@@ -25,8 +25,10 @@ import org.apache.pinot.broker.broker.AccessControlFactory;
 /**
  * Impl-side factory, loaded in isolation by {@code RangerPluginClassLoader} from the shim
  * module's class of the exact same fully-qualified name (Ranger's own classloader-delegation
- * convention — see the shim module's class for the mechanism). Phase 1 is an allow-all stub;
- * {@code RangerBasePlugin} wiring for real broker-side enforcement lands in Phase 2.
+ * convention — see the shim module's class for the mechanism). Each {@code create()} call
+ * returns a fresh {@link RangerPinotAccessControl}, but they all share the single lazily-
+ * initialized {@code RangerPinotAuthorizer}/{@code RangerBasePlugin} instance (initialization-
+ * on-demand holder idiom — first {@code isTableAccessAllowed} call triggers construction).
  */
 public class RangerPinotAccessControlFactory extends AccessControlFactory {
     @Override

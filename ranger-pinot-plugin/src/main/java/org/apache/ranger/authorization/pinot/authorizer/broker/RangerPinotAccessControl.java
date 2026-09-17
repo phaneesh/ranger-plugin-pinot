@@ -20,12 +20,96 @@
 package org.apache.ranger.authorization.pinot.authorizer.broker;
 
 import org.apache.pinot.broker.api.AccessControl;
+import org.apache.pinot.common.request.BrokerRequest;
+import org.apache.pinot.spi.auth.AuthorizationResult;
+import org.apache.pinot.spi.auth.BasicAuthorizationResultImpl;
+import org.apache.pinot.spi.auth.TableAuthorizationResult;
+import org.apache.pinot.spi.auth.broker.RequesterIdentity;
+import org.apache.ranger.authorization.pinot.authorizer.RangerPinotAuthorizer;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Phase 1 stub: every {@link AccessControl} method keeps the interface's own default
- * implementation, which allows everything (mirrors Pinot's own
- * {@code AllowAllAccessControlFactory}). Real Ranger policy enforcement (table-level ACLs,
- * audit logging, fail-closed evaluation) lands in Phase 2.
+ * Phase 2: real Ranger table-ACL enforcement for Pinot broker queries, replacing Phase 1's
+ * allow-all stub. Delegates every table check to {@link RangerPinotAuthorizer}
+ * (shared with the Phase 4 controller side per ADMIN-03).
  */
 public class RangerPinotAccessControl implements AccessControl {
+    private static final String ACCESS_TYPE_QUERY = "query";
+
+    private final RangerPinotAuthorizer authorizer;
+
+    public RangerPinotAccessControl() {
+        this(RangerPinotAuthorizer.getInstance());
+    }
+
+    /**
+     * Test-only constructor: inject a {@link RangerPinotAuthorizer} wrapping a test-configured
+     * {@code RangerBasePlugin} (Ranger's own {@code setPolicies(...)} test-harness pattern),
+     * instead of always going through the production {@link RangerPinotAuthorizer#getInstance()}
+     * singleton.
+     */
+    RangerPinotAccessControl(RangerPinotAuthorizer authorizer) {
+        this.authorizer = authorizer;
+    }
+
+    /**
+     * First-step / coarse gate before query planning (per {@link AccessControl}'s own docs — the
+     * request may still be rejected at table level later). The real per-table decision happens in
+     * {@link #authorize(RequesterIdentity, Set)}, so this always allows through to that check.
+     */
+    @Override
+    public AuthorizationResult authorize(RequesterIdentity requesterIdentity) {
+        return BasicAuthorizationResultImpl.success();
+    }
+
+    /**
+     * Mirrors Pinot's own {@code BasicAuthAccessControl} reference implementation: the single-stage
+     * broker request handler calls this overload directly in the real query path
+     * ({@code BaseSingleStageBrokerRequestHandler}), so leaving it on the interface's default
+     * (which throws {@code UnsupportedOperationException}) would break every query. Delegate to
+     * the table-set check below.
+     */
+    @Override
+    public AuthorizationResult authorize(RequesterIdentity requesterIdentity, BrokerRequest brokerRequest) {
+        if (brokerRequest == null || !brokerRequest.isSetQuerySource() || !brokerRequest.getQuerySource().isSetTableName()) {
+            return TableAuthorizationResult.success();
+        }
+
+        return authorize(requesterIdentity, Collections.singleton(brokerRequest.getQuerySource().getTableName()));
+    }
+
+    /**
+     * The main Ranger table-ACL hook: checks every queried table and reports back which ones the
+     * requester is not authorized for.
+     */
+    @Override
+    public TableAuthorizationResult authorize(RequesterIdentity requesterIdentity, Set<String> tables) {
+        String      user       = deriveUser(requesterIdentity);
+        Set<String> userGroups = Collections.emptySet();
+        Set<String> failedTables = new HashSet<>();
+
+        for (String table : tables) {
+            if (!authorizer.isTableAccessAllowed(table, ACCESS_TYPE_QUERY, user, userGroups)) {
+                failedTables.add(table);
+            }
+        }
+
+        return failedTables.isEmpty() ? TableAuthorizationResult.success() : new TableAuthorizationResult(failedTables);
+    }
+
+    /**
+     * {@link RequesterIdentity} is Pinot's own abstract marker type and carries no direct notion
+     * of "user" — only {@code getClientIp()} on the base class; the concrete
+     * {@code HttpRequesterIdentity} used at runtime adds raw HTTP headers + endpoint URL, but no
+     * parsed principal. TODO(Phase 2 follow-up, tracked as an open question, not a blocker): wire
+     * real identity extraction here (e.g. an auth header or a pluggable {@code AuthProvider}).
+     * Until then the client IP is used as a stand-in principal, so table ACLs are at least
+     * partitioned per caller instead of collapsing every request onto one shared identity.
+     */
+    private static String deriveUser(RequesterIdentity requesterIdentity) {
+        return requesterIdentity != null ? requesterIdentity.getClientIp() : "";
+    }
 }

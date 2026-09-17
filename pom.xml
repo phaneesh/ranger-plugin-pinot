@@ -57,6 +57,9 @@
         <rat.plugin.version>0.16.1</rat.plugin.version>
         <spotbugs.plugin.version>4.7.3.5</spotbugs.plugin.version>
         <spotbugs.failOnViolation>false</spotbugs.failOnViolation>
+
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
     </properties>
 
     <dependencyManagement>
@@ -111,6 +114,13 @@
                 <version>${pinot.version}</version>
                 <scope>provided</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -121,6 +131,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
