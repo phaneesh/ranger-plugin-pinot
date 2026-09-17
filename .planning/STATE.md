@@ -14,7 +14,7 @@ Plan: 0 of 2 in current phase
 Status: Phases 1, 2 and 3 complete. Phase 3 (row filtering) verified via unit tests against the real Ranger policy engine: getRowColFilters returns the row-filter policy's SQL predicate, unrestricted when no policy matches, unrestricted (documented fail-open for filters; access already failed closed at authorize() time) when the policy engine is null. Column masking (MASK-02) confirmed INFEASIBLE: Pinot 1.4.x/1.5.x broker SPI has no masking channel (TableRowColAccessResult carries only RLS predicates), so no dataMaskDef was added. Two deliberately-deferred live-infra verification items remain, folded into Phase 5's integration harness.
 Last activity: Phase 3 row filtering implemented and verified (3 consecutive green `mvn clean verify` runs, 11/11 tests).
 
-Progress: [████░░░░░░] ~50% (3 of 5 phases substantively complete; Phase 3-5 remain -> Phases 4-5 remain)
+Progress: [████░░░░░░] ~50% (3 of 5 phases complete; Phases 4-5 remain)
 
 ## Performance Metrics
 

@@ -22,7 +22,7 @@
 
 ### Row Filtering & Column Masking
 
-- [x] **MASK-01**: Row-level filter policies are applied to broker queries via the broker's `getRowColFilters` hook, calling `RangerBasePlugin.evalRowFilterPolicies` — DONE in code and unit-tested with the real policy engine (commit pending below); end-to-end against a live broker (broker-side `enableRowColumnLevelAuth` config on) is covered by Phase 5's integration harness
+- [x] **MASK-01**: Row-level filter policies are applied to broker queries via the broker's `getRowColFilters` hook, calling `RangerBasePlugin.evalRowFilterPolicies` — DONE in code and unit-tested with the real policy engine (commit `a28274d`); end-to-end against a live broker (broker-side `enableRowColumnLevelAuth` config on) is covered by Phase 5's integration harness
 - [x] **MASK-02** *(infeasible with the target Pinot SPI — re-evaluate when Pinot adds a masking channel)*: Pinot 1.4.x/1.5.x's broker query path has NO column-masking channel at all — `TableRowColAccessResult` exposes only `Optional<List<String>> getRLSFilters()` (SQL row predicates); verified against release-1.4.0 and release-1.5.1 sources. There is nothing for a plugin to consume a Ranger data-mask result through, so no `dataMaskDef` was added to the service-def (it would be dead config). Revisit if a future Pinot release adds masking to the broker SPI.
 - [x] **MASK-03**: Ranger Admin UI can author row-filter policies for the `pinot` service type (`rowFilterDef` added to the service-def; data-mask authoring deliberately not added — see MASK-02)
 
