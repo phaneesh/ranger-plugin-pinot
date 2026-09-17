@@ -24,7 +24,7 @@ Actions CI/release automation, and end-to-end integration tests against real Pin
 
 - [x] **Phase 1: Foundation & Scaffolding** - Multi-module Maven skeleton, classloader shim, service-def, CI
 - [x] **Phase 2: Broker Enforcement** - Table ACL + audit + fail-closed policy evaluation at query time
-- [ ] **Phase 3: Row Filtering & Column Masking** - RLS/CLS via the broker's getRowColFilters hook
+- [x] **Phase 3: Row Filtering** - RLS via the broker's getRowColFilters hook (column masking infeasible: Pinot 1.4.x/1.5.x broker SPI has no masking channel)
 - [ ] **Phase 4: Controller (Admin API) Enforcement** - Table CRUD + cluster actions + tag-policy verification
 - [ ] **Phase 5: Packaging & Release** - Distro tarball, GitHub Actions release automation, integration tests
 
@@ -63,14 +63,14 @@ Plans:
 - [x] 02-02: Broker `AccessControlFactory`/`AccessControl` implementation + audit handler (also added the `authorize(identity, BrokerRequest)` overload, required after reading Pinot's real single-stage query path -- not in the original plan, but its default implementation throws and would have broken every real query)
 - [x] 02-03: Fail-closed + policy-refresh verification tests (6 JUnit tests, all passing)
 
-### Phase 3: Row Filtering & Column Masking
-**Goal**: Ranger row-filter and column-mask policies defined in Admin are enforced on Pinot broker queries.
+### Phase 3: Row Filtering
+**Goal**: Ranger row-filter policies defined in Admin are enforced on Pinot broker queries. (Column masking was found infeasible: Pinot 1.4.x/1.5.x's broker SPI has no masking channel — `TableRowColAccessResult` only carries RLS SQL predicates — so `evalDataMaskPolicies` has nothing to consume and no `dataMaskDef` was added. Re-evaluate when Pinot adds a masking channel.)
 **Depends on**: Phase 2
-**Requirements**: MASK-01, MASK-02, MASK-03
+**Requirements**: MASK-01, MASK-03 (MASK-02 infeasible — see REQUIREMENTS.md)
 **Success Criteria** (what must be TRUE):
-  1. A row-filter policy on a table causes queries against that table to only see rows matching the filter
-  2. A column-mask policy on a table causes the masked column's values to be transformed/hidden in query results
-  3. Ranger Admin's policy-authoring UI accepts row-filter and data-mask policy definitions for the `pinot` service type without error
+  1. A row-filter policy on a table causes queries against that table to only see rows matching the filter — DONE in code: `RangerPinotAccessControl.getRowColFilters` returns the policy's filter expression, unit-tested against the real policy engine. Live end-to-end (broker-side `enableRowColumnLevelAuth` config on, query actually rewritten) rides Phase 5's integration harness
+  2. ~~A column-mask policy on a table causes the masked column's values to be transformed/hidden in query results~~ INFEASIBLE with the target Pinot SPI (see Goal note)
+  3. Ranger Admin's policy-authoring UI accepts row-filter policy definitions for the `pinot` service type without error — `rowFilterDef` added to the service-def (modeled on Hive's); data-mask authoring deliberately not added (would be dead config)
 **Plans**: TBD
 
 Plans:

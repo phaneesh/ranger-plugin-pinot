@@ -21,6 +21,7 @@ package org.apache.ranger.authorization.pinot.authorizer.broker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.pinot.spi.auth.TableAuthorizationResult;
+import org.apache.pinot.spi.auth.TableRowColAccessResult;
 import org.apache.pinot.spi.auth.broker.RequesterIdentity;
 import org.apache.ranger.authorization.pinot.authorizer.RangerPinotAuthorizer;
 import org.apache.ranger.plugin.model.RangerPolicy;
@@ -34,6 +35,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -77,6 +79,25 @@ class RangerPinotAccessControlTest {
         policy.setName("policy-" + table + "-" + user);
         policy.setResources(Collections.singletonMap("table", resource));
         policy.setPolicyItems(Collections.singletonList(item));
+
+        return policy;
+    }
+
+    private static RangerPolicy rowFilterPolicy(String table, String user, String filterExpr) {
+        RangerPolicy.RangerPolicyItemRowFilterInfo rowFilterInfo = new RangerPolicy.RangerPolicyItemRowFilterInfo(filterExpr);
+        RangerPolicy.RangerPolicyItemAccess    access   = new RangerPolicy.RangerPolicyItemAccess(ACCESS_QUERY, true);
+        RangerPolicy.RangerRowFilterPolicyItem item     = new RangerPolicy.RangerRowFilterPolicyItem(
+                rowFilterInfo, Collections.singletonList(access), Collections.singletonList(user), null, null, null, false);
+        long         id     = POLICY_ID_SEQ.getAndIncrement();
+        RangerPolicy policy = new RangerPolicy();
+
+        policy.setId(id);
+        policy.setGuid("test-policy-" + id);
+        policy.setService(SERVICE_NAME);
+        policy.setName("row-filter-policy-" + table + "-" + user);
+        policy.setPolicyType(RangerPolicy.POLICY_TYPE_ROWFILTER);
+        policy.setResources(Collections.singletonMap("table", new RangerPolicy.RangerPolicyResource(table, false, false)));
+        policy.setRowFilterPolicyItems(Collections.singletonList(item));
 
         return policy;
     }
@@ -127,5 +148,49 @@ class RangerPinotAccessControlTest {
         TableAuthorizationResult result = accessControl.authorize(identityFor("alice"), Set.of("orders"));
 
         assertTrue(result.hasAccess());
+    }
+
+    @Test
+    void rowFilterPolicyIsReturnedViaGetRowColFilters() throws IOException {
+        RangerBasePlugin plugin = pluginWithPolicies(
+                tablePolicy("orders", "alice"),
+                rowFilterPolicy("orders", "alice", "region = 'emea'"));
+
+        RangerPinotAccessControl accessControl = new RangerPinotAccessControl(new RangerPinotAuthorizer(plugin));
+
+        TableRowColAccessResult result = accessControl.getRowColFilters(identityFor("alice"), "orders");
+
+        assertTrue(result.getRLSFilters().isPresent(), "expected RLS filters to be present");
+        assertEquals(List.of("region = 'emea'"), result.getRLSFilters().get());
+    }
+
+    @Test
+    void tableWithoutRowFilterPolicyIsUnrestricted() throws IOException {
+        RangerBasePlugin plugin = pluginWithPolicies(
+                tablePolicy("orders", "alice"),
+                rowFilterPolicy("other_table", "alice", "region = 'emea'"));
+
+        RangerPinotAccessControl accessControl = new RangerPinotAccessControl(new RangerPinotAuthorizer(plugin));
+
+        TableRowColAccessResult result = accessControl.getRowColFilters(identityFor("alice"), "orders");
+
+        assertFalse(result.getRLSFilters().isPresent(), "expected no RLS filters");
+    }
+
+    /**
+     * Documented fail-open for row filters: a null result from {@code evalRowFilterPolicies} (no
+     * policy engine — policies never loaded) means "no filter", not deny-all rows. The access
+     * check itself already failed closed at {@code authorize()} time; see
+     * {@code RangerPinotAuthorizer#getRowFilter} for the full reasoning.
+     */
+    @Test
+    void nullPolicyEngineMeansUnrestrictedNotDeniedRows() {
+        RangerBasePlugin plugin = new RangerBasePlugin("pinot", "pinot"); // no setPolicies: no policy engine
+
+        RangerPinotAccessControl accessControl = new RangerPinotAccessControl(new RangerPinotAuthorizer(plugin));
+
+        TableRowColAccessResult result = accessControl.getRowColFilters(identityFor("alice"), "orders");
+
+        assertFalse(result.getRLSFilters().isPresent(), "expected no RLS filters");
     }
 }

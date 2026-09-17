@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -48,6 +49,7 @@ public class RangerPinotAuthorizer {
     private static final String RANGER_SERVICE_TYPE = "pinot";
     private static final String RANGER_APP_ID        = "pinot";
     private static final String RESOURCE_TABLE       = "table";
+    private static final String ACCESS_TYPE_QUERY   = "query";
 
     private final RangerBasePlugin rangerPlugin;
 
@@ -109,5 +111,44 @@ public class RangerPinotAuthorizer {
         LOG.debug("isTableAccessAllowed(table={}, accessType={}, user={}) = {}", tableName, accessType, user, isAllowed);
 
         return isAllowed;
+    }
+
+    /**
+     * Row-level-security filter for a table (MASK-01). Evaluates the service-def's
+     * {@code rowFilterDef} policies ({@code RangerBasePlugin#evalRowFilterPolicies}) and returns
+     * the matching policy item's filter expression, e.g. {@code "region = 'emea'"}. Pinot's broker
+     * wraps each returned filter as {@code ( f )}, joins multiple filters with {@code AND} and rewrites
+     * the query with them (CalciteSqlParser/RlsFiltersRewriter), so the expression must be a valid
+     * Pinot SQL predicate over the queried table.
+     *
+     * <p>Note Pinot only applies returned filters when the broker-side
+     * {@code pinot.broker.query.reader[...].rls.enabled} / {@code enableRowColumnLevelAuth} config is
+     * switched on — that is broker configuration, not plugin configuration.</p>
+     *
+     * <p>A null result (no policy engine — policies never loaded, e.g. Ranger Admin unreachable)
+     * is deliberately treated as "no filter" rather than a deny-all-rows expression: there is no
+     * safe deny-all SQL expression this method could return, and {@link #isTableAccessAllowed}
+     * already failed closed for the access itself at {@code authorize()} time —
+     * {@code getRowColFilters} is only consulted by Pinot for tables whose access was already
+     * granted, so an unloaded policy engine means "no row filter on top of an already-denied query",
+     * not a hole in the access check.</p>
+     *
+     * @param tableName  Pinot table name (Ranger's single {@code table} resource)
+     * @param user       requesting user
+     * @param userGroups requesting user's groups
+     * @return the row-filter SQL predicate, or empty if no row-filter policy matches
+     */
+    public Optional<String> getRowFilter(String tableName, String user, Set<String> userGroups) {
+        RangerAccessResourceImpl resource = new RangerAccessResourceImpl(Collections.singletonMap(RESOURCE_TABLE, tableName));
+        RangerAccessRequestImpl  request  = new RangerAccessRequestImpl(resource, ACCESS_TYPE_QUERY, user, userGroups, null);
+
+        request.setAccessTime(new Date());
+
+        RangerAccessResult result = rangerPlugin.evalRowFilterPolicies(request, null);
+        Optional<String>     ret   = result != null && result.isRowFilterEnabled() ? Optional.of(result.getFilterExpr()) : Optional.empty();
+
+        LOG.debug("getRowFilter(table={}, user={}) = {}", tableName, user, ret);
+
+        return ret;
     }
 }

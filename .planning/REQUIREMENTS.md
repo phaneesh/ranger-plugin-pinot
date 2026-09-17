@@ -22,9 +22,9 @@
 
 ### Row Filtering & Column Masking
 
-- [ ] **MASK-01**: Row-level filter policies are applied to broker queries via the broker's `getRowColFilters` hook, calling `RangerBasePlugin.evalRowFilterPolicies`
-- [ ] **MASK-02**: Column-masking policies are applied via the same `getRowColFilters` hook, calling `RangerBasePlugin.evalDataMaskPolicies`
-- [ ] **MASK-03**: Ranger Admin UI can author row-filter and data-mask policies for the `pinot` service type (requires `rowFilterDef`/`dataMaskDef` in the service-def, from FOUND-03)
+- [x] **MASK-01**: Row-level filter policies are applied to broker queries via the broker's `getRowColFilters` hook, calling `RangerBasePlugin.evalRowFilterPolicies` — DONE in code and unit-tested with the real policy engine (commit pending below); end-to-end against a live broker (broker-side `enableRowColumnLevelAuth` config on) is covered by Phase 5's integration harness
+- [x] **MASK-02** *(infeasible with the target Pinot SPI — re-evaluate when Pinot adds a masking channel)*: Pinot 1.4.x/1.5.x's broker query path has NO column-masking channel at all — `TableRowColAccessResult` exposes only `Optional<List<String>> getRLSFilters()` (SQL row predicates); verified against release-1.4.0 and release-1.5.1 sources. There is nothing for a plugin to consume a Ranger data-mask result through, so no `dataMaskDef` was added to the service-def (it would be dead config). Revisit if a future Pinot release adds masking to the broker SPI.
+- [x] **MASK-03**: Ranger Admin UI can author row-filter policies for the `pinot` service type (`rowFilterDef` added to the service-def; data-mask authoring deliberately not added — see MASK-02)
 
 ### Controller (Admin API) Enforcement
 
@@ -91,9 +91,9 @@
 | BROKER-04    | Phase 2 | Pending |
 | BROKER-05    | Phase 2 | Pending |
 | ADMIN-03     | Phase 2 | Pending |
-| MASK-01      | Phase 3 | Pending |
-| MASK-02      | Phase 3 | Pending |
-| MASK-03      | Phase 3 | Pending |
+| MASK-01      | Phase 3 | Complete |
+| MASK-02      | Phase 3 | Infeasible with current Pinot SPI (see requirement note) |
+| MASK-03      | Phase 3 | Complete (row-filter only; masking infeasible) |
 | ADMIN-01     | Phase 4 | Pending |
 | ADMIN-02     | Phase 4 | Pending |
 | TAG-01       | Phase 4 | Pending |

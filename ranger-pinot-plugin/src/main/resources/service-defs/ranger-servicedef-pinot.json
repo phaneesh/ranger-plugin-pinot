@@ -33,5 +33,13 @@
     { "itemId": 2, "name": "password",                 "type": "password", "mandatory": false, "label": "Password" },
     { "itemId": 3, "name": "controller.url",            "type": "string",   "mandatory": true,  "label": "Pinot Controller URL", "defaultValue": "http://localhost:9000" },
     { "itemId": 4, "name": "commonNameForCertificate",  "type": "string",   "mandatory": false, "label": "Ranger Plugin SSL CName" }
-  ]
+  ],
+  "rowFilterDef": {
+    "accessTypes": [
+      { "name": "query" }
+    ],
+    "resources": [
+      { "name": "table", "matcherOptions": { "wildCard": "false" }, "lookupSupported": true, "mandatory": true, "uiHint": "{ \"singleValue\":true }" }
+    ]
+  }
 }

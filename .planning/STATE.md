@@ -4,17 +4,17 @@
 
 See: .planning/PROJECT.md (updated 2026-09-17)
 
-**Core value:** A Ranger admin defines one set of table-level policies (ACL + tag + row-filter + column-mask) enforced consistently on both Pinot's broker and controller, with audit and fail-closed behavior.
-**Current focus:** Phase 3 - Row Filtering & Column Masking (not yet started)
+**Core value:** A Ranger admin defines one set of table-level policies (ACL + tag + row-filter) enforced consistently on both Pinot's broker and controller, with audit and fail-closed behavior.
+**Current focus:** Phase 4 - Controller (Admin API) Enforcement (ready to plan)
 
 ## Current Position
 
-Phase: 3 of 5 (Row Filtering & Column Masking) - ready to plan
+Phase: 4 of 5 (Controller Admin-API Enforcement) - ready to plan
 Plan: 0 of 2 in current phase
-Status: Phases 1 and 2 complete (with two deliberately-deferred live-infra verification items, both folded into Phase 5's real integration harness rather than built as one-off throwaway harnesses)
-Last activity: 2026-09-17 - Phase 2 broker enforcement implemented and verified (commit 71281b7); Phase 1's classloader-isolation gap closed with a real, rigorous automated test (commit 7c9723e) that also caught a genuine infinite-recursion bug in an initial test design (shim+impl sharing a classpath recreates the exact hazard isolation exists to prevent). ROADMAP/REQUIREMENTS updated to reflect true status.
+Status: Phases 1, 2 and 3 complete. Phase 3 (row filtering) verified via unit tests against the real Ranger policy engine: getRowColFilters returns the row-filter policy's SQL predicate, unrestricted when no policy matches, unrestricted (documented fail-open for filters; access already failed closed at authorize() time) when the policy engine is null. Column masking (MASK-02) confirmed INFEASIBLE: Pinot 1.4.x/1.5.x broker SPI has no masking channel (TableRowColAccessResult carries only RLS predicates), so no dataMaskDef was added. Two deliberately-deferred live-infra verification items remain, folded into Phase 5's integration harness.
+Last activity: Phase 3 row filtering implemented and verified (3 consecutive green `mvn clean verify` runs, 11/11 tests).
 
-Progress: [███░░░░░░░] ~30% (2 of 5 phases substantively complete; Phase 3-5 remain)
+Progress: [████░░░░░░] ~50% (3 of 5 phases substantively complete; Phase 3-5 remain -> Phases 4-5 remain)
 
 ## Performance Metrics
 

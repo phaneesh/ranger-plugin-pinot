@@ -24,11 +24,15 @@ import org.apache.pinot.common.request.BrokerRequest;
 import org.apache.pinot.spi.auth.AuthorizationResult;
 import org.apache.pinot.spi.auth.BasicAuthorizationResultImpl;
 import org.apache.pinot.spi.auth.TableAuthorizationResult;
+import org.apache.pinot.spi.auth.TableRowColAccessResult;
+import org.apache.pinot.spi.auth.TableRowColAccessResultImpl;
 import org.apache.pinot.spi.auth.broker.RequesterIdentity;
 import org.apache.ranger.authorization.pinot.authorizer.RangerPinotAuthorizer;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -111,5 +115,20 @@ public class RangerPinotAccessControl implements AccessControl {
      */
     private static String deriveUser(RequesterIdentity requesterIdentity) {
         return requesterIdentity != null ? requesterIdentity.getClientIp() : "";
+    }
+
+    /**
+     * Row-level-security hook (MASK-01): returns the Ranger row-filter policy's SQL predicate for
+     * this user/table, wrapped for Pinot's RLS machinery. Pinot wraps each returned filter as
+     * {@code ( f )}, joins multiple filters with {@code AND} and rewrites the query with them —
+     * but only when the broker-side RLS config is switched on (see
+     * {@link RangerPinotAuthorizer#getRowFilter}). No column masking here: Pinot 1.4/1.5's broker
+     * SPI has no masking channel at all.
+     */
+    @Override
+    public TableRowColAccessResult getRowColFilters(RequesterIdentity requesterIdentity, String table) {
+        Optional<String> filter = authorizer.getRowFilter(table, deriveUser(requesterIdentity), Collections.emptySet());
+
+        return filter.isPresent() ? new TableRowColAccessResultImpl(List.of(filter.get())) : TableRowColAccessResultImpl.unrestricted();
     }
 }
