@@ -105,7 +105,7 @@ Plans:
 Plans:
 - [x] 05-01: Distro assembly (tarball layout, install/enable/disable/upgrade scripts)
 - [x] 05-02: GitHub Actions release-on-tag workflow (`release.yml`: `v*` tag → JDK 17 verify build → distro tarball published as GitHub Release asset, PKG-03; untested on a real remote — repo not yet pushed)
-- [ ] 05-03: Integration test matrix (Pinot 1.4.x + 1.5.x via docker-compose/testcontainers)
+- [ ] 05-03: Docker-compose integration harness (Ranger Admin 2.8.0 + Pinot 1.4.0/1.5.1) with failsafe-gated E2E tests (allow/deny/audit/row-filter/403/live-poll) and a CI matrix job
 
 ## Progress
 
