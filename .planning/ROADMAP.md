@@ -97,13 +97,13 @@ Plans:
 **Depends on**: Phase 3, Phase 4
 **Requirements**: PKG-01, PKG-02, PKG-03, CI-04, COMPAT-01, COMPAT-02
 **Success Criteria** (what must be TRUE):
-  1. Pushing a version tag produces a `ranger-<version>-pinot-plugin.tar.gz` GitHub Release asset with the correct internal layout (`lib/ranger-pinot-plugin-impl/`, install scripts, conf templates, version file)
-  2. `enable-pinot-plugin.sh` successfully wires the plugin into a real Pinot broker+controller install without requiring Hadoop JCEKS tooling
+  1. [x] Pushing a version tag produces a `ranger-<version>-pinot-plugin.tar.gz` GitHub Release asset with the correct internal layout (`lib/ranger-pinot-plugin-impl/`, install scripts, conf templates, version file) — layout DONE (05-01, verified tarball); the tag→Release automation is 05-02
+  2. [x] `enable-pinot-plugin.sh` successfully wires the plugin into a real Pinot broker+controller install without requiring Hadoop JCEKS tooling — script DONE (05-01, smoke-tested against a synthetic $PINOT_HOME); live-cluster run is 05-03
   3. The integration-test job passes against both a Pinot 1.4.x and a Pinot 1.5.x target, using the same built artifact
 **Plans**: TBD
 
 Plans:
-- [ ] 05-01: Distro assembly (tarball layout, install/enable/disable/upgrade scripts)
+- [x] 05-01: Distro assembly (tarball layout, install/enable/disable/upgrade scripts)
 - [ ] 05-02: GitHub Actions release-on-tag workflow
 - [ ] 05-03: Integration test matrix (Pinot 1.4.x + 1.5.x via docker-compose/testcontainers)
 

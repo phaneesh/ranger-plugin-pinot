@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-09-17)
 
 ## Current Position
 
-Phase: 5 of 5 (Packaging & Release) - ready to plan
-Plan: 0 in current phase
-Status: Phases 1-4 complete. Phase 4 (controller admin-API enforcement) verified via unit tests against the real Ranger policy engine: `RangerPinotAccessControl` implements coarse CRUD (`table` resource for table endpoints, `cluster` resource for non-table) + fine-grained `Actions`-named accessTypes; all 127 unique Actions string values are service-def accessTypes; TAG-01 proven with a PII tag + tag-policy test using `RangerFileBasedTagRetriever` (9 controller tests, 18 total green, 2 consecutive clean `mvn clean verify` runs). Live-infra 403 checks and Atlas tag-sync remain deferred to Phase 5's integration harness.
-Last activity: Phase 4 controller enforcement implemented and verified (2 consecutive green `mvn clean verify` runs, 18/18 tests).
+Phase: 5 of 5 (Packaging & Release) - plan 05-01 complete
+Plan: 1 of 3 in current phase (05-01 done)
+Status: Plan 05-01 (distro assembly) complete: new `ranger-pinot-plugin-distro` module produces `ranger-<version>-pinot-plugin.tar.gz` (maven-assembly descriptor modeled on Ranger 2.8.0's plugin-kafka.xml; `lib/` = shim + ranger-plugin-classloader jars, `lib/ranger-pinot-plugin-impl/` = impl jar + 43 curated transitive deps, host-provided jackson/jersey/slf4j/log4j/reload4j/pinot excluded). Pinot-specific install scripts (property-based, no JCEKS): enable/disable/upgrade smoke-tested end-to-end against a synthetic $PINOT_HOME (install jars, render Ranger XML configs via changes.cfg + sed, wire `pinot.broker.access.control.class`/`controller.admin.access.control.factory.class`/`pinot.broker.enable.row.column.level.auth` into broker/controller .conf files; disable removes exactly what enable added). PKG-01 + PKG-02 complete. 2 consecutive green `mvn clean verify` runs (18+2 tests).
+Last activity: Plan 05-01 distro assembly implemented and verified (tarball layout asserted, no host pinot jars in impl dir, scripts bash -n clean).
 
-Progress: [█████░░░░░] ~80% (4 of 5 phases complete; Phase 5 remains)
+Progress: [██████░░░░] ~90% (Phase 5: 1 of 3 plans done; 05-02 release workflow and 05-03 integration matrix remain)
 
 ## Performance Metrics
 

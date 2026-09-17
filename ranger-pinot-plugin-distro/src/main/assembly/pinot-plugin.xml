@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<assembly>
+    <id>pinot-plugin</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <baseDirectory>ranger-${project.version}-pinot-plugin</baseDirectory>
+    <includeBaseDirectory>true</includeBaseDirectory>
+
+    <moduleSets>
+        <!-- lib/: shim + classloader jars only, no transitive deps (RangerPluginClassLoader
+             computes lib/ranger-pinot-plugin-impl/ as a sibling of these jars). -->
+        <moduleSet>
+            <useAllReactorProjects>true</useAllReactorProjects>
+            <includes>
+                <include>org.apache.ranger:ranger-pinot-plugin-shim</include>
+            </includes>
+            <binaries>
+                <outputDirectory>lib</outputDirectory>
+                <includeDependencies>false</includeDependencies>
+                <unpack>false</unpack>
+                <directoryMode>755</directoryMode>
+                <fileMode>644</fileMode>
+            </binaries>
+        </moduleSet>
+
+        <!-- lib/ranger-pinot-plugin-impl/: impl jar + transitive runtime deps.
+             The directory name is load-bearing (RangerPluginClassLoaderUtil convention).
+             Exclusions are artifacts Pinot ships on its own classpath:
+             jackson, jersey 1.x, slf4j, log4j/reload4j (host logging stack). -->
+        <moduleSet>
+            <useAllReactorProjects>true</useAllReactorProjects>
+            <includes>
+                <include>org.apache.ranger:ranger-pinot-plugin</include>
+            </includes>
+            <binaries>
+                <outputDirectory>lib/ranger-pinot-plugin-impl</outputDirectory>
+                <includeDependencies>true</includeDependencies>
+                <unpack>false</unpack>
+                <directoryMode>755</directoryMode>
+                <fileMode>644</fileMode>
+                <includes>
+                    <!-- Ranger runtime artifacts (curated, like Ranger's own plugin descriptors) -->
+                    <include>org.apache.ranger:ranger-audit-core</include>
+                    <include>org.apache.ranger:ranger-authz-api</include>
+                    <include>org.apache.ranger:ranger-pinot-plugin</include>
+                    <include>org.apache.ranger:ranger-plugins-cred</include>
+                    <include>org.apache.ranger:ranger-plugins-common</include>
+                    <include>org.apache.ranger:ranger-intg</include>
+                    <include>org.apache.ranger:ugsync-util</include>
+                    <!-- Third-party transitive runtime deps -->
+                    <include>com.carrotsearch:hppc</include>
+                    <include>com.kstruct:gethostname4j</include>
+                    <include>com.nimbusds:nimbus-jose-jwt</include>
+                    <include>com.google.code.findbugs:jsr305</include>
+                    <include>com.google.code.gson:gson</include>
+                    <include>commons-codec:commons-codec</include>
+                    <include>commons-collections:commons-collections</include>
+                    <include>commons-io:commons-io</include>
+                    <include>commons-logging:commons-logging</include>
+                    <include>io.airlift:aircompressor</include>
+                    <include>io.dropwizard.metrics:metrics-core</include>
+                    <include>joda-time:joda-time</include>
+                    <include>net.java.dev.jna:jna</include>
+                    <include>net.java.dev.jna:jna-platform</include>
+                    <include>net.minidev:accessors-smart</include>
+                    <include>net.minidev:json-smart</include>
+                    <include>org.apache.commons:commons-compress</include>
+                    <include>org.apache.commons:commons-configuration2</include>
+                    <include>org.apache.commons:commons-lang3</include>
+                    <include>org.apache.commons:commons-text</include>
+                    <include>org.apache.curator:curator-client</include>
+                    <include>org.apache.curator:curator-framework</include>
+                    <include>org.apache.hadoop.thirdparty:hadoop-shaded-guava</include>
+                    <include>org.apache.hadoop:hadoop-auth</include>
+                    <include>org.apache.hadoop:hadoop-client-api</include>
+                    <include>org.apache.hadoop:hadoop-client-runtime</include>
+                    <include>org.apache.httpcomponents:httpclient</include>
+                    <include>org.apache.httpcomponents:httpcore</include>
+                    <include>org.apache.kerby:kerb-core</include>
+                    <include>org.apache.kerby:kerb-crypto</include>
+                    <include>org.apache.kerby:kerb-asn1</include>
+                    <include>org.apache.kerby:kerb-config</include>
+                    <include>org.apache.kerby:kerb-pkix</include>
+                    <include>org.apache.kerby:kerb-util</include>
+                    <include>org.apache.yetus:audience-annotations</include>
+                    <include>org.apache.zookeeper:zookeeper</include>
+                    <include>org.apache.zookeeper:zookeeper-jute</include>
+                    <include>org.ow2.asm:asm</include>
+                    <include>org.xerial.snappy:snappy-java</include>
+                </includes>
+                <excludes>
+                    <!-- Provided by the Pinot host classpath -->
+                    <exclude>com.fasterxml.jackson.core:*</exclude>
+                    <exclude>com.fasterxml.jackson.jaxrs:*</exclude>
+                    <exclude>com.fasterxml.jackson.module:*</exclude>
+                    <exclude>com.fasterxml.jackson.dataformat:*</exclude>
+                    <exclude>com.sun.jersey:*</exclude>
+                    <exclude>org.slf4j:*</exclude>
+                    <exclude>org.apache.logging.log4j:*</exclude>
+                    <exclude>ch.qos.reload4j:*</exclude>
+                    <exclude>org.apache.pinot:*</exclude>
+                    <exclude>org.apache.ranger:ranger-plugin-classloader</exclude>
+                    <exclude>org.apache.ranger:ranger-pinot-plugin-shim</exclude>
+                </excludes>
+            </binaries>
+        </moduleSet>
+    </moduleSets>
+
+    <fileSets>
+        <fileSet>
+            <outputDirectory>install/conf.templates/enable</outputDirectory>
+            <directory>conf</directory>
+            <fileMode>700</fileMode>
+        </fileSet>
+        <fileSet>
+            <outputDirectory>install/conf.templates/disable</outputDirectory>
+            <directory>disable-conf</directory>
+            <fileMode>700</fileMode>
+        </fileSet>
+        <fileSet>
+            <outputDirectory>install/conf.templates/default</outputDirectory>
+            <directory>template</directory>
+            <fileMode>700</fileMode>
+        </fileSet>
+        <fileSet>
+            <outputDirectory></outputDirectory>
+            <directory>${project.build.outputDirectory}</directory>
+            <includes>
+                <include>version</include>
+            </includes>
+            <fileMode>444</fileMode>
+        </fileSet>
+        <!-- RangerPluginClassLoader jar (sibling of the shim jar in lib/;
+             resolved from the local repo, not a reactor module) -->
+        <fileSet>
+            <outputDirectory>lib</outputDirectory>
+            <directory>${settings.localRepository}/org/apache/ranger/ranger-plugin-classloader/${ranger.version}</directory>
+            <includes>
+                <include>ranger-plugin-classloader-${ranger.version}.jar</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
+    </fileSets>
+
+    <files>
+        <file>
+            <source>scripts/enable-pinot-plugin.sh</source>
+            <outputDirectory></outputDirectory>
+            <destName>enable-pinot-plugin.sh</destName>
+            <fileMode>755</fileMode>
+        </file>
+        <file>
+            <source>scripts/disable-pinot-plugin.sh</source>
+            <outputDirectory></outputDirectory>
+            <destName>disable-pinot-plugin.sh</destName>
+            <fileMode>755</fileMode>
+        </file>
+        <file>
+            <source>scripts/upgrade-pinot-plugin.sh</source>
+            <outputDirectory></outputDirectory>
+            <destName>upgrade-pinot-plugin.sh</destName>
+            <fileMode>755</fileMode>
+        </file>
+        <file>
+            <source>scripts/install.properties</source>
+            <outputDirectory></outputDirectory>
+            <destName>install.properties</destName>
+            <fileMode>755</fileMode>
+        </file>
+    </files>
+</assembly>

@@ -43,8 +43,8 @@
 
 ### Packaging & Distribution
 
-- [ ] **PKG-01**: A release build produces `ranger-<version>-pinot-plugin.tar.gz` with Ranger's tarball layout: `lib/` (shim + classloader jars), `lib/ranger-pinot-plugin-impl/` (impl jar + all transitive deps as flat jars), `install/`, `conf.templates/{enable,disable,default}/`, `install.properties`, `enable-pinot-plugin.sh`/`disable-pinot-plugin.sh`/`upgrade-pinot-plugin.sh`, `version` file
-- [ ] **PKG-02**: Install/enable/disable scripts are adapted for Pinot's property-based config format (not Hadoop `*-site.xml`/JCEKS credential provider flow)
+- [x] **PKG-01**: A release build produces `ranger-<version>-pinot-plugin.tar.gz` with Ranger's tarball layout: `lib/` (shim + classloader jars), `lib/ranger-pinot-plugin-impl/` (impl jar + all transitive deps as flat jars), `install/`, `conf.templates/{enable,disable,default}/`, `install.properties`, `enable-pinot-plugin.sh`/`disable-pinot-plugin.sh`/`upgrade-pinot-plugin.sh`, `version` file — complete: `ranger-pinot-plugin-distro` module, maven-assembly descriptor modeled on Ranger's plugin-kafka.xml, 43-jar impl dir, verified layout + no host pinot jars (05-01)
+- [x] **PKG-02**: Install/enable/disable scripts are adapted for Pinot's property-based config format (not Hadoop `*-site.xml`/JCEKS credential provider flow) — complete: sed-based property renderer, idempotent broker/controller .conf key wiring, no JCEKS, enable/disable/upgrade smoke-tested end-to-end (05-01)
 - [ ] **PKG-03**: GitHub Actions publishes the tarball as a GitHub Release asset automatically when a version tag (e.g. `v1.0.0`) is pushed
 
 ### CI / Build Quality
