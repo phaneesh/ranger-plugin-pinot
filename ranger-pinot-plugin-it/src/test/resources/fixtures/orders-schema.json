@@ -1,6 +1,6 @@
 {
   "schemaName": "orders",
-  "dimensionColumnSpecs": [
+  "dimensionFieldSpecs": [
     {
       "name": "orderId",
       "dataType": "STRING"
@@ -10,7 +10,7 @@
       "dataType": "STRING"
     }
   ],
-  "metricColumnSpecs": [
+  "metricFieldSpecs": [
     {
       "name": "amount",
       "dataType": "INT"

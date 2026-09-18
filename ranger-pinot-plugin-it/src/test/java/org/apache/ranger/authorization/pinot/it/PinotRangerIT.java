@@ -245,8 +245,8 @@ public class PinotRangerIT {
         pollUntilAllowed();
         HttpResponse<String> allowed = client.queryBroker("SELECT count(*) FROM orders");
         assertEquals(200, allowed.statusCode(), "allow query failed: " + allowed.body());
-        assertTrue(allowed.body().contains("\"numResults\":4") || allowed.body().contains("\"value\":\"4\"")
-                        || allowed.body().contains("4"),
+        // Pinot 1.4/1.5 answer count(*) as rows:[[4]] (not numResults/value like older formats)
+        assertTrue(allowed.body().contains("\"rows\":[[4]]"),
                 "expected 4 rows, got: " + allowed.body());
     }
 
@@ -291,18 +291,21 @@ public class PinotRangerIT {
     void testRowFilterPolicy() throws Exception {
         // MASK-01 live (Phase 3 deferred): row filter `region = 'west'` halves the
         // visible rows (2 of 4) for the same broker principal.
-        // Ranger policy-per-resource uniqueness (3010): the row filter rides in the SAME
-        // policy as the allow item (rowFilterPolicyItems alongside policyItems).
-        String rowFilterJson = "{\"service\":\"pinotdev\",\"name\":\"it-allow-query-orders\","
+        // Ranger indexes a policy for row-filter evaluation only when policyType=2
+        // (RangerPolicyRepository.init buckets evaluators by policyType); a policyType-0
+        // policy's rowFilterPolicyItems are silently ignored by evalRowFilterPolicies.
+        // Ranger 3028 also forbids changing a policy's type, so the row filter must be a
+        // SEPARATE policyType-2 policy on the same table (resource-uniqueness 3010 applies
+        // per policy type, so it coexists with the allow policy).
+        String rowFilterJson = "{\"policyType\":2,\"service\":\"pinotdev\",\"name\":\"it-rowfilter-orders\","
                 + "\"resources\":{\"table\":{\"values\":[\"orders\"]}},"
-                + "\"policyItems\":[{\"accesses\":[{\"type\":\"query\",\"isAllowed\":true}],"
-                + "\"users\":[\"" + derivedBrokerUser + "\"]}],"
                 + "\"rowFilterPolicyItems\":[{\"rowFilterInfo\":{\"filterExpr\":\"region = 'west'\"},"
                 + "\"accesses\":[{\"type\":\"query\",\"isAllowed\":true}],"
                 + "\"users\":[\"" + derivedBrokerUser + "\"]}]}";
-        HttpResponse<String> posted = client.updatePolicy(allowPolicyId, rowFilterJson);
+        HttpResponse<String> posted = client.postPolicy(rowFilterJson);
         assertTrue(posted.statusCode() == 200 || posted.statusCode() == 201,
-                "row-filter policy PUT failed: " + posted.statusCode());
+                "row-filter policy POST failed: " + posted.statusCode() + " " + posted.body());
+        long rowFilterPolicyId = extractPolicyId(posted.body());
 
         long deadline = System.currentTimeMillis() + 90_000;
         String lastResponse = "";
@@ -311,14 +314,13 @@ public class PinotRangerIT {
             lastResponse = filtered.body();
             boolean segmentUnavailable = filtered.body().contains("segments unavailable");
             if (filtered.statusCode() == 200 && !segmentUnavailable
-                    && (filtered.body().contains("\"value\":\"2\"")
-                    || countRows(filtered.body()) == 2)) {
-                client.updatePolicy(allowPolicyId, allowPolicyJson());
+                    && filtered.body().contains("\"rows\":[[2]]")) {
+                client.deletePolicy(rowFilterPolicyId);
                 return;
             }
             Thread.sleep(2000);
         }
-        client.updatePolicy(allowPolicyId, allowPolicyJson());
+        client.deletePolicy(rowFilterPolicyId);
         throw new AssertionError("row filter did not take effect within 30s; last response: " + lastResponse);
     }
 
@@ -418,7 +420,11 @@ public class PinotRangerIT {
         while (System.currentTimeMillis() < deadline) {
             try {
                 HttpResponse<String> response = client.queryBroker("SELECT count(*) FROM orders");
-                if (response.statusCode() == 200 && !response.body().contains("QueryException")) {
+                // A 200 whose body carries a broker-side exception (deny message OR a
+                // "segments unavailable" partial result) is NOT an allowed query —
+                // e.g. a segment stuck in ERROR state on the server.
+                if (response.statusCode() == 200 && !response.body().contains("QueryException")
+                        && !response.body().contains("segments unavailable")) {
                     return;
                 }
             } catch (IOException e) {
@@ -483,11 +489,6 @@ public class PinotRangerIT {
             return Long.parseLong(matcher.group(1));
         }
         return 0L;
-    }
-
-    private static int countRows(String brokerResponse) {
-        Matcher matcher = Pattern.compile("\"numResults\"\\s*:\\s*(\\d+)").matcher(brokerResponse);
-        return matcher.find() ? Integer.parseInt(matcher.group(1)) : -1;
     }
 
     private static boolean dockerAvailable() {

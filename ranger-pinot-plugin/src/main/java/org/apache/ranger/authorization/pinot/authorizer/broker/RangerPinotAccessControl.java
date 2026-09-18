@@ -204,7 +204,6 @@ public class RangerPinotAccessControl implements AccessControl {
     public TableRowColAccessResult getRowColFilters(RequesterIdentity requesterIdentity, String table) {
         String user = deriveUser(requesterIdentity);
         Optional<String> filter = authorizer.getRowFilter(table, user, Collections.emptySet());
-
         if (LOG.isDebugEnabled()) {
             LOG.debug("getRowColFilters(table={}, user={}) = {}", table, user, filter);
         }

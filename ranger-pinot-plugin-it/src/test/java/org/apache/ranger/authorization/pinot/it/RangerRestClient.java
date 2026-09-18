@@ -221,7 +221,7 @@ public class RangerRestClient {
         if (schemaResponse.statusCode() != 200 && schemaResponse.statusCode() != 201) {
             return schemaResponse;
         }
-        return request(controllerBase + "/tables", "POST", tableJson, 200, 201, 400, 403);
+        return request(controllerBase + "/tables", "POST", tableJson, 200, 201, 400, 403, 409);
     }
 
     /**

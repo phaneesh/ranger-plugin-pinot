@@ -33,7 +33,17 @@ RUN for f in pinot-controller.conf pinot-broker.conf pinot-server.conf; do \
     # Advertise the controller by its docker hostname so segment download URLs
     # (UploadSegment stores them for the server) resolve inside the network —
     # the stock conf says localhost, which points servers at themselves.
-    sed -i 's|^controller.vip.host=.*|controller.vip.host=pinot-controller|' /opt/pinot/conf/pinot-controller.conf
+    sed -i 's|^controller.vip.host=.*|controller.vip.host=pinot-controller|' /opt/pinot/conf/pinot-controller.conf && \
+    # The server downloads segments from the controller over HTTP; with the Ranger
+    # plugin installed the controller fail-closes anonymous READs, so the downloader
+    # must present the provisioning admin's Basic credentials (StaticTokenAuthProvider
+    # prefixes them with 'Basic ').
+    printf '\npinot.server.segment.fetcher.auth.token=%s\n' "$(printf admin:admin | base64)" \
+      >> /opt/pinot/conf/pinot-server.conf && \
+    sed -i 's|^pinot.broker.enable.row.column.level.auth=.*|pinot.broker.enable.row.column.level.auth=true|' /opt/pinot/conf/pinot-broker.conf && \
+    # (the enable script already sets this key to true; the sed is a belt-and-braces
+    # assert-style overwrite — a duplicate value would fail boolean conversion)
+    grep -q '^pinot.broker.enable.row.column.level.auth=true$' /opt/pinot/conf/pinot-broker.conf
 
 # Sanity-assert the rendered configs: the enable script wired the service name,
 # the admin URL and the SSL override the way the tests expect.
