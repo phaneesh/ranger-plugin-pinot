@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: completed
 stopped_at: "Phases 1-4 complete and committed. Next up is Phase 5 (packaging & release: distro tarball with `lib/ranger-pinot-plugin-impl/` layout, install scripts, conf templates, GitHub Actions release automation, integration tests). Notebook pages `pinot-auth-spi`, `ranger-plugin-architecture`, `ranger-plugin-api-facts`, `phase-3-row-filtering` hold prior research; Phase 4 added the cluster-resource + Actions-accessType service-def model (see `service-defs/ranger-servicedef-pinot.json`) and the tag-policy test harness pattern (`RangerFileBasedTagRetriever` + classpath ServiceTags JSON + tag-serviceDef with `pinot:`-prefixed accessTypes, prefix stripped by normalization)."
-last_updated: "2026-09-18T04:37:01.918Z"
+last_updated: "2026-09-18T04:37:06.829Z"
 last_activity: "260918-002: Upgraded all maven plugins to latest versions (compiler 3.16.0, surefire/failsafe 3.6.0, checkstyle 3.6.0 + engine 8.45.1, rat 0.18, spotbugs 4.10.4.1, antrun 3.2.0, assembly 3.8.0, exec 3.6.4)"
 progress:
   total_phases: 5
