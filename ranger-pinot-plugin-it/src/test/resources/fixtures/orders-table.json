@@ -1,23 +1,11 @@
 {
   "tableName": "orders",
   "tableType": "OFFLINE",
-  "routing": {
-    "instanceSelectorType": "balanced"
+  "segmentsConfig": {
+    "replication": "1",
+    "schemaName": "orders"
   },
-  "tenants": "",
-  "tableIndexConfig": {
-    "loadMode": "MMAP",
-    "streamIngestionConfig": ""
-  },
-  "ingestionConfig": {
-    "batchIngestionConfig": {
-      "segmentIngestionType": "APPEND",
-      "segmentIngestionFrequency": "DAILY"
-    },
-    "streamIngestionConfig": ""
-  },
-  "metadata": {
-    "customConfigs": ""
-  },
-  "isDimTable": false
+  "tenants": {},
+  "routing": {"instanceSelectorType": "balanced"},
+  "tableIndexConfig": {"loadMode": "MMAP"}
 }

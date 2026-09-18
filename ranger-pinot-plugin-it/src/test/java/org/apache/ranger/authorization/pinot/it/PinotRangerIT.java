@@ -63,8 +63,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PinotRangerIT {
-    private static final Pattern AUDIT_USER_PATTERN = Pattern.compile("\"usr\"\\s*:\\s*\"([^\"]+)\"");
-    private static final Pattern IP_PATTERN = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
+    private static final Pattern AUDIT_USER_PATTERN = Pattern.compile("\"reqUser\"\\s*:\\s*\"([^\"]+)\"");
 
     private static RangerRestClient client;
     private static String derivedBrokerUser;
@@ -76,35 +75,107 @@ public class PinotRangerIT {
         Assumptions.assumeTrue(dockerAvailable(), "docker daemon not available — skipping IT");
 
         client.awaitRangerReady();
+        client.awaitControllerReady();
         client.deleteServiceDefIfExists();
         assertEquals(200, client.postServiceDef().statusCode(), "service-def POST failed");
         assertEquals(200, client.postService().statusCode(), "service POST failed (validateConfig live)");
 
-        // table + data: no policy is seeded here — the allow test's discovery step
-        // needs a policy-free (deny-by-default) first query.
+        // Bootstrap admin policy BEFORE any controller call: the controller is
+        // deny-by-default the moment the plugin is installed, and setup itself
+        // creates schema/table/segment as Basic-auth user 'admin' (Ranger's own
+        // PinotClient and the IT's provisioning both use that principal). The
+        // broker discovery query in test 3 is unaffected — its principal is the
+        // client IP, not 'admin'.
+        // Ranger 2.8 requires policy users to exist in Ranger admin; create the broker
+        // principal the allow/deny/row-filter tests name in policies.
+        client.createUserIfMissing("brokeruser", "Brokerpass1");
+
+        postBootstrapAdminPolicy();
+
+        // table + data: the broker allow-test's discovery query is still policy-free
+        // for its own (client-IP) principal — the bootstrap policy only names 'admin'.
+        // Wait until the controller's policy engine actually grants 'admin' (the
+        // plugin polls Ranger every 5s; the service was created moments ago).
         Path fixtures = client.getModuleDir().resolve("src/test/resources/fixtures");
         String schema = Files.readString(fixtures.resolve("orders-schema.json"));
         String table = Files.readString(fixtures.resolve("orders-table.json"));
-        HttpResponse<String> tableResponse = client.createTable(schema, table);
-        assertTrue(tableResponse.statusCode() == 200 || tableResponse.statusCode() == 201,
-                "table create failed: " + tableResponse.statusCode() + " " + tableResponse.body());
+        client.awaitPolicyEffect(schema, table);
 
         uploadSegment(fixtures);
     }
 
+    private static void postBootstrapAdminPolicy() throws Exception {
+        String policy = "{\"service\":\"pinotdev\",\"name\":\"it-bootstrap-admin\","
+                + "\"resources\":{\"table\":{\"values\":[\"*\"]}},"
+                + "\"policyItems\":[{\"accesses\":["
+                + "{\"type\":\"create\",\"isAllowed\":true},"
+                + "{\"type\":\"read\",\"isAllowed\":true},"
+                + "{\"type\":\"update\",\"isAllowed\":true},"
+                + "{\"type\":\"delete\",\"isAllowed\":true}],"
+                + "\"users\":[\"admin\"]}]}";
+        // The table wildcard grant is NOT needed: service create already
+        // auto-provisioned the default "all - table" policy granting the
+        // service-config username (admin) every accessType on table=* (the
+        // RangerBaseService.getDefaultRangerPolicies() path). The optional cluster
+        // resource has no default policy — post it ourselves, with the fine-grained
+        // Get*/Create* action names Pinot's @Authorize-annotated cluster endpoints
+        // use (e.g. GET /tables checks GetTable on the cluster resource).
+        String clusterPolicy = "{\"service\":\"pinotdev\",\"name\":\"it-bootstrap-admin-cluster\","
+                + "\"resources\":{\"cluster\":{\"values\":[\"*\"]}},"
+                + "\"policyItems\":[{\"accesses\":["
+                + "{\"type\":\"query\",\"isAllowed\":true},"
+                + "{\"type\":\"create\",\"isAllowed\":true},"
+                + "{\"type\":\"read\",\"isAllowed\":true},"
+                + "{\"type\":\"update\",\"isAllowed\":true},"
+                + "{\"type\":\"delete\",\"isAllowed\":true},"
+                + "{\"type\":\"GetTable\",\"isAllowed\":true},"
+                + "{\"type\":\"GetSchema\",\"isAllowed\":true},"
+                + "{\"type\":\"GetSegment\",\"isAllowed\":true},"
+                + "{\"type\":\"GetClusterConfig\",\"isAllowed\":true}],"
+                + "\"users\":[\"admin\"]}]}";
+        assertEquals(200, client.postPolicy(clusterPolicy).statusCode(),
+                "bootstrap admin cluster policy POST failed");
+    }
+
     private static void uploadSegment(Path fixtures) throws IOException, InterruptedException {
-        // pinot-admin AddSegment inside the controller container against the mounted
-        // /fixtures/orders.csv; the controller then has the segment for the orders table.
-        String output = client.pinotAdmin(java.util.Arrays.asList(
-                "AddSegment",
-                "-controllerProtocol", "http",
-                "-controllerHost", "localhost",
-                "-controllerPort", "9000",
-                "-uploadToSegmentStore", "false",
-                "-inputDir", "/fixtures",
-                "-outputDir", "/tmp/segment-out"));
-        assertTrue(output.contains("Successfully uploaded segment") || output.contains("already exists"),
-                "segment upload failed:\n" + output);
+        // Two steps inside the controller container: CreateSegment from /fixtures/orders.csv
+        // against the schema, then UploadSegment into the orders table. CreateSegment derives the
+        // segment/table name from the schema; both point at the in-container controller.
+        String created = client.pinotAdmin(java.util.Arrays.asList(
+                "CreateSegment",
+                "-dataDir", "/fixtures",
+                "-format", "CSV",
+                "-schemaFile", "/fixtures/orders-schema.json",
+                "-tableConfigFile", "/fixtures/orders-table.json",
+                "-outDir", "/tmp/segment-out",
+                "-overwrite"));
+        assertTrue(created.contains("Successfully created segment"),
+                "segment creation failed:\n" + created);
+
+        // pinot-admin 1.4 prints no success line; verify via the segment list API
+        // instead (GET /segments/orders returns the orders_0 segment name).
+        long deadline = System.currentTimeMillis() + 60_000;
+        String lastSegments = "";
+        boolean uploaded = false;
+        while (System.currentTimeMillis() < deadline) {
+            client.pinotAdmin(java.util.Arrays.asList(
+                    "UploadSegment",
+                    "-controllerProtocol", "http",
+                    "-controllerHost", "localhost",
+                    "-controllerPort", "9000",
+                    "-segmentDir", "/tmp/segment-out",
+                    "-tableName", "orders",
+                    "-tableType", "OFFLINE",
+                    "-user", "admin",
+                    "-password", "admin"));
+            lastSegments = client.controllerGet("/segments/orders").body();
+            if (lastSegments.contains("orders_0")) {
+                uploaded = true;
+                break;
+            }
+            Thread.sleep(3_000);
+        }
+        assertTrue(uploaded, "segment orders_0 not visible after upload; last: " + lastSegments);
     }
 
     @Test
@@ -116,8 +187,8 @@ public class PinotRangerIT {
         assertEquals(200, service.statusCode(), "service pinotdev not retrievable");
         assertTrue(service.body().contains("pinotdev"), "unexpected service body");
 
-        // Explicit test-connection surface (MEDIUM confidence — research open
-        // question 3): if it 404/405s, the create-response assertion above stands.
+        // Explicit test-connection surface: v1 ServiceREST POST /service/plugins/services/validateConfig.
+        // With the impl jar mounted in the admin image, VXResponse statusCode 0 = connectivity OK.
         HttpResponse<String> validation = client.validateServiceConfig();
         if (validation.statusCode() == 404 || validation.statusCode() == 405) {
             // documented fallback: service create already proved validateConfig live
@@ -125,6 +196,8 @@ public class PinotRangerIT {
         }
         assertEquals(200, validation.statusCode(),
                 "validateConfig endpoint failed: " + validation.statusCode() + " " + validation.body());
+        assertTrue(validation.body().contains("\"statusCode\":0"),
+                "validateConfig reported failure: " + validation.body());
     }
 
     @Test
@@ -154,8 +227,8 @@ public class PinotRangerIT {
 
         derivedBrokerUser = discoverDerivedBrokerUser();
         assertNotNull(derivedBrokerUser, "could not discover derived broker user from audit");
-        assertTrue(IP_PATTERN.matcher(derivedBrokerUser).matches(),
-                "derived broker user is not IP-shaped: " + derivedBrokerUser);
+        assertEquals("brokeruser", derivedBrokerUser,
+                "derived broker user should be the Basic-auth principal");
     }
 
     @Test
@@ -180,19 +253,22 @@ public class PinotRangerIT {
     @Test
     @Order(5)
     void testDenyPolicyWins() throws Exception {
-        // CI-04 deny: a deny policy for the same principal on the same table —
-        // deny wins over allow.
-        String denyJson = "{\"service\":\"pinotdev\",\"name\":\"it-deny-query-orders\","
+        // CI-04 deny: Ranger enforces policy-per-resource uniqueness (error 3010), so a
+        // separate deny policy for the same table cannot coexist with the allow policy.
+        // Deny-wins is instead exercised the way Ranger models it: a denyPolicyItem in
+        // the SAME policy overrides its allow items for the same user.
+        String denyJson = "{\"service\":\"pinotdev\",\"name\":\"it-allow-query-orders\","
                 + "\"resources\":{\"table\":{\"values\":[\"orders\"]}},"
+                + "\"policyItems\":[{\"accesses\":[{\"type\":\"query\",\"isAllowed\":true}],"
+                + "\"users\":[\"" + derivedBrokerUser + "\"]}],"
                 + "\"denyPolicyItems\":[{\"accesses\":[{\"type\":\"query\",\"isAllowed\":true}],"
                 + "\"users\":[\"" + derivedBrokerUser + "\"]}]}";
-        HttpResponse<String> posted = client.postPolicy(denyJson);
+        HttpResponse<String> posted = client.updatePolicy(allowPolicyId, denyJson);
         assertTrue(posted.statusCode() == 200 || posted.statusCode() == 201,
-                "deny policy POST failed: " + posted.statusCode());
-        long denyId = extractPolicyId(posted.body());
+                "deny policy PUT failed: " + posted.statusCode());
 
         pollUntilDenied();
-        client.deletePolicy(denyId);
+        client.updatePolicy(allowPolicyId, allowPolicyJson());
     }
 
     @Test
@@ -201,18 +277,11 @@ public class PinotRangerIT {
         // CI-04 audit (BROKER-04 live): after one allowed + one denied broker query,
         // the Ranger audit trail (log4j JSON in container logs, Solr fallback) has
         // both an allow and a deny result for service pinotdev / accessType query.
+        // Audit events (Log4jAuditProvider JSON) carry "repo":"pinotdev" — the field
+        // is named repo, not service.
         String logs = client.composeLogs("pinot-broker");
-        boolean hasAllow = logs.contains("\"service\":\"pinotdev\"") && logs.contains("\"result\":1");
-        boolean hasDeny = logs.contains("\"service\":\"pinotdev\"") && logs.contains("\"result\":0");
-
-        if (!hasAllow || !hasDeny) {
-            // Solr fallback channel (audit_store=solr on the ranger image)
-            String solr = querySolrAudits();
-            boolean solrHasAllow = solr.contains("\"service\":\"pinotdev\"");
-            boolean solrHasDeny = solr.contains("\"service\":\"pinotdev\"");
-            hasAllow = hasAllow || solrHasAllow;
-            hasDeny = hasDeny || solrHasDeny;
-        }
+        boolean hasAllow = logs.contains("\"repo\":\"pinotdev\"") && logs.contains("\"result\":1");
+        boolean hasDeny = logs.contains("\"repo\":\"pinotdev\"") && logs.contains("\"result\":0");
         assertTrue(hasAllow, "no allow audit event found in broker logs or Solr");
         assertTrue(hasDeny, "no deny audit event found in broker logs or Solr");
     }
@@ -222,29 +291,34 @@ public class PinotRangerIT {
     void testRowFilterPolicy() throws Exception {
         // MASK-01 live (Phase 3 deferred): row filter `region = 'west'` halves the
         // visible rows (2 of 4) for the same broker principal.
-        String rowFilterJson = "{\"service\":\"pinotdev\",\"name\":\"it-rowfilter-orders\","
+        // Ranger policy-per-resource uniqueness (3010): the row filter rides in the SAME
+        // policy as the allow item (rowFilterPolicyItems alongside policyItems).
+        String rowFilterJson = "{\"service\":\"pinotdev\",\"name\":\"it-allow-query-orders\","
                 + "\"resources\":{\"table\":{\"values\":[\"orders\"]}},"
+                + "\"policyItems\":[{\"accesses\":[{\"type\":\"query\",\"isAllowed\":true}],"
+                + "\"users\":[\"" + derivedBrokerUser + "\"]}],"
                 + "\"rowFilterPolicyItems\":[{\"rowFilterInfo\":{\"filterExpr\":\"region = 'west'\"},"
                 + "\"accesses\":[{\"type\":\"query\",\"isAllowed\":true}],"
                 + "\"users\":[\"" + derivedBrokerUser + "\"]}]}";
-        HttpResponse<String> posted = client.postPolicy(rowFilterJson);
+        HttpResponse<String> posted = client.updatePolicy(allowPolicyId, rowFilterJson);
         assertTrue(posted.statusCode() == 200 || posted.statusCode() == 201,
-                "row-filter policy POST failed: " + posted.statusCode());
-        long rowFilterId = extractPolicyId(posted.body());
+                "row-filter policy PUT failed: " + posted.statusCode());
 
-        long deadline = System.currentTimeMillis() + 30_000;
+        long deadline = System.currentTimeMillis() + 90_000;
         String lastResponse = "";
         while (System.currentTimeMillis() < deadline) {
             HttpResponse<String> filtered = client.queryBroker("SELECT count(*) FROM orders");
             lastResponse = filtered.body();
-            if (filtered.statusCode() == 200 && (filtered.body().contains("\"value\":\"2\"")
-                    || countRows(filtered.body()) == 2)) {
-                client.deletePolicy(rowFilterId);
+            boolean segmentUnavailable = filtered.body().contains("segments unavailable");
+            if (filtered.statusCode() == 200 && !segmentUnavailable
+                    && (filtered.body().contains("\"value\":\"2\"")
+                        || countRows(filtered.body()) == 2)) {
+                client.updatePolicy(allowPolicyId, allowPolicyJson());
                 return;
             }
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         }
-        client.deletePolicy(rowFilterId);
+        client.updatePolicy(allowPolicyId, allowPolicyJson());
         throw new AssertionError("row filter did not take effect within 30s; last response: " + lastResponse);
     }
 
@@ -252,36 +326,62 @@ public class PinotRangerIT {
     @Order(8)
     void testController403ForUnauthorizedUser() throws Exception {
         // Phase 4 deferred live check: controller path is per-user (Basic auth).
-        String tableJson = "{\"tableName\":\"orders_denied\",\"tableType\":\"OFFLINE\"}";
+        // Pinot 1.4 validates the JSON payload before auth: a bare {tableName,tableType}
+        // POST 400s on the missing segmentsConfig, so use a full (valid) table config.
+        Path fixtures = client.getModuleDir().resolve("src/test/resources/fixtures");
+        String ordersTable = Files.readString(fixtures.resolve("orders-table.json"))
+                .replace("\"orders\"", "\"orders_denied\"");
+        String tableJson = ordersTable;
         HttpResponse<String> denied = client.controllerPostWithAuth(
                 "/tables", tableJson, "pinot-admin-test", "pw");
-        assertEquals(403, denied.statusCode(),
-                "unauthorized table create should be 403, got: " + denied.statusCode() + " " + denied.body());
+        // Pinot surfaces authorization failures during table-creation processing as 400
+        // with a permission-denied message (the @Authorize 403 path only covers the
+        // pre-flight checks; the table-name resolution happens later).
+        assertTrue(denied.statusCode() == 403
+                        || (denied.statusCode() == 400 && denied.body().contains("Permission is denied")),
+                "unauthorized table create should be denied, got: " + denied.statusCode() + " " + denied.body());
 
         // grant CreateTable to the user, retry with a different table name → success
+        // (Ranger 2.8 requires policy users to exist as Ranger users first)
+        client.createUserIfMissing("pinot-admin-test", "PinotTest1");
+        // POST /tables triggers BOTH checks: the coarse CRUD gate (accessType "create" on
+        // the bare table name) and the fine-grained gate (accessType "CreateTable" on the
+        // fully-qualified name with the _OFFLINE suffix). The grant carries both.
         String grantJson = "{\"service\":\"pinotdev\",\"name\":\"it-allow-createtable\","
                 + "\"resources\":{\"table\":{\"values\":[\"orders_allowed*\"]}},"
-                + "\"policyItems\":[{\"accesses\":[{\"type\":\"CreateTable\",\"isAllowed\":true}],"
+                + "\"policyItems\":[{\"accesses\":[{\"type\":\"create\",\"isAllowed\":true},"
+                + "{\"type\":\"CreateTable\",\"isAllowed\":true}],"
                 + "\"users\":[\"pinot-admin-test\"]}]}";
         HttpResponse<String> posted = client.postPolicy(grantJson);
         assertTrue(posted.statusCode() == 200 || posted.statusCode() == 201,
                 "CreateTable grant POST failed: " + posted.statusCode());
         long grantId = extractPolicyId(posted.body());
 
-        long deadline = System.currentTimeMillis() + 30_000;
+        // Pinot needs the table's schema to pre-exist; upload it as the provisioning
+        // admin (the schema is not the authorization subject under test).
+        String allowedSchemaJson = Files.readString(
+                client.getModuleDir().resolve("src/test/resources/fixtures/orders-schema.json"))
+                .replace("\"orders\"", "\"orders_allowed\"");
+        client.postSchemaAsAdmin(allowedSchemaJson);
+
+        long deadline = System.currentTimeMillis() + 60_000;
         boolean created = false;
+        String lastResponse = "";
         while (System.currentTimeMillis() < deadline) {
-            String allowedJson = "{\"tableName\":\"orders_allowed\",\"tableType\":\"OFFLINE\"}";
+            String allowedJson = Files.readString(
+                    client.getModuleDir().resolve("src/test/resources/fixtures/orders-table.json"))
+                    .replace("\"orders\"", "\"orders_allowed\"");
             HttpResponse<String> allowed = client.controllerPostWithAuth(
-                    "/tables", allowedJson, "pinot-admin-test", "pw");
+                    "/tables", allowedJson, "pinot-admin-test", "PinotTest1");
+            lastResponse = allowed.statusCode() + " " + allowed.body();
             if (allowed.statusCode() == 200 || allowed.statusCode() == 201) {
                 created = true;
                 break;
             }
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         }
         client.deletePolicy(grantId);
-        assertTrue(created, "authorized table create did not succeed within 30s");
+        assertTrue(created, "authorized table create did not succeed within 60s; last: " + lastResponse);
     }
 
     @Test
@@ -359,15 +459,20 @@ public class PinotRangerIT {
         return last;
     }
 
-    private static String querySolrAudits() throws IOException, InterruptedException {
-        String query = "http://localhost:8983/solr/ranger_audits/select?q="
-                + URLEncoder.encode("service:pinotdev", StandardCharsets.UTF_8) + "&rows=50&wt=json";
-        java.net.http.HttpClient http = java.net.http.HttpClient.newHttpClient();
-        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder(java.net.URI.create(query))
-                .GET()
-                .timeout(java.time.Duration.ofSeconds(30))
-                .build();
-        return http.send(request, java.net.http.HttpResponse.BodyHandlers.ofString()).body();
+    /** Solr audit query; empty string when the Solr channel is unreachable. */
+    private static String querySolrAudits() {
+        try {
+            String query = "http://localhost:8983/solr/ranger_audits/select?q="
+                    + URLEncoder.encode("repo:pinotdev", StandardCharsets.UTF_8) + "&rows=50&wt=json";
+            java.net.http.HttpClient http = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder(java.net.URI.create(query))
+                    .GET()
+                    .timeout(java.time.Duration.ofSeconds(10))
+                    .build();
+            return http.send(request, java.net.http.HttpResponse.BodyHandlers.ofString()).body();
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private static long extractPolicyId(String body) {

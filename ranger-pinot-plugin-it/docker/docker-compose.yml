@@ -44,7 +44,12 @@ services:
   # 2-5 minutes anyway — the test's awaitRangerReady() poll loop owns
   # readiness.
   ranger-admin:
-    image: apache/ranger:2.8.0
+    # FOUND-03/04: derived image adds the pinot impl jar to the admin webapp's
+    # service-plugin dir — without it RangerBaseService's fallback answers
+    # "Configuration validation is not implemented for pinot" and lookup []
+    build:
+      context: ..
+      dockerfile: docker/ranger/Dockerfile.plugins
     hostname: ranger-admin.rangernw
     environment:
       POSTGRES_PASSWORD: rangerR0cks!
@@ -82,9 +87,18 @@ services:
       args:
         PINOT_VERSION: "${PINOT_VERSION}"
     hostname: pinot-controller
-    command: StartController -zkAddress pinot-zookeeper:2181
+    command:
+      - StartController
+      - -zkAddress
+      - pinot-zookeeper:2181
+      - -configFileName
+      - conf/pinot-controller.conf
     environment:
       JAVA_OPTS: "-Xms512M -Xmx1G"
+      # pinot-admin.sh honors CLASSPATH_PREFIX; /opt/pinot/conf carries the
+      # rendered ranger-pinot-security.xml that RangerBasePlugin loads from the
+      # classpath (policy cache dir, admin URL, service name).
+      CLASSPATH_PREFIX: /opt/pinot/conf
     networks:
       - rangernw
     ports:
@@ -104,9 +118,15 @@ services:
       args:
         PINOT_VERSION: "${PINOT_VERSION}"
     hostname: pinot-broker
-    command: StartBroker -zkAddress pinot-zookeeper:2181
+    command:
+      - StartBroker
+      - -zkAddress
+      - pinot-zookeeper:2181
+      - -configFileName
+      - conf/pinot-broker.conf
     environment:
       JAVA_OPTS: "-Xms512M -Xmx1G"
+      CLASSPATH_PREFIX: /opt/pinot/conf
     networks:
       - rangernw
     ports:
@@ -124,9 +144,15 @@ services:
       args:
         PINOT_VERSION: "${PINOT_VERSION}"
     hostname: pinot-server
-    command: StartServer -zkAddress pinot-zookeeper:2181
+    command:
+      - StartServer
+      - -zkAddress
+      - pinot-zookeeper:2181
+      - -configFileName
+      - conf/pinot-server.conf
     environment:
       JAVA_OPTS: "-Xms512M -Xmx1G"
+      CLASSPATH_PREFIX: /opt/pinot/conf
     networks:
       - rangernw
     ports:

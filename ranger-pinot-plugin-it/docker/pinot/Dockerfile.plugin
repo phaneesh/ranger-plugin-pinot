@@ -11,13 +11,29 @@ COPY target/ranger-*-pinot-plugin.tar.gz /tmp/plugin.tar.gz
 
 RUN mkdir -p /opt/ranger && \
     tar -xzf /tmp/plugin.tar.gz -C /opt/ranger --strip-components=1 && \
-    printf 'COMPONENT_INSTALL_DIR_NAME=/opt/pinot\nPOLICY_MGR_URL=http://ranger-admin.rangernw:6080\nREPOSITORY_NAME=pinotdev\nPOLICY_CACHE_FILE_PATH=/tmp/ranger-policycache\nSSL_KEYSTORE_FILE_PATH=/dev/null\nXAAUDIT.LOG4J.ENABLE=true\nXAAUDIT.SOLR.ENABLE=true\nXAAUDIT.SOLR.URL=http://ranger-solr.rangernw:8983/solr/ranger_audits\nXAAUDIT.SOLR.FILE_SPOOL_DIR=/tmp/audit-spool\n' \
+    # The stack runs no Solr audit sink; keep log4j (in-process) audit only.
+    # A Solr destination would make RangerBasePlugin.init() throw
+    # ClassNotFoundException: SolrAuditProvider (the solr audit provider
+    # classes ship in ranger solr-audit artifacts, not in this plugin).
+    printf 'COMPONENT_INSTALL_DIR_NAME=/opt/pinot\nPOLICY_MGR_URL=http://ranger-admin.rangernw:6080\nREPOSITORY_NAME=pinotdev\nPOLICY_CACHE_FILE_PATH=/tmp/ranger-policycache\nSSL_KEYSTORE_FILE_PATH=/dev/null\nXAAUDIT.LOG4J.ENABLE=true\nXAAUDIT.SOLR.ENABLE=false\nXAAUDIT.SOLR.URL=NONE\nXAAUDIT.SOLR.ZOOKEEPER=NONE\nXAAUDIT.SOLR.FILE_SPOOL_DIR=/tmp/audit-spool\n' \
       >> /opt/ranger/install.properties && \
     sed -i \
       's/^ranger.plugin.pinot.policy.pollIntervalMs[ \t]*/ranger.plugin.pinot.policy.pollIntervalMs\t5000\t/' \
       /opt/ranger/install/conf.templates/enable/ranger-pinot-security-changes.cfg || true && \
     /opt/ranger/enable-pinot-plugin.sh && \
     rm -f /tmp/plugin.tar.gz
+
+# The services are started with -configFileName, and a config file's
+# pinot.zk.server / pinot.cluster.name override the CLI -zkAddress. The stock
+# confs ship localhost:2181 + pinot-quickstart; rewrite them for this stack.
+RUN for f in pinot-controller.conf pinot-broker.conf pinot-server.conf; do \
+      sed -i 's|^pinot.zk.server=.*|pinot.zk.server=pinot-zookeeper:2181|' /opt/pinot/conf/$f && \
+      sed -i 's|^pinot.cluster.name=.*|pinot.cluster.name=PinotCluster|' /opt/pinot/conf/$f; \
+    done && \
+    # Advertise the controller by its docker hostname so segment download URLs
+    # (UploadSegment stores them for the server) resolve inside the network —
+    # the stock conf says localhost, which points servers at themselves.
+    sed -i 's|^controller.vip.host=.*|controller.vip.host=pinot-controller|' /opt/pinot/conf/pinot-controller.conf
 
 # Sanity-assert the rendered configs: the enable script wired the service name,
 # the admin URL and the SSL override the way the tests expect.
