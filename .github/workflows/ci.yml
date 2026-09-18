@@ -18,16 +18,16 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 17 (Temurin)
         uses: actions/setup-java@v5
@@ -36,7 +36,7 @@ jobs:
           java-version: '17'
 
       - name: Cache Maven dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -53,10 +53,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pinot: [ "1.4.0", "1.5.1" ]
+        pinot: ["1.4.0", "1.5.1"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 17 (Temurin)
         uses: actions/setup-java@v5
@@ -65,7 +65,7 @@ jobs:
           java-version: '17'
 
       - name: Cache Maven dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
