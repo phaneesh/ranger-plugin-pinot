@@ -55,16 +55,16 @@
         <ranger.version>2.8.0</ranger.version>
         <pinot.version>1.4.0</pinot.version>
 
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-        <checkstyle.plugin.version>3.1.0</checkstyle.plugin.version>
-        <checkstyle.version>8.29</checkstyle.version>
+        <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
+        <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
+        <checkstyle.version>8.45.1</checkstyle.version>
         <checkstyle.failOnViolation>true</checkstyle.failOnViolation>
         <checkstyle.skip>false</checkstyle.skip>
-        <rat.plugin.version>0.16.1</rat.plugin.version>
-        <spotbugs.plugin.version>4.7.3.5</spotbugs.plugin.version>
+        <rat.plugin.version>0.18</rat.plugin.version>
+        <spotbugs.plugin.version>4.10.4.1</spotbugs.plugin.version>
         <spotbugs.failOnViolation>false</spotbugs.failOnViolation>
 
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
     </properties>
 

@@ -1,3 +1,18 @@
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 # Ranger Plugin for Apache Pinot
 
 An [Apache Ranger](https://ranger.apache.org/) authorization plugin for [Apache Pinot](https://pinot.apache.org/) 1.4.x and 1.5.x. Define one set of table-level access policies in Ranger Admin — ACL, tag-based, and row-level security — and have them enforced consistently on **both** of Pinot's authorization surfaces: the **broker** (query-time table ACL + row filtering) and the **controller** (admin REST API, table CRUD, cluster-level actions), with audit trails and fail-closed behavior on policy-fetch failure.
