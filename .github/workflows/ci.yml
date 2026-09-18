@@ -45,3 +45,32 @@ jobs:
 
       - name: Build and verify
         run: mvn -T 8 clean verify --no-transfer-progress -B -V
+
+  integration:
+    needs: build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        pinot: ["1.4.0", "1.5.1"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (Temurin)
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run integration tests (Pinot ${{ matrix.pinot }})
+        run: mvn -B clean verify -Pintegration -Dit.pinot.version=${{ matrix.pinot }} --no-transfer-progress -V
