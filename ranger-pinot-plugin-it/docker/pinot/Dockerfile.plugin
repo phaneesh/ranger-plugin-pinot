@@ -1,0 +1,28 @@
+# Derived image: the stock apachepinot/pinot image plus the REAL distro tarball
+# (built by ranger-pinot-plugin-distro) installed by the REAL enable-pinot-plugin.sh.
+# This is the artifact under test — nothing is placed on the classpath by hand.
+#
+# Plain apachepinot/pinot tags only (JDK 21-era images): plugin class files are
+# --release 17, which loads on JDK 21 but NOT on a JDK 11 image variant.
+ARG PINOT_VERSION=1.4.0
+FROM apachepinot/pinot:${PINOT_VERSION}
+
+COPY target/ranger-*-pinot-plugin.tar.gz /tmp/plugin.tar.gz
+
+RUN mkdir -p /opt/ranger && \
+    tar -xzf /tmp/plugin.tar.gz -C /opt/ranger --strip-components=1 && \
+    printf 'COMPONENT_INSTALL_DIR_NAME=/opt/pinot\nPOLICY_MGR_URL=http://ranger-admin.rangernw:6080\nREPOSITORY_NAME=pinotdev\nPOLICY_CACHE_FILE_PATH=/tmp/ranger-policycache\nSSL_KEYSTORE_FILE_PATH=/dev/null\nXAAUDIT.LOG4J.ENABLE=true\nXAAUDIT.SOLR.ENABLE=true\nXAAUDIT.SOLR.URL=http://ranger-solr.rangernw:8983/solr/ranger_audits\nXAAUDIT.SOLR.FILE_SPOOL_DIR=/tmp/audit-spool\n' \
+      >> /opt/ranger/install.properties && \
+    sed -i \
+      's/^ranger.plugin.pinot.policy.pollIntervalMs[ \t]*/ranger.plugin.pinot.policy.pollIntervalMs\t5000\t/' \
+      /opt/ranger/install/conf.templates/enable/ranger-pinot-security-changes.cfg || true && \
+    /opt/ranger/enable-pinot-plugin.sh && \
+    rm -f /tmp/plugin.tar.gz
+
+# Sanity-assert the rendered configs: the enable script wired the service name,
+# the admin URL and the SSL override the way the tests expect.
+RUN grep -q 'ranger.plugin.pinot.service.name' /opt/pinot/conf/ranger-pinot-security.xml && \
+    grep -q 'http://ranger-admin.rangernw:6080' /opt/pinot/conf/ranger-pinot-security.xml && \
+    grep -q '/dev/null' /opt/pinot/conf/ranger-policymgr-ssl.xml && \
+    grep -q 'pinot.broker.access.control.class' /opt/pinot/conf/pinot-broker.conf && \
+    grep -q 'controller.admin.access.control.factory.class' /opt/pinot/conf/pinot-controller.conf

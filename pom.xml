@@ -41,6 +41,7 @@
         <module>ranger-pinot-plugin</module>
         <module>ranger-pinot-plugin-shim</module>
         <module>ranger-pinot-plugin-distro</module>
+        <module>ranger-pinot-plugin-it</module>
     </modules>
 
     <properties>
@@ -196,6 +197,10 @@
                         <exclude>**/*.iml</exclude>
                         <exclude>.idea/**</exclude>
                         <exclude>**/src/main/resources/**/*.json</exclude>
+                        <exclude>ranger-pinot-plugin-it/docker/**</exclude>
+                        <exclude>**/docker/**</exclude>
+                        <exclude>**/src/test/resources/**/*.json</exclude>
+                        <exclude>**/src/test/resources/**/*.csv</exclude>
                         <exclude>.planning/**</exclude>
                         <exclude>.pi/**</exclude>
                         <exclude>NOTICE</exclude>

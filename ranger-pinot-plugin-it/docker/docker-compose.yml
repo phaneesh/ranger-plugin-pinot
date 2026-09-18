@@ -1,0 +1,142 @@
+# Integration-test stack: real Ranger Admin 2.8.0 (postgres + solr sidecars)
+# plus a real Pinot cluster (ZK / controller / broker / server) whose images
+# carry the real distro tarball installed by the real enable-pinot-plugin.sh.
+# ONE flat network named rangernw — the ranger image's baked-in hostnames
+# (ranger-db.rangernw, ranger-admin.rangernw, ranger-solr.rangernw) are
+# load-bearing, and a single network avoids every DNS question between the
+# two stacks.
+#
+# Driven by ranger-pinot-plugin-it/pom.xml (-Pintegration): exec-maven-plugin
+# runs `compose up -d --build --wait` pre-integration-test and
+# `compose down -v` post-integration-test.
+# PINOT_VERSION selects the apachepinot/pinot base image (matrix 1.4.0/1.5.1).
+name: ranger-pinot-it
+
+services:
+  ranger-db:
+    image: apache/ranger-db:2.8.0
+    hostname: ranger-db.rangernw
+    environment:
+      POSTGRES_PASSWORD: rangerR0cks!
+      RANGER_DB_USER: rangeradmin
+      RANGER_DB_PASSWORD: rangerR0cks!
+    networks:
+      - rangernw
+    healthcheck:
+      test: ["CMD-SHELL", "su -c 'pg_isready -q' postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  ranger-solr:
+    image: apache/ranger-solr:2.8.0
+    hostname: ranger-solr.rangernw
+    command: >-
+      solr-precreate ranger_audits
+      /opt/solr/server/solr/configsets/ranger_audits/
+    networks:
+      - rangernw
+    ports:
+      - "8983:8983"
+
+  # No curl-based healthcheck here on purpose: the apache/ranger image may
+  # lack curl, and first boot (setup.sh + create-ranger-services.py) takes
+  # 2-5 minutes anyway — the test's awaitRangerReady() poll loop owns
+  # readiness.
+  ranger-admin:
+    image: apache/ranger:2.8.0
+    hostname: ranger-admin.rangernw
+    environment:
+      POSTGRES_PASSWORD: rangerR0cks!
+      RANGER_DB_USER: rangeradmin
+      RANGER_DB_PASSWORD: rangerR0cks!
+    networks:
+      - rangernw
+    ports:
+      - "6080:6080"
+    depends_on:
+      ranger-db:
+        condition: service_healthy
+      ranger-solr:
+        condition: service_started
+
+  pinot-zookeeper:
+    image: zookeeper:3.9.5
+    hostname: pinot-zookeeper
+    networks:
+      - rangernw
+    healthcheck:
+      test: ["CMD", "zkServer.sh", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  # Derived images (docker/pinot/Dockerfile.plugin): stock apachepinot/pinot
+  # plus the real distro tarball installed via the real enable script,
+  # pointing at the live Ranger Admin. Build context is the module root so
+  # target/ranger-*-pinot-plugin.tar.gz is inside it.
+  pinot-controller:
+    build:
+      context: ..
+      dockerfile: docker/pinot/Dockerfile.plugin
+      args:
+        PINOT_VERSION: "${PINOT_VERSION}"
+    hostname: pinot-controller
+    command: StartController -zkAddress pinot-zookeeper:2181
+    environment:
+      JAVA_OPTS: "-Xms512M -Xmx1G"
+    networks:
+      - rangernw
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./../src/test/resources/fixtures:/fixtures:ro
+    depends_on:
+      pinot-zookeeper:
+        condition: service_healthy
+      ranger-admin:
+        condition: service_started
+
+  pinot-broker:
+    build:
+      context: ..
+      dockerfile: docker/pinot/Dockerfile.plugin
+      args:
+        PINOT_VERSION: "${PINOT_VERSION}"
+    hostname: pinot-broker
+    command: StartBroker -zkAddress pinot-zookeeper:2181
+    environment:
+      JAVA_OPTS: "-Xms512M -Xmx1G"
+    networks:
+      - rangernw
+    ports:
+      - "8099:8099"
+    depends_on:
+      pinot-zookeeper:
+        condition: service_healthy
+      ranger-admin:
+        condition: service_started
+
+  pinot-server:
+    build:
+      context: ..
+      dockerfile: docker/pinot/Dockerfile.plugin
+      args:
+        PINOT_VERSION: "${PINOT_VERSION}"
+    hostname: pinot-server
+    command: StartServer -zkAddress pinot-zookeeper:2181
+    environment:
+      JAVA_OPTS: "-Xms512M -Xmx1G"
+    networks:
+      - rangernw
+    ports:
+      - "8098:8098"
+    depends_on:
+      pinot-zookeeper:
+        condition: service_healthy
+      ranger-admin:
+        condition: service_started
+
+networks:
+  rangernw:
+    name: rangernw

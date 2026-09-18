@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information regarding
+  copyright ownership.  The ASF licenses this file to You under the
+  Apache License, Version 2.0 (the "License"); you may not use this file
+  except in compliance with the License.  You may obtain a copy of the
+  License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.ranger</groupId>
+        <artifactId>ranger-pinot-plugin-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>ranger-pinot-plugin-it</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Ranger Pinot Plugin Integration Tests</name>
+    <description>End-to-end integration tests: real Ranger Admin 2.8.0 + real Pinot cluster running
+        the shipped distro tarball, gated behind -Pintegration (Docker required)</description>
+
+    <properties>
+        <skipITs>true</skipITs>
+        <it.pinot.version>1.4.0</it.pinot.version>
+    </properties>
+
+    <dependencies>
+        <!-- Present so the reactor guarantees the distro tarball exists before this
+             module builds; the IT installs the plugin ONLY via the tarball + the real
+             enable script (CLASSLOAD-01) — impl jars are never on the test classpath. -->
+        <dependency>
+            <groupId>org.apache.ranger</groupId>
+            <artifactId>ranger-pinot-plugin-distro</artifactId>
+            <version>${project.version}</version>
+            <type>tar.gz</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Copies the real distro tarball (built by the distro module earlier in
+                 the reactor — the dependency above guarantees the ordering) into target/
+                 so the Docker build context (module root) sees it. antrun is used
+                 because dependency:copy resolves artifactItems from the local repo,
+                 not the reactor. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-distro-tarball</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>generate-test-resources</phase>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.build.directory}"/>
+                                <copy todir="${project.build.directory}" flatten="true">
+                                    <fileset dir="${project.basedir}/../ranger-pinot-plugin-distro/target">
+                                        <include name="ranger-*-pinot-plugin.tar.gz"/>
+                                    </fileset>
+                                </copy>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- Only activated by -Pintegration: failsafe runs *IT.java classes, and
+             exec-maven-plugin brings the docker-compose stack up/down around them.
+             Without the profile the module builds in milliseconds and touches no Docker. -->
+        <profile>
+            <id>integration</id>
+            <properties>
+                <skipITs>false</skipITs>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.6.3</version>
+                        <executions>
+                            <execution>
+                                <id>compose-up</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <executable>docker</executable>
+                                    <workingDirectory>${project.basedir}</workingDirectory>
+                                    <arguments>
+                                        <argument>compose</argument>
+                                        <argument>-f</argument>
+                                        <argument>docker/docker-compose.yml</argument>
+                                        <argument>-p</argument>
+                                        <argument>ranger-pinot-it</argument>
+                                        <argument>up</argument>
+                                        <argument>-d</argument>
+                                        <argument>--build</argument>
+                                        <argument>--wait</argument>
+                                    </arguments>
+                                    <environmentVariables>
+                                        <PINOT_VERSION>${it.pinot.version}</PINOT_VERSION>
+                                    </environmentVariables>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>compose-down</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>post-integration-test</phase>
+                                <configuration>
+                                    <executable>docker</executable>
+                                    <workingDirectory>${project.basedir}</workingDirectory>
+                                    <arguments>
+                                        <argument>compose</argument>
+                                        <argument>-f</argument>
+                                        <argument>docker/docker-compose.yml</argument>
+                                        <argument>-p</argument>
+                                        <argument>ranger-pinot-it</argument>
+                                        <argument>down</argument>
+                                        <argument>-v</argument>
+                                        <argument>--remove-orphans</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>3.2.5</version>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <skipITs>${skipITs}</skipITs>
+                            <systemPropertyVariables>
+                                <ranger.baseUrl>http://localhost:6080</ranger.baseUrl>
+                                <pinot.controller.baseUrl>http://localhost:9000</pinot.controller.baseUrl>
+                                <broker.baseUrl>http://localhost:8099</broker.baseUrl>
+                                <it.pinot.version>${it.pinot.version}</it.pinot.version>
+                                <it.module.dir>${project.basedir}</it.module.dir>
+                                <it.compose.project>ranger-pinot-it</it.compose.project>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
