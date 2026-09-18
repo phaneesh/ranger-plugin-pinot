@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: completed
 stopped_at: "Phases 1-4 complete and committed. Next up is Phase 5 (packaging & release: distro tarball with `lib/ranger-pinot-plugin-impl/` layout, install scripts, conf templates, GitHub Actions release automation, integration tests). Notebook pages `pinot-auth-spi`, `ranger-plugin-architecture`, `ranger-plugin-api-facts`, `phase-3-row-filtering` hold prior research; Phase 4 added the cluster-resource + Actions-accessType service-def model (see `service-defs/ranger-servicedef-pinot.json`) and the tag-policy test harness pattern (`RangerFileBasedTagRetriever` + classpath ServiceTags JSON + tag-serviceDef with `pinot:`-prefixed accessTypes, prefix stripped by normalization)."
-last_updated: "2026-09-18T03:51:31.614Z"
+last_updated: "2026-09-18T04:02:11.306Z"
 last_activity: "05-03: ranger-pinot-plugin-it module (failsafe-gated) + docker-compose Ranger/Pinot stack + PinotRangerIT (9 E2E tests) + CI integration matrix job. Full-reactor mvn clean verify green; Docker-dependent live runs deferred to CI."
 progress:
   total_phases: 5
