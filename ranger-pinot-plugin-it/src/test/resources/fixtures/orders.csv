@@ -1,0 +1,5 @@
+orderId,region,amount
+order-1,west,100
+order-2,west,200
+order-3,east,300
+order-4,east,400

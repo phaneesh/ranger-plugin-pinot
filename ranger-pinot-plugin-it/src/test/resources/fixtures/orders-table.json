@@ -1,0 +1,23 @@
+{
+  "tableName": "orders",
+  "tableType": "OFFLINE",
+  "routing": {
+    "instanceSelectorType": "balanced"
+  },
+  "tenants": "",
+  "tableIndexConfig": {
+    "loadMode": "MMAP",
+    "streamIngestionConfig": ""
+  },
+  "ingestionConfig": {
+    "batchIngestionConfig": {
+      "segmentIngestionType": "APPEND",
+      "segmentIngestionFrequency": "DAILY"
+    },
+    "streamIngestionConfig": ""
+  },
+  "metadata": {
+    "customConfigs": ""
+  },
+  "isDimTable": false
+}
