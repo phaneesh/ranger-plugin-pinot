@@ -235,6 +235,11 @@
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>${spotbugs.plugin.version}</version>
+                <configuration>
+                    <includeFilterFiles>
+                        ${maven.multiModuleProjectDirectory}/dev-support/spotbugsIncludeFile.xml
+                    </includeFilterFiles>
+                </configuration>
                 <executions>
                     <execution>
                         <id>spotbugs-check</id>
@@ -244,9 +249,6 @@
                         </goals>
                         <configuration>
                             <failOnError>${spotbugs.failOnViolation}</failOnError>
-                            <includeFilterFile>
-                                ${maven.multiModuleProjectDirectory}/dev-support/spotbugsIncludeFile.xml
-                            </includeFilterFile>
                         </configuration>
                     </execution>
                 </executions>
