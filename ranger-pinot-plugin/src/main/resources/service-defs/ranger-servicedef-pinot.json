@@ -1016,12 +1016,22 @@
     ],
     "resources": [
       {
+        "itemId": 1,
         "name": "table",
-        "matcherOptions": {
-          "wildCard": "false"
-        },
-        "lookupSupported": true,
+        "parent": "",
+        "level": 1,
+        "type": "string",
         "mandatory": true,
+        "lookupSupported": true,
+        "excludesSupported": true,
+        "matcher": "org.apache.ranger.plugin.resourcematcher.RangerDefaultResourceMatcher",
+        "matcherOptions": {
+          "wildCard": true,
+          "ignoreCase": true
+        },
+        "label": "Table",
+        "description": "Table",
+        "isValidLeaf": true,
         "uiHint": "{ \"singleValue\":true }"
       }
     ]
