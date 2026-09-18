@@ -105,16 +105,78 @@ public class RangerPinotAccessControl implements AccessControl {
     }
 
     /**
-     * {@link RequesterIdentity} is Pinot's own abstract marker type and carries no direct notion
-     * of "user" — only {@code getClientIp()} on the base class; the concrete
-     * {@code HttpRequesterIdentity} used at runtime adds raw HTTP headers + endpoint URL, but no
-     * parsed principal. TODO(Phase 2 follow-up, tracked as an open question, not a blocker): wire
-     * real identity extraction here (e.g. an auth header or a pluggable {@code AuthProvider}).
-     * Until then the client IP is used as a stand-in principal, so table ACLs are at least
-     * partitioned per caller instead of collapsing every request onto one shared identity.
+     * Derives the requesting principal from {@link RequesterIdentity}. Pinot 1.4/1.5's
+     * runtime {@code HttpRequesterIdentity} carries raw HTTP headers but never populates
+     * {@code getClientIp()} (the base class returns "unknown"), so identity extraction
+     * works through the headers: Basic-auth username when present, else the client IP,
+     * else "unknown".
      */
     private static String deriveUser(RequesterIdentity requesterIdentity) {
-        return requesterIdentity != null ? requesterIdentity.getClientIp() : "";
+        if (requesterIdentity == null) {
+            return "";
+        }
+        String fromHeaders = basicAuthUserFromIdentity(requesterIdentity);
+        if (fromHeaders != null) {
+            return fromHeaders;
+        }
+        return requesterIdentity.getClientIp();
+    }
+
+    /**
+     * Reads the Authorization header reflectively from the runtime identity. The 1.4/1.5
+     * {@code HttpRequesterIdentity.getHttpHeaders()} signature references unshaded guava
+     * (com.google.common.collect.Multimap) while the pinot docker image shades guava — direct
+     * linkage from this class throws NoSuchMethodError at link time. Reflection sidesteps
+     * the type resolution entirely: the header multimap is only touched as Object.
+     */
+    private static String basicAuthUserFromIdentity(RequesterIdentity identity) {
+        try {
+            java.lang.reflect.Method getter = null;
+            for (java.lang.reflect.Method m : identity.getClass().getMethods()) {
+                if ("getHttpHeaders".equals(m.getName()) && m.getParameterCount() == 0) {
+                    getter = m;
+                    break;
+                }
+            }
+            if (getter == null) {
+                return null;
+            }
+            Object headers = getter.invoke(identity);
+            if (headers == null) {
+                return null;
+            }
+            // Grizzly lowercases header names; look up case-insensitively via the keySet.
+            Object keys = headers.getClass().getMethod("keySet").invoke(headers);
+            for (Object key : (java.util.Collection<?>) keys) {
+                if (!"authorization".equalsIgnoreCase(String.valueOf(key))) {
+                    continue;
+                }
+                Object values = headers.getClass().getMethod("get", Object.class).invoke(headers, key);
+                if (values instanceof java.util.Collection && !((java.util.Collection<?>) values).isEmpty()) {
+                    Object first = ((java.util.Collection<?>) values).iterator().next();
+                    return basicAuthUser(String.valueOf(first));
+                }
+            }
+            return null;
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
+    }
+
+    /** Decodes a {@code Basic base64(user:password)} header value to the username. */
+    private static String basicAuthUser(String header) {
+        try {
+            String trimmed = header == null ? "" : header.trim();
+            if (!trimmed.regionMatches(true, 0, "Basic ", 0, 6)) {
+                return null;
+            }
+            String decoded = new String(java.util.Base64.getDecoder().decode(trimmed.substring(6).trim()),
+                    java.nio.charset.StandardCharsets.UTF_8);
+            int colon = decoded.indexOf(':');
+            return colon > 0 ? decoded.substring(0, colon) : decoded;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     /**
@@ -128,6 +190,7 @@ public class RangerPinotAccessControl implements AccessControl {
     @Override
     public TableRowColAccessResult getRowColFilters(RequesterIdentity requesterIdentity, String table) {
         Optional<String> filter = authorizer.getRowFilter(table, deriveUser(requesterIdentity), Collections.emptySet());
+        System.err.println("[RLS-PROBE] getRowColFilters called: table=" + table + " user=" + deriveUser(requesterIdentity) + " filter=" + filter);
 
         return filter.isPresent() ? new TableRowColAccessResultImpl(List.of(filter.get())) : TableRowColAccessResultImpl.unrestricted();
     }

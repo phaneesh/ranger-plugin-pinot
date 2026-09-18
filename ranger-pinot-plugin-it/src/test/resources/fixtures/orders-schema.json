@@ -1,0 +1,10 @@
+{
+  "schemaName": "orders",
+  "dimensionColumnSpecs": [
+    {"name": "orderId", "dataType": "STRING"},
+    {"name": "region", "dataType": "STRING"}
+  ],
+  "metricColumnSpecs": [
+    {"name": "amount", "dataType": "INT"}
+  ]
+}

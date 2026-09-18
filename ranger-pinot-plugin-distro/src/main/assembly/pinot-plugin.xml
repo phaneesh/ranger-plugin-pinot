@@ -42,8 +42,10 @@
 
         <!-- lib/ranger-pinot-plugin-impl/: impl jar + transitive runtime deps.
              The directory name is load-bearing (RangerPluginClassLoaderUtil convention).
-             Exclusions are artifacts Pinot ships on its own classpath:
-             jackson, jersey 1.x, slf4j, log4j/reload4j (host logging stack). -->
+             Exclusions are the host logging stack (slf4j, log4j/reload4j).
+             Jackson and jersey 1.x are NOT excluded: the apachepinot/pinot
+             image shades jackson (org.apache.pinot.shaded) and omits jersey
+             1.x, so the plugin must carry its own. -->
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <includes>
@@ -58,23 +60,36 @@
                 <includes>
                     <!-- Ranger runtime artifacts (curated, like Ranger's own plugin descriptors) -->
                     <include>org.apache.ranger:ranger-audit-core</include>
+                    <include>org.apache.ranger:ranger-audit-dest-log4j</include>
                     <include>org.apache.ranger:ranger-authz-api</include>
                     <include>org.apache.ranger:ranger-pinot-plugin</include>
                     <include>org.apache.ranger:ranger-plugins-cred</include>
                     <include>org.apache.ranger:ranger-plugins-common</include>
                     <include>org.apache.ranger:ranger-intg</include>
                     <include>org.apache.ranger:ugsync-util</include>
+                    <!-- Jackson: the apachepinot/pinot image shades its jackson under
+                         org.apache.pinot.shaded, so the plugin must ship its own -->
+                    <include>com.fasterxml.jackson.core:jackson-core</include>
+                    <include>com.fasterxml.jackson.core:jackson-databind</include>
+                    <include>com.fasterxml.jackson.core:jackson-annotations</include>
+                    <include>com.fasterxml.jackson.jaxrs:jackson-jaxrs-base</include>
+                    <include>com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider</include>
+                    <include>com.fasterxml.jackson.module:jackson-module-jaxb-annotations</include>
                     <!-- Third-party transitive runtime deps -->
                     <include>com.carrotsearch:hppc</include>
                     <include>com.kstruct:gethostname4j</include>
                     <include>com.nimbusds:nimbus-jose-jwt</include>
                     <include>com.google.code.findbugs:jsr305</include>
                     <include>com.google.code.gson:gson</include>
+                    <include>com.google.guava:guava</include>
                     <include>commons-codec:commons-codec</include>
                     <include>commons-collections:commons-collections</include>
                     <include>commons-io:commons-io</include>
                     <include>commons-logging:commons-logging</include>
                     <include>io.airlift:aircompressor</include>
+                    <!-- Jersey 1.x: RangerAdminRESTClient's HTTP stack; NOT on the pinot
+                         image classpath (only org.glassfish jersey 2 shaded bits are) -->
+                    <include>com.sun.jersey:jersey-bundle</include>
                     <include>io.dropwizard.metrics:metrics-core</include>
                     <include>joda-time:joda-time</include>
                     <include>net.java.dev.jna:jna</include>
@@ -106,12 +121,9 @@
                     <include>org.xerial.snappy:snappy-java</include>
                 </includes>
                 <excludes>
-                    <!-- Provided by the Pinot host classpath -->
-                    <exclude>com.fasterxml.jackson.core:*</exclude>
-                    <exclude>com.fasterxml.jackson.jaxrs:*</exclude>
-                    <exclude>com.fasterxml.jackson.module:*</exclude>
-                    <exclude>com.fasterxml.jackson.dataformat:*</exclude>
-                    <exclude>com.sun.jersey:*</exclude>
+                    <!-- Provided by the Pinot host classpath; jackson and jersey 1.x
+                         intentionally NOT excluded - the pinot docker image shades
+                         or omits them -->
                     <exclude>org.slf4j:*</exclude>
                     <exclude>org.apache.logging.log4j:*</exclude>
                     <exclude>ch.qos.reload4j:*</exclude>

@@ -1,0 +1,11 @@
+{
+  "tableName": "orders",
+  "tableType": "OFFLINE",
+  "segmentsConfig": {
+    "replication": "1",
+    "schemaName": "orders"
+  },
+  "tenants": {},
+  "routing": {"instanceSelectorType": "balanced"},
+  "tableIndexConfig": {"loadMode": "MMAP"}
+}

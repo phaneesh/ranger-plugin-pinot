@@ -1,0 +1,35 @@
+# Derived Ranger Admin image for the IT stack: stock apache/ranger:2.8.0
+# with two changes:
+#
+# 1. JDK 8 -> JDK 11. The pinot service impl jar (RangerServicePinot /
+#    PinotClient) is compiled --release 11 (it uses java.net.http.HttpClient,
+#    so 8 is impossible) — the stock admin's JDK 8 webapp cannot load it.
+#    Ranger 2.8.0 supports JDK 11; the image env (JAVA_HOME) is repointed
+#    at the JDK 11 install.
+#
+# 2. The impl jar from the real distro tarball is dropped into the admin
+#    webapp's service-plugin dir. This is what makes FOUND-03 (validateConfig
+#    -> PinotClient.connectionTest) and FOUND-04 (lookupResource ->
+#    PinotClient.getResources) run OUR code instead of RangerBaseService's
+#    "not implemented" fallback.
+#
+# Build context is the IT module root (same as the pinot images) so
+# target/ranger-*-pinot-plugin.tar.gz is inside it.
+FROM apache/ranger:2.8.0
+
+USER root
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends openjdk-11-jre-headless && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY target/ranger-*-pinot-plugin.tar.gz /tmp/plugin.tar.gz
+
+RUN mkdir -p /tmp/plugin && \
+    tar -xzf /tmp/plugin.tar.gz -C /tmp/plugin --strip-components=1 && \
+    mkdir -p /opt/ranger/ranger-2.8.0-admin/ews/webapp/WEB-INF/classes/ranger-plugins/pinot && \
+    cp /tmp/plugin/lib/ranger-pinot-plugin-impl/ranger-pinot-plugin-*.jar \
+       /opt/ranger/ranger-2.8.0-admin/ews/webapp/WEB-INF/classes/ranger-plugins/pinot/
+
+ENV JAVA_VERSION=jdk-11
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+USER ranger

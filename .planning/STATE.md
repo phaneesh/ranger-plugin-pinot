@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: completed
+stopped_at: "Phases 1-4 complete and committed. Next up is Phase 5 (packaging & release: distro tarball with `lib/ranger-pinot-plugin-impl/` layout, install scripts, conf templates, GitHub Actions release automation, integration tests). Notebook pages `pinot-auth-spi`, `ranger-plugin-architecture`, `ranger-plugin-api-facts`, `phase-3-row-filtering` hold prior research; Phase 4 added the cluster-resource + Actions-accessType service-def model (see `service-defs/ranger-servicedef-pinot.json`) and the tag-policy test harness pattern (`RangerFileBasedTagRetriever` + classpath ServiceTags JSON + tag-serviceDef with `pinot:`-prefixed accessTypes, prefix stripped by normalization)."
+last_updated: "2026-09-18T04:02:11.306Z"
+last_activity: "05-03: ranger-pinot-plugin-it module (failsafe-gated) + docker-compose Ranger/Pinot stack + PinotRangerIT (9 E2E tests) + CI integration matrix job. Full-reactor mvn clean verify green; Docker-dependent live runs deferred to CI."
+progress:
+  total_phases: 5
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 0
+---
+
 # Project State
 
 ## Project Reference
@@ -9,16 +25,17 @@ See: .planning/PROJECT.md (updated 2026-09-17)
 
 ## Current Position
 
-Phase: 5 of 5 (Packaging & Release) - plans 05-01 and 05-02 complete
-Plan: 2 of 3 in current phase (05-03 integration matrix remains)
-Status: Plans 05-01 (distro assembly) and 05-02 (release-on-tag workflow) complete. 05-02: `.github/workflows/release.yml` publishes the distro tarball as a GitHub Release asset on `v*` tag push (JDK 17 `mvn clean verify` gate, `softprops/action-gh-release@v2`, `fail_on_unmatched_files: true`); never exercised on a real remote (repo not yet pushed). PKG-01/02/03 complete; CI-04, COMPAT-01/02 remain (05-03).
-Last activity: 05-02 closed out in ROADMAP/REQUIREMENTS/STATE (work committed as 8b39e96); next is planning 05-03.
+Phase: 05 of 1 (packaging release)
+Plan: 1 of 1
+Status: Milestone complete
+Last activity: 05-03: ranger-pinot-plugin-it module (failsafe-gated) + docker-compose Ranger/Pinot stack + PinotRangerIT (9 E2E tests) + CI integration matrix job. Full-reactor mvn clean verify green; Docker-dependent live runs deferred to CI.
 
-Progress: [█████████░] ~93% (Phase 5: 2 of 3 plans done; only 05-03 integration matrix remains)
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 11 (Phase 1: 4, Phase 2: 3, Phase 4: 3, Phase 5: 2 so far)
 - Average duration: - min
 - Total execution time: - hours
@@ -31,9 +48,10 @@ Progress: [█████████░] ~93% (Phase 5: 2 of 3 plans done; onl
 | 2     | 3/3   | -     | -        |
 | 3     | 2/2   | -     | -        |
 | 4     | 3/3   | -     | -        |
-| 5     | 2/3   | -     | -        |
+| 5     | 3/3   | -     | -        |
 
 **Recent Trend:**
+
 - Last 5 plans: -
 - Trend: -
 
@@ -54,6 +72,7 @@ Recent decisions affecting current work:
 - Test policy fixtures MUST assign unique `id`/`guid` to every `RangerPolicy` — omitting them causes a genuine intermittent failure in Ranger's real policy engine (found and fixed in Phase 2, applies to all future test fixtures)
 - Identity derivation for broker requests is unresolved upstream (Pinot's `RequesterIdentity` has no "user" concept at all) — currently stands in with `getClientIp()`, flagged TODO for real auth wiring later
 - Testing shim+impl together on the SAME ambient classpath is unsafe by design (triggers real infinite recursion via the FQCN-sharing trick) — never do this, even in tests; proven in Phase 1 closure work
+- IT harness (05-03): antrun copies the reactor tarball into the Docker build context (dependency:copy cannot resolve reactor artifacts); broker principal discovered at runtime from the deny audit event (client IP), never hardcoded; FOUND-03/04 REST surfaces fall back to create-response assertions if absent
 
 ### Pending Todos
 
@@ -61,7 +80,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- FOUND-03/04 (RangerServicePinot's validateConfig/lookupResource against a REAL running Pinot controller) still deliberately deferred to Phase 5, which builds the real integration harness (docker-compose/testcontainers with the official Pinot image) that both CI-04 and this need — avoids building a throwaway one-off harness twice.
+- 05-03 commits NOT created: the executor sandbox mounts .git read-only (git add fails on index.lock). All changes are on disk and verified green; the orchestrator must create the commits listed in 05-03-SUMMARY.md.
+- Docker-dependent verifications pending: derived-image build and the live E2E suite (both matrix legs) — the Docker daemon is unreachable from the executor sandbox; these run on the CI integration job (Docker preinstalled on ubuntu runners). FOUND-03/04 live checks are now implemented in PinotRangerIT (with documented fallbacks) but their green run rides CI for the same reason.
 - Broker's real identity derivation (`RequesterIdentity` → user/groups) is an open design question beyond this project's current scope; current stand-in (client IP as principal) is documented but not a long-term answer.
 - GitHub Actions CI has never actually run on a pushed remote (repo not yet pushed) — first real push should be watched closely.
 
