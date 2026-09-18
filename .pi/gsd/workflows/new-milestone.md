@@ -40,7 +40,10 @@
 
 <purpose>
 
-Start a new milestone cycle for an existing project. Loads project context, gathers milestone goals (from MILESTONE-CONTEXT.md or conversation), updates PROJECT.md and STATE.md, optionally runs parallel research, defines scoped requirements with REQ-IDs, spawns the roadmapper to create phased execution plan, and commits all artifacts. Brownfield equivalent of new-project.
+Start a new milestone cycle for an existing project. Loads project context, gathers milestone goals (from
+MILESTONE-CONTEXT.md or conversation), updates PROJECT.md and STATE.md, optionally runs parallel research, defines
+scoped requirements with REQ-IDs, spawns the roadmapper to create phased execution plan, and commits all artifacts.
+Brownfield equivalent of new-project.
 
 </purpose>
 
@@ -52,16 +55,18 @@ Read all files referenced by the invoking prompt's execution_context before star
 
 <available_agent_types>
 Valid GSD subagent types (use exact names - do not fall back to 'general-purpose'):
+
 - gsd-project-researcher - Researches project-level technical decisions
 - gsd-research-synthesizer - Synthesizes findings from parallel research agents
 - gsd-roadmapper - Creates phased execution roadmaps
-</available_agent_types>
+  </available_agent_types>
 
 <process>
 
 ## 1. Load Context
 
 Parse `$ARGUMENTS` before doing anything else:
+
 - `--reset-phase-numbers` flag → opt into restarting roadmap phase numbering at `1`
 - remaining text → use as milestone name if present
 
@@ -75,14 +80,17 @@ If the flag is absent, keep the current behavior of continuing phase numbering f
 ## 2. Gather Milestone Goals
 
 **If MILESTONE-CONTEXT.md exists:**
+
 - Use features and scope from discuss-milestone
 - Present summary for confirmation
 
 **If no context file:**
+
 - Present what shipped in last milestone
 - Ask inline (freeform, NOT AskUserQuestion): "What do you want to build next?"
 - Wait for their response, then use AskUserQuestion to probe specifics
-- If user selects "Other" at any point to provide freeform input, ask follow-up as plain text - not another AskUserQuestion
+- If user selects "Other" at any point to provide freeform input, ask follow-up as plain text - not another
+  AskUserQuestion
 
 ## 3. Determine Milestone Version
 
@@ -112,13 +120,15 @@ Before writing any files, present a summary of what was gathered and ask for con
 ```
 
 AskUserQuestion:
+
 - header: "Confirm?"
 - question: "Does this capture what you want to build in this milestone?"
 - options:
-  - "Looks good" - Proceed to write PROJECT.md
-  - "Adjust" - Let me correct or add details
+    - "Looks good" - Proceed to write PROJECT.md
+    - "Adjust" - Let me correct or add details
 
-**If "Adjust":** Ask what needs changing (plain text, NOT AskUserQuestion). Incorporate changes, re-present the summary. Loop until "Looks good" is selected.
+**If "Adjust":** Ask what needs changing (plain text, NOT AskUserQuestion). Incorporate changes, re-present the summary.
+Loop until "Looks good" is selected.
 
 **If "Looks good":** Proceed to Step 4.
 
@@ -139,7 +149,8 @@ Add/update:
 
 Update Active requirements section and "Last updated" footer.
 
-Ensure the `## Evolution` section exists in PROJECT.md. If missing (projects created before this feature), add it before the footer:
+Ensure the `## Evolution` section exists in PROJECT.md. If missing (projects created before this feature), add it before
+the footer:
 
 ```markdown
 ## Evolution
@@ -179,14 +190,17 @@ Delete MILESTONE-CONTEXT.md if exists (consumed).
 
 <!-- Context pre-injected above via WXP - variables available via <gsd-paste name="..."> -->
 
-Extract from init JSON: `researcher_model`, `synthesizer_model`, `roadmapper_model`, `commit_docs`, `research_enabled`, `current_milestone`, `project_exists`, `roadmap_exists`, `latest_completed_milestone`, `phase_dir_count`, `phase_archive_path`.
+Extract from init JSON: `researcher_model`, `synthesizer_model`, `roadmapper_model`, `commit_docs`, `research_enabled`,
+`current_milestone`, `project_exists`, `roadmap_exists`, `latest_completed_milestone`, `phase_dir_count`,
+`phase_archive_path`.
 
 ## 7.5 Reset-phase safety (only when `--reset-phase-numbers`)
 
 If `--reset-phase-numbers` is active:
 
 1. Set starting phase number to `1` for the upcoming roadmap.
-2. If `phase_dir_count > 0`, archive the old phase directories before roadmapping so new `01-*` / `02-*` directories cannot collide with stale milestone directories.
+2. If `phase_dir_count > 0`, archive the old phase directories before roadmapping so new `01-*` / `02-*` directories
+   cannot collide with stale milestone directories.
 
 If `phase_dir_count > 0` and `phase_archive_path` is available:
 
@@ -198,8 +212,10 @@ find .planning/phases -mindepth 1 -maxdepth 1 -type d -exec mv {} "${phase_archi
 Then verify `.planning/phases/` no longer contains old milestone directories before continuing.
 
 If `phase_dir_count > 0` but `phase_archive_path` is missing:
+
 - Stop and explain that reset numbering is unsafe without a completed milestone archive target.
-- Tell the user to complete/archive the previous milestone first, then rerun `/gsd-new-milestone --reset-phase-numbers ${GSD_WS}`.
+- Tell the user to complete/archive the previous milestone first, then rerun
+  `/gsd-new-milestone --reset-phase-numbers ${GSD_WS}`.
 
 ## 8. Research Decision
 
@@ -208,16 +224,20 @@ Check `research_enabled` from init JSON (loaded from config).
 **If `research_enabled` is `true`:**
 
 AskUserQuestion: "Research the domain ecosystem for new features before defining requirements?"
+
 - "Research first (Recommended)" - Discover patterns, features, architecture for NEW capabilities
 - "Skip research for this milestone" - Go straight to requirements (does not change your default)
 
 **If `research_enabled` is `false`:**
 
 AskUserQuestion: "Research the domain ecosystem for new features before defining requirements?"
+
 - "Skip research (current default)" - Go straight to requirements
 - "Research first" - Discover patterns, features, architecture for NEW capabilities
 
-**IMPORTANT:** Do NOT persist this choice to config.json. The `workflow.research` setting is a persistent user preference that controls plan-phase behavior across the project. Changing it here would silently alter future `/gsd-plan-phase` behavior. To change the default, use `/gsd-settings`.
+**IMPORTANT:** Do NOT persist this choice to config.json. The `workflow.research` setting is a persistent user
+preference that controls plan-phase behavior across the project. Changing it here would silently alter future
+`/gsd-plan-phase` behavior. To change the default, use `/gsd-settings`.
 
 **If user chose "Research first":**
 
@@ -237,6 +257,7 @@ mkdir -p .planning/research
 Spawn 4 parallel gsd-project-researcher agents. Each uses this template with dimension-specific fields:
 
 **Common structure for all 4 researchers:**
+
 ```
 Task(prompt="
 <research_type>Project Research - {DIMENSION} for [new features].</research_type>
@@ -269,7 +290,7 @@ Use template: .pi/gsd/templates/research-project/{FILE}
 **Dimension-specific fields:**
 
 | Field            | Stack                                                                                      | Features                                                                                     | Architecture                                                                        | Pitfalls                                                                                        |
-| ---------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+|------------------|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
 | EXISTING_CONTEXT | Existing validated capabilities (DO NOT re-research): [from PROJECT.md]                    | Existing features (already built): [from PROJECT.md]                                         | Existing architecture: [from PROJECT.md or codebase map]                            | Focus on common mistakes when ADDING these features to existing system                          |
 | QUESTION         | What stack additions/changes are needed for [new features]?                                | How do [target features] typically work? Expected behavior?                                  | How do [target features] integrate with existing architecture?                      | Common mistakes when adding [target features] to [domain]?                                      |
 | CONSUMER         | Specific libraries with versions for NEW capabilities, integration points, what NOT to add | Table stakes vs differentiators vs anti-features, complexity noted, dependencies on existing | Integration points, new components, data flow changes, suggested build order        | Warning signs, prevention strategy, which phase should address it                               |
@@ -298,6 +319,7 @@ Commit after writing.
 ```
 
 Display key findings from SUMMARY.md:
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  GSD ► RESEARCH COMPLETE ✓
@@ -323,6 +345,7 @@ Read PROJECT.md: core value, current milestone goals, validated requirements (wh
 **If research exists:** Read FEATURES.md, extract feature categories.
 
 Present features by category:
+
 ```
 ## [Category 1]
 **Table stakes:** Feature A, Feature B
@@ -330,9 +353,11 @@ Present features by category:
 **Research notes:** [any relevant notes]
 ```
 
-**If no research:** Gather requirements through conversation. Ask: "What are the main things users need to do with [new features]?" Clarify, probe for related capabilities, group into categories.
+**If no research:** Gather requirements through conversation. Ask: "What are the main things users need to do
+with [new features]?" Clarify, probe for related capabilities, group into categories.
 
 **Scope each category** via AskUserQuestion (multiSelect: true, header max 12 chars):
+
 - "[Feature 1]" - [brief description]
 - "[Feature 2]" - [brief description]
 - "None for this milestone" - Defer entire category
@@ -340,10 +365,12 @@ Present features by category:
 Track: Selected → this milestone. Unselected table stakes → future. Unselected differentiators → out of scope.
 
 **Identify gaps** via AskUserQuestion:
+
 - "No, research covered it" - Proceed
 - "Yes, let me add some" - Capture additions
 
 **Generate REQUIREMENTS.md:**
+
 - v1 Requirements grouped by category (checkboxes, REQ-IDs)
 - Future Requirements (deferred)
 - Out of Scope (explicit exclusions with reasoning)
@@ -354,6 +381,7 @@ Track: Selected → this milestone. Unselected table stakes → future. Unselect
 **Requirement quality criteria:**
 
 Good requirements are:
+
 - **Specific and testable:** "User can reset password via email link" (not "Handle password reset")
 - **User-centric:** "User can X" (not "System does Y")
 - **Atomic:** One capability per requirement (not "User can login and manage profile")
@@ -377,6 +405,7 @@ Does this capture what you're building? (yes / adjust)
 If "adjust": Return to scoping.
 
 **Commit requirements:**
+
 ```bash
 pi-gsd-tools commit "docs: define milestone v[X.Y] requirements" --files .planning/REQUIREMENTS.md
 ```
@@ -392,6 +421,7 @@ pi-gsd-tools commit "docs: define milestone v[X.Y] requirements" --files .planni
 ```
 
 **Starting phase number:**
+
 - If `--reset-phase-numbers` is active, start at **Phase 1**
 - Otherwise, continue from the previous milestone's last phase number (v1.0 ended at phase 5 → v1.1 starts at phase 6)
 
@@ -453,14 +483,16 @@ Success criteria:
 ```
 
 **Ask for approval** via AskUserQuestion:
+
 - "Approve" - Commit and continue
 - "Adjust phases" - Tell me what to change
 - "Review full file" - Show raw ROADMAP.md
 
-**If "Adjust":** Get notes, re-spawn roadmapper with revision context, loop until approved.
-**If "Review":** Display raw ROADMAP.md, re-ask.
+**If "Adjust":** Get notes, re-spawn roadmapper with revision context, loop until approved. **If "Review":** Display raw
+ROADMAP.md, re-ask.
 
 **Commit roadmap** (after approval):
+
 ```bash
 pi-gsd-tools commit "docs: create milestone v[X.Y] roadmap ([N] phases)" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md
 ```
@@ -497,6 +529,7 @@ Also: `/gsd-plan-phase [N] ${GSD_WS}` - skip discussion, plan directly
 </process>
 
 <success_criteria>
+
 - [ ] PROJECT.md updated with Current Milestone section
 - [ ] STATE.md reset for new milestone
 - [ ] MILESTONE-CONTEXT.md consumed and deleted (if existed)

@@ -116,15 +116,17 @@ Create `.planning/phases/XX-name/DISCOVERY.md`:
 </validation_checkpoints>
 </metadata>
 ```
+
 </output_structure>
 
 <success_criteria>
+
 - All scope questions answered with authoritative sources
 - Quality checklist items completed
 - Clear primary recommendation
 - Low-confidence findings marked with validation checkpoints
 - Ready to inform PLAN.md creation
-</success_criteria>
+  </success_criteria>
 
 <guidelines>
 **When to use discovery:**
@@ -134,13 +136,15 @@ Create `.planning/phases/XX-name/DISCOVERY.md`:
 - Single decision pending
 
 **When NOT to use:**
+
 - Established patterns (CRUD, auth with known library)
 - Implementation details (defer to execution)
 - Questions answerable from existing project context
 
 **When to use RESEARCH.md instead:**
+
 - Niche/complex domains (3D, games, audio, shaders)
 - Need ecosystem knowledge, not just library choice
 - "How do experts build this" questions
 - Use `/gsd-research-phase` for these
-</guidelines>
+  </guidelines>

@@ -36,6 +36,7 @@ If MILESTONES.md doesn't exist, create it with header:
 
 [Entries in reverse chronological order - newest first]
 ```
+
 </structure>
 
 <guidelines>
@@ -46,20 +47,23 @@ If MILESTONES.md doesn't exist, create it with header:
 - Before archiving planning (capture what was shipped)
 
 **Don't create milestones for:**
+
 - Individual phase completions (normal workflow)
 - Work in progress (wait until shipped)
 - Minor bug fixes that don't constitute a release
 
 **Stats to include:**
+
 - Count modified files: `git diff --stat feat(XX-XX)..feat(YY-YY) | tail -1`
 - Count LOC: `find . -name "*.swift" -o -name "*.ts" | xargs wc -l` (or relevant extension)
 - Phase/plan/task counts from ROADMAP
 - Timeline from first phase commit to last phase commit
 
 **Git range format:**
+
 - First commit of milestone → last commit of milestone
 - Example: `feat(01-01)` → `feat(04-01)` for phases 1-4
-</guidelines>
+  </guidelines>
 
 <example>
 ```markdown
@@ -72,12 +76,14 @@ If MILESTONES.md doesn't exist, create it with header:
 **Phases completed:** 5-6 (3 plans total)
 
 **Key accomplishments:**
+
 - Migrated API key storage from plaintext to macOS Keychain
 - Implemented comprehensive error handling for network failures
 - Added Sentry crash reporting integration
 - Fixed memory leak in auto-refresh timer
 
 **Stats:**
+
 - 23 files modified
 - 650 lines of Swift added
 - 2 phases, 3 plans, 12 tasks
@@ -96,6 +102,7 @@ If MILESTONES.md doesn't exist, create it with header:
 **Phases completed:** 1-4 (7 plans total)
 
 **Key accomplishments:**
+
 - Menu bar app with popover UI (AppKit)
 - OpenWeather API integration with auto-refresh
 - Current weather display with conditions icon
@@ -103,6 +110,7 @@ If MILESTONES.md doesn't exist, create it with header:
 - Code signed and notarized for distribution
 
 **Stats:**
+
 - 47 files created
 - 2,450 lines of Swift
 - 4 phases, 7 plans, 28 tasks
@@ -111,5 +119,6 @@ If MILESTONES.md doesn't exist, create it with header:
 **Git range:** `feat(01-01)` → `feat(04-01)`
 
 **What's next:** Security audit and hardening for v1.1
+
 ```
 </example>

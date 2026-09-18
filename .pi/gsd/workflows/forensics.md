@@ -81,6 +81,7 @@ git diff --stat
 ```
 
 Record:
+
 - Commit timeline (dates, messages, frequency)
 - Most-edited files (potential stuck-loop indicator)
 - Uncommitted changes (potential crash/interruption indicator)
@@ -88,11 +89,13 @@ Record:
 ### 2b. Planning State
 
 Read these files if they exist:
+
 - `.planning/STATE.md` - current milestone, phase, progress, blockers, last session
 - `.planning/ROADMAP.md` - phase list with status
 - `.planning/config.json` - workflow configuration
 
 Extract:
+
 - Current phase and its status
 - Last recorded session stop point
 - Any blockers or flags
@@ -106,6 +109,7 @@ ls .planning/phases/*/
 ```
 
 For each phase, check which artifacts exist:
+
 - `{padded}-PLAN.md` or `{padded}-PLAN-*.md` (execution plans)
 - `{padded}-SUMMARY.md` (completion summary)
 - `{padded}-VERIFICATION.md` (quality verification)
@@ -141,6 +145,7 @@ git log --name-only --format="---COMMIT---" -20
 ```
 
 Parse commit boundaries. If any file appears in 3+ consecutive commits, flag as:
+
 - **Confidence HIGH** if the commit messages are similar (e.g., "fix:", "fix:", "fix:" on same file)
 - **Confidence MEDIUM** if the file appears frequently but commit messages vary
 
@@ -149,6 +154,7 @@ Parse commit boundaries. If any file appears in 3+ consecutive commits, flag as:
 **Signal:** Phase appears complete (has commits, is past in roadmap) but lacks expected artifacts.
 
 For each phase that should be complete:
+
 - PLAN.md missing → planning step was skipped
 - SUMMARY.md missing → phase was not properly closed
 - VERIFICATION.md missing → quality check was skipped
@@ -170,6 +176,7 @@ uncommitted changes, flag as potential abandonment or crash.
 **Signal:** Uncommitted changes + STATE.md shows mid-execution + orphaned worktrees.
 
 Combine:
+
 - `git status` shows modified/staged files
 - STATE.md has an active execution entry
 - `git worktree list` shows worktrees beyond the main one
@@ -193,6 +200,7 @@ git log --oneline -20 | grep -iE "fix test|revert|broken|regression|fail"
 ## Step 4: Generate Report
 
 Create the forensics directory if needed:
+
 ```bash
 mkdir -p .planning/forensics
 ```
@@ -253,6 +261,7 @@ Based on the evidence above, the most likely explanation is:
 ```
 
 **Redaction rules:**
+
 - Replace absolute paths with relative paths (strip `$HOME` prefix)
 - Remove any API keys, tokens, or credentials found in git diff output
 - Truncate large diffs to first 50 lines
@@ -280,6 +289,7 @@ If actionable anomalies were found (HIGH or MEDIUM confidence):
 > "Want me to create a GitHub issue for this? I'll format the findings and redact paths."
 
 If confirmed:
+
 ```bash
 # Check if "bug" label exists before using it
 BUG_LABEL=$(gh label list --search "bug" --json name -q '.[0].name' 2>/dev/null)

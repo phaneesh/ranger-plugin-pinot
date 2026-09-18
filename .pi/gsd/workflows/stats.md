@@ -39,7 +39,9 @@ STATS=$(pi-gsd-tools stats json)
 if [[ "$STATS" == @file:* ]]; then STATS=$(cat "${STATS#@file:}"); fi
 ```
 
-Extract fields from JSON: `milestone_version`, `milestone_name`, `phases`, `phases_completed`, `phases_total`, `total_plans`, `total_summaries`, `percent`, `plan_percent`, `requirements_total`, `requirements_complete`, `git_commits`, `git_first_commit_date`, `last_activity`.
+Extract fields from JSON: `milestone_version`, `milestone_name`, `phases`, `phases_completed`, `phases_total`,
+`total_plans`, `total_summaries`, `percent`, `plan_percent`, `requirements_total`, `requirements_complete`,
+`git_commits`, `git_first_commit_date`, `last_activity`.
 </step>
 
 <step name="present_stats">
@@ -77,7 +79,8 @@ If no `.planning/` directory exists, inform the user to run `/gsd-new-project` f
 </process>
 
 <success_criteria>
+
 - [ ] Statistics gathered from project state
 - [ ] Results formatted clearly
 - [ ] Displayed to user
-</success_criteria>
+  </success_criteria>

@@ -78,10 +78,12 @@ If no active phase detected, ask user which phase they're pausing work on.
 Ask user for clarifications if needed via conversational questions.
 
 **Also inspect SUMMARY.md files for false completions:**
+
 ```bash
 # Check for placeholder content in existing summaries
 grep -l "To be filled\|placeholder\|TBD" .planning/phases/*/*.md 2>/dev/null || true
 ```
+
 Report any summaries with placeholder content as incomplete items.
 </step>
 
@@ -126,6 +128,7 @@ timestamp=$(pi-gsd-tools current-timestamp full --raw)
   "context_notes": "{mental state, approach, what you were thinking}"
 }
 ```
+
 </step>
 
 <step name="write">
@@ -180,9 +183,11 @@ Start with: [specific first action when resuming]
 Be specific enough for a fresh the agent to understand immediately.
 
 Use `current-timestamp` for last_updated field. You can use init todos (which provides timestamps) or call directly:
+
 ```bash
 timestamp=$(pi-gsd-tools current-timestamp full --raw)
 ```
+
 </step>
 
 <step name="commit">

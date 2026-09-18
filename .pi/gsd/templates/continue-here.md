@@ -68,7 +68,7 @@ Required YAML frontmatter:
 - `total_tasks`: How many tasks in phase
 - `status`: `in_progress`, `blocked`, `almost_done`
 - `last_updated`: ISO timestamp
-</yaml_fields>
+  </yaml_fields>
 
 <guidelines>
 - Be specific enough that a fresh the agent instance understands immediately

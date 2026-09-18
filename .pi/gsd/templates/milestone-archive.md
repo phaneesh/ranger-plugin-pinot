@@ -8,9 +8,7 @@ This template is used by the complete-milestone workflow to create archive files
 
 # Milestone v{{VERSION}}: {{MILESTONE_NAME}}
 
-**Status:** ✅ SHIPPED {{DATE}}
-**Phases:** {{PHASE_START}}-{{PHASE_END}}
-**Total Plans:** {{TOTAL_PLANS}}
+**Status:** ✅ SHIPPED {{DATE}} **Phases:** {{PHASE_START}}-{{PHASE_END}} **Total Plans:** {{TOTAL_PLANS}}
 
 ## Overview
 
@@ -24,15 +22,13 @@ This template is used by the complete-milestone workflow to create archive files
 
 ### Phase {{PHASE_NUM}}: {{PHASE_NAME}}
 
-**Goal**: {{PHASE_GOAL}}
-**Depends on**: {{DEPENDS_ON}}
-**Plans**: {{PLAN_COUNT}} plans
+**Goal**: {{PHASE_GOAL}} **Depends on**: {{DEPENDS_ON}} **Plans**: {{PLAN_COUNT}} plans
 
 Plans:
 
 - [x] {{PHASE}}-01: {{PLAN_DESCRIPTION}}
 - [x] {{PHASE}}-02: {{PLAN_DESCRIPTION}}
-      [... all plans ...]
+  [... all plans ...]
 
 **Details:**
 {{PHASE_DETAILS_FROM_ROADMAP}}
@@ -41,9 +37,7 @@ Plans:
 
 ### Phase 2.1: Critical Security Patch (INSERTED)
 
-**Goal**: Fix authentication bypass vulnerability
-**Depends on**: Phase 2
-**Plans**: 1 plan
+**Goal**: Fix authentication bypass vulnerability **Depends on**: Phase 2 **Plans**: 1 plan
 
 Plans:
 

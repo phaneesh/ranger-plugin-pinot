@@ -32,7 +32,8 @@
     <name>Ranger Pinot Plugin Shim</name>
     <description>Thin classloader-isolation shim that Pinot loads directly; delegates every call
         into the ranger-pinot-plugin impl jar via RangerPluginClassLoader so the impl's own
-        dependencies never leak onto Pinot's classpath.</description>
+        dependencies never leak onto Pinot's classpath.
+    </description>
 
     <dependencies>
         <dependency>

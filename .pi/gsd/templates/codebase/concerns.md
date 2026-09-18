@@ -120,6 +120,7 @@ Template for `.planning/codebase/CONCERNS.md` - captures known issues and areas 
 ```
 
 <good_examples>
+
 ```markdown
 # Codebase Concerns
 
@@ -259,6 +260,7 @@ Template for `.planning/codebase/CONCERNS.md` - captures known issues and areas 
 *Concerns audit: 2025-01-20*
 *Update as issues are fixed or new ones discovered*
 ```
+
 </good_examples>
 
 <guidelines>
@@ -274,6 +276,7 @@ Template for `.planning/codebase/CONCERNS.md` - captures known issues and areas 
 - Test coverage gaps
 
 **What does NOT belong here:**
+
 - Opinions without evidence ("code is messy")
 - Complaints without solutions ("auth sucks")
 - Future feature ideas (that's for product planning)
@@ -282,6 +285,7 @@ Template for `.planning/codebase/CONCERNS.md` - captures known issues and areas 
 - Minor code style issues
 
 **When filling this template:**
+
 - **Always include file paths** - Concerns without locations are not actionable. Use backticks: `src/file.ts`
 - Be specific with measurements ("500ms p95" not "slow")
 - Include reproduction steps for bugs
@@ -292,12 +296,14 @@ Template for `.planning/codebase/CONCERNS.md` - captures known issues and areas 
 - Add new concerns as discovered
 
 **Tone guidelines:**
+
 - Professional, not emotional ("N+1 query pattern" not "terrible queries")
 - Solution-oriented ("Fix: add index" not "needs fixing")
 - Risk-focused ("Could expose user data" not "security is bad")
 - Factual ("3.5s load time" not "really slow")
 
 **Useful for phase planning when:**
+
 - Deciding what to work on next
 - Estimating risk of changes
 - Understanding where to be careful
@@ -306,5 +312,6 @@ Template for `.planning/codebase/CONCERNS.md` - captures known issues and areas 
 - Planning refactoring work
 
 **How this gets populated:**
-Explore agents detect these during codebase mapping. Manual additions welcome for human-discovered issues. This is living documentation, not a complaint list.
+Explore agents detect these during codebase mapping. Manual additions welcome for human-discovered issues. This is
+living documentation, not a complaint list.
 </guidelines>

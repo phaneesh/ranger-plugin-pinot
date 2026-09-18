@@ -54,6 +54,7 @@ Parse arguments and load project state:
 Parse from init JSON: `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `padded_phase`, `commit_docs`.
 
 Also load config for branching strategy:
+
 ```bash
 CONFIG=$(pi-gsd-tools state load)
 ```
@@ -95,7 +96,7 @@ Verify the work is ready to ship:
    which gh && gh auth status 2>&1
    ```
    If `gh` not found or not authenticated: provide setup instructions and exit.
-</step>
+   </step>
 
 <step name="push_branch">
 Push the current branch to remote:
@@ -105,6 +106,7 @@ git push origin ${CURRENT_BRANCH} 2>&1
 ```
 
 If push fails (e.g., no upstream): set upstream:
+
 ```bash
 git push --set-upstream origin ${CURRENT_BRANCH} 2>&1
 ```
@@ -116,9 +118,11 @@ Report: "Pushed `{branch}` to origin ({commit_count} commits ahead of main)"
 Auto-generate a rich PR body from planning artifacts:
 
 **1. Title:**
+
 ```
 Phase {phase_number}: {phase_name}
 ```
+
 Or for milestone: `Milestone {version}: {name}`
 
 **2. Summary section:**
@@ -136,6 +140,7 @@ Read ROADMAP.md for phase goal. Read VERIFICATION.md for verification status.
 
 **3. Changes section:**
 For each SUMMARY.md in the phase directory:
+
 ```markdown
 ## Changes
 
@@ -147,6 +152,7 @@ For each SUMMARY.md in the phase directory:
 ```
 
 **4. Requirements section:**
+
 ```markdown
 ## Requirements Addressed
 
@@ -154,6 +160,7 @@ For each SUMMARY.md in the phase directory:
 ```
 
 **5. Testing section:**
+
 ```markdown
 ## Verification
 
@@ -162,11 +169,13 @@ For each SUMMARY.md in the phase directory:
 ```
 
 **6. Decisions section:**
+
 ```markdown
 ## Key Decisions
 
 {Decisions from STATE.md accumulated context relevant to this phase}
 ```
+
 </step>
 
 <step name="create_pr">
@@ -200,6 +209,7 @@ AskUserQuestion:
 ```
 
 **If "Request review":**
+
 ```bash
 gh pr edit ${PR_NUMBER} --add-reviewer "${REVIEWER}"
 ```
@@ -217,9 +227,11 @@ pi-gsd-tools state update "Status" "Phase ${PHASE_NUMBER} shipped - PR #${PR_NUM
 ```
 
 If `commit_docs` is true:
+
 ```bash
 pi-gsd-tools commit "docs(${padded_phase}): ship phase ${PHASE_NUMBER} - PR #${PR_NUMBER}" --files .planning/STATE.md
 ```
+
 </step>
 
 <step name="report">
@@ -235,12 +247,14 @@ Verification: ✓ Passed
 Requirements: {N} REQ-IDs addressed
 
 Next steps:
+
 - Review/approve PR
 - Merge when CI passes
 - /gsd-complete-milestone (if last phase in milestone)
 - /gsd-progress (to see what's next)
 
 ───────────────────────────────────────────────────────────────
+
 ```
 </step>
 

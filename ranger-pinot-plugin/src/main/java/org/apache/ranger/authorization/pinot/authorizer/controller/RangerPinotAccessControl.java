@@ -25,13 +25,8 @@ import org.apache.pinot.core.auth.TargetType;
 import org.apache.ranger.authorization.pinot.authorizer.RangerPinotAuthorizer;
 
 import javax.ws.rs.core.HttpHeaders;
-
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Phase 4: Ranger enforcement for Pinot controller admin-API calls, replacing Phase 1's allow-all
@@ -67,7 +62,7 @@ public class RangerPinotAccessControl implements AccessControl {
      */
     private static final String CLUSTER_RESOURCE_VALUE = "*";
 
-    private static final String RESOURCE_TABLE   = "table";
+    private static final String RESOURCE_TABLE = "table";
     private static final String RESOURCE_CLUSTER = "cluster";
 
     private static final String HEADER_AUTHORIZATION = "Authorization";
@@ -93,11 +88,13 @@ public class RangerPinotAccessControl implements AccessControl {
      * of always going through the production {@link RangerPinotAuthorizer#getInstance()} singleton.
      */
     RangerPinotAccessControl(RangerPinotAuthorizer authorizer, String userHeaderName) {
-        this.authorizer     = authorizer;
+        this.authorizer = authorizer;
         this.userHeaderName = userHeaderName;
     }
 
-    /** Coarse CRUD check for table endpoints: table resource + lowercased CRUD accessType. */
+    /**
+     * Coarse CRUD check for table endpoints: table resource + lowercased CRUD accessType.
+     */
     @Override
     public boolean hasAccess(String tableName, AccessType accessType, HttpHeaders httpHeaders, String endpointUrl) {
         return checkAccess(tableResource(tableName), crudAccessType(accessType), httpHeaders);
@@ -133,13 +130,17 @@ public class RangerPinotAccessControl implements AccessControl {
         return true;
     }
 
-    /** All endpoints get the coarse CRUD check (matches Pinot's own BasicAuthAccessControl). */
+    /**
+     * All endpoints get the coarse CRUD check (matches Pinot's own BasicAuthAccessControl).
+     */
     @Override
     public boolean protectAnnotatedOnly() {
         return false;
     }
 
-    /** Drives the UI's basic-auth prompt, mirroring Pinot's own BasicAuthAccessControl. */
+    /**
+     * Drives the UI's basic-auth prompt, mirroring Pinot's own BasicAuthAccessControl.
+     */
     @Override
     public AuthWorkflowInfo getAuthWorkflowInfo() {
         return new AuthWorkflowInfo(WORKFLOW_BASIC);

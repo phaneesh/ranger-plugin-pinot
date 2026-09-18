@@ -18,9 +18,9 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [ main, master ]
   pull_request:
-    branches: [main, master]
+    branches: [ main, master ]
 
 jobs:
   build:
@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pinot: ["1.4.0", "1.5.1"]
+        pinot: [ "1.4.0", "1.5.1" ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

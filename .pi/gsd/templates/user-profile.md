@@ -5,10 +5,8 @@
 > should be acted on directly. LOW confidence dimensions should be approached with
 > hedging ("Based on your profile, I'll try X -- let me know if that's off").
 
-**Generated:** {{generated_at}}
-**Source:** {{data_source}}
-**Projects Analyzed:** {{projects_list}}
-**Messages Analyzed:** {{message_count}}
+**Generated:** {{generated_at}} **Source:** {{data_source}} **Projects Analyzed:** {{projects_list}} **Messages
+Analyzed:** {{message_count}}
 
 ---
 
@@ -132,15 +130,15 @@
 
 ## Profile Metadata
 
-| Field | Value |
-|-------|-------|
-| Profile Version | {{profile_version}} |
-| Generated | {{generated_at}} |
-| Source | {{data_source}} |
-| Projects | {{projects_count}} |
-| Messages | {{message_count}} |
-| Dimensions Scored | {{dimensions_scored}}/8 |
-| High Confidence | {{high_confidence_count}} |
-| Medium Confidence | {{medium_confidence_count}} |
-| Low Confidence | {{low_confidence_count}} |
+| Field                      | Value                          |
+|----------------------------|--------------------------------|
+| Profile Version            | {{profile_version}}            |
+| Generated                  | {{generated_at}}               |
+| Source                     | {{data_source}}                |
+| Projects                   | {{projects_count}}             |
+| Messages                   | {{message_count}}              |
+| Dimensions Scored          | {{dimensions_scored}}/8        |
+| High Confidence            | {{high_confidence_count}}      |
+| Medium Confidence          | {{medium_confidence_count}}    |
+| Low Confidence             | {{low_confidence_count}}       |
 | Sensitive Content Excluded | {{sensitive_excluded_summary}} |

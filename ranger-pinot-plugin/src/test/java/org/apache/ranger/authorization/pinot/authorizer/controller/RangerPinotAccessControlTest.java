@@ -35,23 +35,13 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Exercises {@link RangerPinotAccessControl} against a real Ranger policy engine, using
@@ -63,8 +53,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RangerPinotAccessControlTest {
     private static final String SERVICE_NAME = "pinot-test";
     private static final String TABLE_ORDERS = "orders";
-    private static final String USER_ALICE   = "alice";
-    private static final String USER_BOB     = "bob";
+    private static final String USER_ALICE = "alice";
+    private static final String USER_BOB = "bob";
 
     private static RangerServiceDef freshServiceDef() throws IOException {
         try (InputStream is = RangerPinotAccessControlTest.class.getClassLoader()
@@ -75,14 +65,16 @@ class RangerPinotAccessControlTest {
 
     private static final AtomicLong POLICY_ID_SEQ = new AtomicLong(1);
 
-    /** Policy granting one accessType on one resource element ({@code table} or {@code cluster}). */
+    /**
+     * Policy granting one accessType on one resource element ({@code table} or {@code cluster}).
+     */
     private static RangerPolicy policy(String resourceKey, String resourceValue, String user, String accessType) {
-        RangerPolicy.RangerPolicyResource   resource = new RangerPolicy.RangerPolicyResource(resourceValue, false, false);
-        RangerPolicy.RangerPolicyItemAccess access   = new RangerPolicy.RangerPolicyItemAccess(accessType, true);
-        RangerPolicy.RangerPolicyItem       item     = new RangerPolicy.RangerPolicyItem(
+        RangerPolicy.RangerPolicyResource resource = new RangerPolicy.RangerPolicyResource(resourceValue, false, false);
+        RangerPolicy.RangerPolicyItemAccess access = new RangerPolicy.RangerPolicyItemAccess(accessType, true);
+        RangerPolicy.RangerPolicyItem item = new RangerPolicy.RangerPolicyItem(
                 Collections.singletonList(access), Collections.singletonList(user), null, null, null, false);
 
-        long         id     = POLICY_ID_SEQ.getAndIncrement();
+        long id = POLICY_ID_SEQ.getAndIncrement();
         RangerPolicy policy = new RangerPolicy();
 
         // Every RangerPolicy needs a unique id/guid (as a real Ranger Admin would assign) — two
@@ -98,8 +90,8 @@ class RangerPinotAccessControlTest {
     }
 
     private static RangerBasePlugin pluginWithPolicies(RangerPolicy... policies) throws IOException {
-        RangerBasePlugin plugin          = new RangerBasePlugin("pinot", "pinot");
-        ServicePolicies  servicePolicies = new ServicePolicies();
+        RangerBasePlugin plugin = new RangerBasePlugin("pinot", "pinot");
+        ServicePolicies servicePolicies = new ServicePolicies();
 
         servicePolicies.setServiceName(SERVICE_NAME);
         servicePolicies.setServiceDef(freshServiceDef());
@@ -110,7 +102,9 @@ class RangerPinotAccessControlTest {
         return plugin;
     }
 
-    /** Headers carrying {@code Authorization: Basic base64(user:secret)} — the plugin's identity source. */
+    /**
+     * Headers carrying {@code Authorization: Basic base64(user:secret)} — the plugin's identity source.
+     */
     private static HttpHeaders basicAuthHeadersFor(String user) {
         String token = Base64.getEncoder().encodeToString((user + ":secret").getBytes(StandardCharsets.UTF_8));
 
@@ -302,7 +296,9 @@ class RangerPinotAccessControlTest {
         return serviceDef;
     }
 
-    /** Tag policy granting an accessType on tag {@code PII} to a user, as Ranger Admin would store it. */
+    /**
+     * Tag policy granting an accessType on tag {@code PII} to a user, as Ranger Admin would store it.
+     */
     private static RangerPolicy tagPolicy(String tag, String user, String accessType) {
         RangerPolicy policy = policy("tag", tag, user, accessType);
 
@@ -311,10 +307,12 @@ class RangerPinotAccessControlTest {
         return policy;
     }
 
-    /** ServicePolicies with tagPolicies attached — the shape Ranger Admin downloads to plugins. */
+    /**
+     * ServicePolicies with tagPolicies attached — the shape Ranger Admin downloads to plugins.
+     */
     private static ServicePolicies servicePoliciesWithTags(RangerPolicy... policies) throws IOException {
-        ServicePolicies             servicePolicies = new ServicePolicies();
-        ServicePolicies.TagPolicies tagPolicies    = new ServicePolicies.TagPolicies();
+        ServicePolicies servicePolicies = new ServicePolicies();
+        ServicePolicies.TagPolicies tagPolicies = new ServicePolicies.TagPolicies();
 
         tagPolicies.setServiceName("tagdev");
         tagPolicies.setServiceDef(tagServiceDef());

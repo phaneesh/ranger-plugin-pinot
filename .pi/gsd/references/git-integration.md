@@ -12,7 +12,7 @@ The git log should read like a changelog of what shipped, not a diary of plannin
 <commit_points>
 
 | Event                   | Commit? | Why                                         |
-| ----------------------- | ------- | ------------------------------------------- |
+|-------------------------|---------|---------------------------------------------|
 | BRIEF + ROADMAP created | YES     | Project initialization                      |
 | PLAN.md created         | NO      | Intermediate - commit with plan completion  |
 | RESEARCH.md created     | NO      | Intermediate                                |
@@ -74,6 +74,7 @@ Each task gets its own commit immediately after completion.
 ```
 
 **Commit types:**
+
 - `feat` - New feature/functionality
 - `fix` - Bug fix
 - `test` - Test-only (TDD RED phase)
@@ -162,6 +163,7 @@ node ".pi/gsd/bin/gsd-tools.cjs" commit "wip: [phase-name] paused at task [X]/[Y
 <example_log>
 
 **Old approach (per-plan commits):**
+
 ```
 a7f2d1 feat(checkout): Stripe payments with webhook verification
 3e9c4b feat(products): catalog with search, filters, and pagination
@@ -171,6 +173,7 @@ a7f2d1 feat(checkout): Stripe payments with webhook verification
 ```
 
 **New approach (per-task commits):**
+
 ```
 # Phase 04 - Checkout
 1a2b3c docs(04-01): complete checkout flow plan
@@ -209,6 +212,7 @@ Each plan produces 2-4 commits (tasks + metadata). Clear, granular, bisectable.
 <anti_patterns>
 
 **Still don't commit (intermediate artifacts):**
+
 - PLAN.md creation (commit with plan completion)
 - RESEARCH.md (intermediate)
 - DISCOVERY.md (intermediate)
@@ -216,6 +220,7 @@ Each plan produces 2-4 commits (tasks + metadata). Clear, granular, bisectable.
 - "Fixed typo in roadmap"
 
 **Do commit (outcomes):**
+
 - Each task completion (feat/fix/test/refactor)
 - Plan completion metadata (docs)
 - Project initialization (docs)
@@ -229,22 +234,26 @@ Each plan produces 2-4 commits (tasks + metadata). Clear, granular, bisectable.
 ## Why Per-Task Commits?
 
 **Context engineering for AI:**
+
 - Git history becomes primary context source for future the agent sessions
 - `git log --grep="{phase}-{plan}"` shows all work for a plan
 - `git diff <hash>^..<hash>` shows exact changes per task
 - Less reliance on parsing SUMMARY.md = more context for actual work
 
 **Failure recovery:**
+
 - Task 1 committed ✅, Task 2 failed ❌
 - the agent in next session: sees task 1 complete, can retry task 2
 - Can `git reset --hard` to last successful task
 
 **Debugging:**
+
 - `git bisect` finds exact failing task, not just failing plan
 - `git blame` traces line to specific task context
 - Each commit is independently revertable
 
 **Observability:**
+
 - Solo developer + the agent workflow benefits from granular attribution
 - Atomic commits are git best practice
 - "Commit noise" irrelevant when consumer is the agent, not humans
@@ -255,7 +264,8 @@ Each plan produces 2-4 commits (tasks + metadata). Clear, granular, bisectable.
 
 ## Multi-Repo Workspace Support (sub_repos)
 
-For workspaces with separate git repos (e.g., `backend/`, `frontend/`, `shared/`), GSD routes commits to each repo independently.
+For workspaces with separate git repos (e.g., `backend/`, `frontend/`, `shared/`), GSD routes commits to each repo
+independently.
 
 ### Configuration
 
@@ -274,9 +284,14 @@ Set `commit_docs: false` so planning docs stay local and are not committed to an
 
 ### How It Works
 
-1. **Auto-detection:** During `/gsd-new-project`, directories with their own `.git` folder are detected and offered for selection as sub-repos. On subsequent runs, `loadConfig` auto-syncs the `sub_repos` list with the filesystem - adding newly created repos and removing deleted ones. This means `config.json` may be rewritten automatically when repos change on disk.
-2. **File grouping:** Code files are grouped by their sub-repo prefix (e.g., `backend/src/api/users.ts` belongs to the `backend/` repo).
-3. **Independent commits:** Each sub-repo receives its own atomic commit via `gsd-tools.cjs commit-to-subrepo`. File paths are made relative to the sub-repo root before staging.
+1. **Auto-detection:** During `/gsd-new-project`, directories with their own `.git` folder are detected and offered for
+   selection as sub-repos. On subsequent runs, `loadConfig` auto-syncs the `sub_repos` list with the filesystem - adding
+   newly created repos and removing deleted ones. This means `config.json` may be rewritten automatically when repos
+   change on disk.
+2. **File grouping:** Code files are grouped by their sub-repo prefix (e.g., `backend/src/api/users.ts` belongs to the
+   `backend/` repo).
+3. **Independent commits:** Each sub-repo receives its own atomic commit via `gsd-tools.cjs commit-to-subrepo`. File
+   paths are made relative to the sub-repo root before staging.
 4. **Planning stays local:** The `.planning/` directory is not committed; it acts as cross-repo coordination.
 
 ### Commit Routing
@@ -288,7 +303,8 @@ node .pi/gsd/bin/gsd-tools.cjs commit-to-subrepo "feat(02-01): add user API" \
   --files backend/src/api/users.ts backend/src/types/user.ts frontend/src/components/UserForm.tsx
 ```
 
-This stages `src/api/users.ts` and `src/types/user.ts` in the `backend/` repo, and `src/components/UserForm.tsx` in the `frontend/` repo, then commits each independently with the same message.
+This stages `src/api/users.ts` and `src/types/user.ts` in the `backend/` repo, and `src/components/UserForm.tsx` in the
+`frontend/` repo, then commits each independently with the same message.
 
 Files that don't match any configured sub-repo are reported as unmatched.
 

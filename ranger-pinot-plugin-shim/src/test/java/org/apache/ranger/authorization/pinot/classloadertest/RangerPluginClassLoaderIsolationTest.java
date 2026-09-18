@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -32,9 +31,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Proves that {@link RangerPluginClassLoader} genuinely isolates a plugin's implementation
@@ -75,9 +72,9 @@ class RangerPluginClassLoaderIsolationTest {
      * {@code target/test-classes/}, so the sibling directory lands at {@code target/...}).
      */
     private Path compileIsolatedImplInto(String pluginType) throws IOException, URISyntaxException {
-        URL   testClassesUrl = RangerPluginClassLoaderIsolationTest.class.getProtectionDomain().getCodeSource().getLocation();
-        Path  testClassesDir = Path.of(testClassesUrl.toURI());
-        Path  implLibDir     = testClassesDir.getParent().resolve("ranger-" + pluginType + "-plugin-impl");
+        URL testClassesUrl = RangerPluginClassLoaderIsolationTest.class.getProtectionDomain().getCodeSource().getLocation();
+        Path testClassesDir = Path.of(testClassesUrl.toURI());
+        Path implLibDir = testClassesDir.getParent().resolve("ranger-" + pluginType + "-plugin-impl");
         // RangerPluginClassLoaderUtil.getFilesInDirectory() lists the DIRECT children of implLibDir
         // and adds EACH ONE as its own URLClassLoader root (this is how the real distro tarball's
         // lib/ranger-<type>-plugin-impl/*.jar layout works: each jar is a direct child). A directory
@@ -87,9 +84,9 @@ class RangerPluginClassLoaderIsolationTest {
         // the isolated URL set (this was caught by this test's first failing run: it silently fell
         // through to "AMBIENT" instead of failing loudly, which is exactly the kind of false-positive
         // this test exists to prevent).
-        Path  implClassesDir = implLibDir.resolve("classes");
-        Path  sourceRoot     = Files.createTempDirectory("isolation-probe-src");
-        Path  packageDir     = sourceRoot.resolve("org/apache/ranger/authorization/pinot/classloadertest/impl");
+        Path implClassesDir = implLibDir.resolve("classes");
+        Path sourceRoot = Files.createTempDirectory("isolation-probe-src");
+        Path packageDir = sourceRoot.resolve("org/apache/ranger/authorization/pinot/classloadertest/impl");
 
         Files.createDirectories(packageDir);
         Files.createDirectories(implClassesDir);
@@ -131,7 +128,7 @@ class RangerPluginClassLoaderIsolationTest {
     @Test
     void rangerPluginClassLoaderResolvesTheIsolatedImplNotTheAmbientOne() throws Exception {
         String pluginType = "pinot-isolation-test";
-        Path   implLibDir = compileIsolatedImplInto(pluginType);
+        Path implLibDir = compileIsolatedImplInto(pluginType);
 
         try {
             RangerPluginClassLoader pluginClassLoader = new RangerPluginClassLoader(pluginType, RangerPluginClassLoaderIsolationTest.class);
@@ -140,7 +137,7 @@ class RangerPluginClassLoaderIsolationTest {
                     "RangerPluginClassLoader must have picked up the isolated impl directory as a classpath root: " + implLibDir);
 
             Class<?> isolatedClass = Class.forName(IMPL_FQCN, true, pluginClassLoader);
-            Object   instance      = isolatedClass.getDeclaredConstructor().newInstance();
+            Object instance = isolatedClass.getDeclaredConstructor().newInstance();
 
             assertTrue(instance instanceof IsolationProbe,
                     "The isolated class must still satisfy the shared IsolationProbe interface via the classloader's fallback-to-host resolution");

@@ -6,17 +6,18 @@ Produces DISCOVERY.md (for Level 2-3) that informs PLAN.md creation.
 
 Called from plan-phase.md's mandatory_discovery step with a depth parameter.
 
-NOTE: For comprehensive ecosystem research ("how do experts build this"), use /gsd-research-phase instead, which produces RESEARCH.md.
+NOTE: For comprehensive ecosystem research ("how do experts build this"), use /gsd-research-phase instead, which
+produces RESEARCH.md.
 </purpose>
 
 <depth_levels>
 **This workflow supports three depth levels:**
 
-| Level | Name         | Time      | Output                                       | When                                      |
-| ----- | ------------ | --------- | -------------------------------------------- | ----------------------------------------- |
-| 1     | Quick Verify | 2-5 min   | No file, proceed with verified knowledge     | Single library, confirming current syntax |
-| 2     | Standard     | 15-30 min | DISCOVERY.md                                 | Choosing between options, new integration |
-| 3     | Deep Dive    | 1+ hour   | Detailed DISCOVERY.md with validation gates  | Architectural decisions, novel problems   |
+| Level | Name         | Time      | Output                                      | When                                      |
+|-------|--------------|-----------|---------------------------------------------|-------------------------------------------|
+| 1     | Quick Verify | 2-5 min   | No file, proceed with verified knowledge    | Single library, confirming current syntax |
+| 2     | Standard     | 15-30 min | DISCOVERY.md                                | Choosing between options, new integration |
+| 3     | Deep Dive    | 1+ hour   | Detailed DISCOVERY.md with validation gates | Architectural decisions, novel problems   |
 
 **Depth is determined by plan-phase.md before routing here.**
 </depth_levels>
@@ -67,9 +68,9 @@ For: Single known library, confirming syntax/version still correct.
 
 3. Verify:
 
-   - Current version matches expectations
-   - API syntax unchanged
-   - No breaking changes in recent versions
+    - Current version matches expectations
+    - API syntax unchanged
+    - No breaking changes in recent versions
 
 4. **If verified:** Return to plan-phase.md with confirmation. No DISCOVERY.md needed.
 
@@ -87,9 +88,9 @@ For: Choosing between options, new external integration.
 
 1. **Identify what to discover:**
 
-   - What options exist?
-   - What are the key comparison criteria?
-   - What's our specific use case?
+    - What options exist?
+    - What are the key comparison criteria?
+    - What's our specific use case?
 
 2. **Context7 for each option:**
 
@@ -103,18 +104,18 @@ For: Choosing between options, new external integration.
 
 4. **WebSearch** for comparisons:
 
-   - "[option A] vs [option B] {current_year}"
-   - "[option] known issues"
-   - "[option] with [our stack]"
+    - "[option A] vs [option B] {current_year}"
+    - "[option] known issues"
+    - "[option] with [our stack]"
 
 5. **Cross-verify:** Any WebSearch finding → confirm with Context7/official docs.
 
 6. **Create DISCOVERY.md** using .pi/gsd/templates/discovery.md structure:
 
-   - Summary with recommendation
-   - Key findings per option
-   - Code examples from Context7
-   - Confidence level (should be MEDIUM-HIGH for Level 2)
+    - Summary with recommendation
+    - Key findings per option
+    - Code examples from Context7
+    - Confidence level (should be MEDIUM-HIGH for Level 2)
 
 7. Return to plan-phase.md.
 
@@ -130,42 +131,42 @@ For: Architectural decisions, novel problems, high-risk choices.
 
 1. **Scope the discovery** using .pi/gsd/templates/discovery.md:
 
-   - Define clear scope
-   - Define include/exclude boundaries
-   - List specific questions to answer
+    - Define clear scope
+    - Define include/exclude boundaries
+    - List specific questions to answer
 
 2. **Exhaustive Context7 research:**
 
-   - All relevant libraries
-   - Related patterns and concepts
-   - Multiple topics per library if needed
+    - All relevant libraries
+    - Related patterns and concepts
+    - Multiple topics per library if needed
 
 3. **Official documentation deep read:**
 
-   - Architecture guides
-   - Best practices sections
-   - Migration/upgrade guides
-   - Known limitations
+    - Architecture guides
+    - Best practices sections
+    - Migration/upgrade guides
+    - Known limitations
 
 4. **WebSearch for ecosystem context:**
 
-   - How others solved similar problems
-   - Production experiences
-   - Gotchas and anti-patterns
-   - Recent changes/announcements
+    - How others solved similar problems
+    - Production experiences
+    - Gotchas and anti-patterns
+    - Recent changes/announcements
 
 5. **Cross-verify ALL findings:**
 
-   - Every WebSearch claim → verify with authoritative source
-   - Mark what's verified vs assumed
-   - Flag contradictions
+    - Every WebSearch claim → verify with authoritative source
+    - Mark what's verified vs assumed
+    - Flag contradictions
 
 6. **Create comprehensive DISCOVERY.md:**
 
-   - Full structure from .pi/gsd/templates/discovery.md
-   - Quality report with source attribution
-   - Confidence by finding
-   - If LOW confidence on any critical finding → add validation checkpoints
+    - Full structure from .pi/gsd/templates/discovery.md
+    - Quality report with source attribution
+    - Confidence by finding
+    - If LOW confidence on any critical finding → add validation checkpoints
 
 7. **Confidence gate:** If overall confidence is LOW, present options before proceeding.
 
@@ -221,9 +222,9 @@ Use AskUserQuestion:
 - header: "Low Conf."
 - question: "Discovery confidence is LOW: [reason]. How would you like to proceed?"
 - options:
-  - "Dig deeper" - Do more research before planning
-  - "Proceed anyway" - Accept uncertainty, plan with caveats
-  - "Pause" - I need to think about this
+    - "Dig deeper" - Do more research before planning
+    - "Proceed anyway" - Accept uncertainty, plan with caveats
+    - "Pause" - I need to think about this
 
 If confidence is MEDIUM:
 Inline: "Discovery complete (medium confidence). [brief reason]. Proceed to planning?"

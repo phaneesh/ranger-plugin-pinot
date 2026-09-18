@@ -38,15 +38,17 @@
 <purpose>
 Orchestrate parallel codebase mapper agents to analyze codebase and produce structured documents in .planning/codebase/
 
-Each agent has fresh context, explores a specific focus area, and **writes documents directly**. The orchestrator only receives confirmation + line counts, then writes a summary.
+Each agent has fresh context, explores a specific focus area, and **writes documents directly**. The orchestrator only
+receives confirmation + line counts, then writes a summary.
 
 Output: .planning/codebase/ folder with 7 structured documents about the codebase state.
 </purpose>
 
 <available_agent_types>
 Valid GSD subagent types (use exact names - do not fall back to 'general-purpose'):
+
 - gsd-codebase-mapper - Maps project structure and dependencies
-</available_agent_types>
+  </available_agent_types>
 
 <philosophy>
 **Why dedicated mapper agents:**
@@ -56,10 +58,12 @@ Valid GSD subagent types (use exact names - do not fall back to 'general-purpose
 - Faster execution (agents run simultaneously)
 
 **Document quality over length:**
-Include enough detail to be useful as reference. Prioritize practical examples (especially code patterns) over arbitrary brevity.
+Include enough detail to be useful as reference. Prioritize practical examples (especially code patterns) over arbitrary
+brevity.
 
 **Always include file paths:**
-Documents are reference material for the agent when planning/executing. Always include actual file paths formatted with backticks: `src/services/user.ts`.
+Documents are reference material for the agent when planning/executing. Always include actual file paths formatted with
+backticks: `src/services/user.ts`.
 </philosophy>
 
 <process>
@@ -69,13 +73,15 @@ Load codebase mapping context:
 
 <!-- Context pre-injected above via WXP - variables available via <gsd-paste name="..."> -->
 
-Extract from init JSON: `mapper_model`, `commit_docs`, `codebase_dir`, `existing_maps`, `has_maps`, `codebase_dir_exists`.
+Extract from init JSON: `mapper_model`, `commit_docs`, `codebase_dir`, `existing_maps`, `has_maps`,
+`codebase_dir_exists`.
 </step>
 
 <step name="check_existing">
 Check if .planning/codebase/ already exists using `has_maps` from init context.
 
 If `codebase_dir_exists` is true:
+
 ```bash
 ls -la .planning/codebase/
 ```
@@ -110,6 +116,7 @@ mkdir -p .planning/codebase
 ```
 
 **Expected output files:**
+
 - STACK.md (from tech mapper)
 - INTEGRATIONS.md (from tech mapper)
 - ARCHITECTURE.md (from arch mapper)
@@ -124,19 +131,25 @@ Continue to spawn_agents.
 <step name="detect_runtime_capabilities">
 Before spawning agents, detect whether the current runtime supports the `Task` tool for subagent delegation.
 
-**How to detect:** Check if you have access to a `Task` tool (may be capitalized as `Task` or lowercase as `task` depending on runtime). If you do NOT have a `Task`/`task` tool (or only have tools like `browser_subagent` which is for web browsing, NOT code analysis):
+**How to detect:** Check if you have access to a `Task` tool (may be capitalized as `Task` or lowercase as `task`
+depending on runtime). If you do NOT have a `Task`/`task` tool (or only have tools like `browser_subagent` which is for
+web browsing, NOT code analysis):
 
 → **Skip `spawn_agents` and `collect_confirmations`** - go directly to `sequential_mapping` instead.
 
-**CRITICAL:** Never use `browser_subagent` or `Explore` as a substitute for `Task`. The `browser_subagent` tool is exclusively for web page interaction and will fail for codebase analysis. If `Task` is unavailable, perform the mapping sequentially in-context.
+**CRITICAL:** Never use `browser_subagent` or `Explore` as a substitute for `Task`. The `browser_subagent` tool is
+exclusively for web page interaction and will fail for codebase analysis. If `Task` is unavailable, perform the mapping
+sequentially in-context.
 </step>
 
 <step name="spawn_agents" condition="Task tool is available">
 Spawn 4 parallel gsd-codebase-mapper agents.
 
-Use Task tool with `subagent_type="gsd-codebase-mapper"`, `model="{mapper_model}"`, and `run_in_background=true` for parallel execution.
+Use Task tool with `subagent_type="gsd-codebase-mapper"`, `model="{mapper_model}"`, and `run_in_background=true` for
+parallel execution.
 
-**CRITICAL:** Use the dedicated `gsd-codebase-mapper` agent, NOT `Explore` or `browser_subagent`. The mapper agent writes documents directly.
+**CRITICAL:** Use the dedicated `gsd-codebase-mapper` agent, NOT `Explore` or `browser_subagent`. The mapper agent
+writes documents directly.
 
 **Agent 1: Tech Focus**
 
@@ -228,6 +241,7 @@ Continue to collect_confirmations.
 Wait for all 4 agents to complete using TaskOutput tool.
 
 **For each agent task_id returned by the Agent tool calls above:**
+
 ```
 TaskOutput tool:
   task_id: "{task_id from Agent result}"
@@ -240,6 +254,7 @@ Call TaskOutput for all 4 agents in parallel (single message with 4 TaskOutput c
 Once all TaskOutput calls return, read each agent's output file to collect confirmations.
 
 **Expected confirmation format from each agent:**
+
 ```
 ## Mapping Complete
 
@@ -261,26 +276,31 @@ Continue to verify_output.
 <step name="sequential_mapping" condition="Task tool is NOT available (e.g. Antigravity, Gemini CLI, Codex)">
 When the `Task` tool is unavailable, perform codebase mapping sequentially in the current context. This replaces `spawn_agents` and `collect_confirmations`.
 
-**IMPORTANT:** Do NOT use `browser_subagent`, `Explore`, or any browser-based tool. Use only file system tools (Read, Bash, Write, Grep, Glob, list_dir, view_file, grep_search, or equivalent tools available in your runtime).
+**IMPORTANT:** Do NOT use `browser_subagent`, `Explore`, or any browser-based tool. Use only file system tools (Read,
+Bash, Write, Grep, Glob, list_dir, view_file, grep_search, or equivalent tools available in your runtime).
 
 Perform all 4 mapping passes sequentially:
 
 **Pass 1: Tech Focus**
+
 - Explore package.json/Cargo.toml/go.mod/requirements.txt, config files, dependency trees
 - Write `.planning/codebase/STACK.md` - Languages, runtime, frameworks, dependencies, configuration
 - Write `.planning/codebase/INTEGRATIONS.md` - External APIs, databases, auth providers, webhooks
 
 **Pass 2: Architecture Focus**
+
 - Explore directory structure, entry points, module boundaries, data flow
 - Write `.planning/codebase/ARCHITECTURE.md` - Pattern, layers, data flow, abstractions, entry points
 - Write `.planning/codebase/STRUCTURE.md` - Directory layout, key locations, naming conventions
 
 **Pass 3: Quality Focus**
+
 - Explore code style, error handling patterns, test files, CI config
 - Write `.planning/codebase/CONVENTIONS.md` - Code style, naming, patterns, error handling
 - Write `.planning/codebase/TESTING.md` - Framework, structure, mocking, coverage
 
 **Pass 4: Concerns Focus**
+
 - Explore TODOs, known issues, fragile areas, security patterns
 - Write `.planning/codebase/CONCERNS.md` - Tech debt, bugs, security, performance, fragile areas
 
@@ -298,6 +318,7 @@ wc -l .planning/codebase/*.md
 ```
 
 **Verification checklist:**
+
 - All 7 documents exist
 - No empty documents (each should have >20 lines)
 
@@ -355,6 +376,7 @@ Continue to offer_next.
 Present completion summary and next steps.
 
 **Get line counts:**
+
 ```bash
 wc -l .planning/codebase/*.md
 ```
@@ -400,6 +422,7 @@ End workflow.
 </process>
 
 <success_criteria>
+
 - .planning/codebase/ directory created
 - If Task tool available: 4 parallel gsd-codebase-mapper agents spawned with run_in_background=true
 - If Task tool NOT available: 4 sequential mapping passes performed inline (never using browser_subagent)
@@ -407,4 +430,4 @@ End workflow.
 - No empty documents (each should have >20 lines)
 - Clear completion summary with line counts
 - User offered clear next steps in GSD style
-</success_criteria>
+  </success_criteria>

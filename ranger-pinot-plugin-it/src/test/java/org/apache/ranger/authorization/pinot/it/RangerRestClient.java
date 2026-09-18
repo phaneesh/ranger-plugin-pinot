@@ -135,7 +135,9 @@ public class RangerRestClient {
         throw new IllegalStateException("Pinot controller not ready after 3 minutes at " + controllerBase);
     }
 
-    /** POSTs the repo's own service-def (single source of truth — read from the checkout). */
+    /**
+     * POSTs the repo's own service-def (single source of truth — read from the checkout).
+     */
     public HttpResponse<String> postServiceDef() throws IOException, InterruptedException {
         Path serviceDef = moduleDir.resolve("../ranger-pinot-plugin/src/main/resources/service-defs/ranger-servicedef-pinot.json").normalize();
         if (!Files.isRegularFile(serviceDef)) {

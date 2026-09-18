@@ -38,15 +38,17 @@
 <purpose>
 Orchestrate parallel debug agents to investigate UAT gaps and find root causes.
 
-After UAT finds gaps, spawn one debug agent per gap. Each agent investigates autonomously with symptoms pre-filled from UAT. Collect root causes, update UAT.md gaps with diagnosis, then hand off to plan-phase --gaps with actual diagnoses.
+After UAT finds gaps, spawn one debug agent per gap. Each agent investigates autonomously with symptoms pre-filled from
+UAT. Collect root causes, update UAT.md gaps with diagnosis, then hand off to plan-phase --gaps with actual diagnoses.
 
 Orchestrator stays lean: parse gaps, spawn agents, collect results, update UAT.
 </purpose>
 
 <available_agent_types>
 Valid GSD subagent types (use exact names - do not fall back to 'general-purpose'):
+
 - gsd-debugger - Diagnoses and fixes issues
-</available_agent_types>
+  </available_agent_types>
 
 <paths>
 DEBUG_DIR=.planning/debug
@@ -57,7 +59,8 @@ Debug files use the `.planning/debug/` path (hidden directory with leading dot).
 <core_principle>
 **Diagnose before planning fixes.**
 
-UAT tells us WHAT is broken (symptoms). Debug agents find WHY (root cause). plan-phase --gaps then creates targeted fixes based on actual causes, not guesses.
+UAT tells us WHAT is broken (symptoms). Debug agents find WHY (root cause). plan-phase --gaps then creates targeted
+fixes based on actual causes, not guesses.
 
 Without diagnosis: "Comment doesn't refresh" → guess at fix → maybe wrong
 With diagnosis: "Comment doesn't refresh" → "useEffect missing dependency" → precise fix
@@ -69,6 +72,7 @@ With diagnosis: "Comment doesn't refresh" → "useEffect missing dependency" →
 **Extract gaps from UAT.md:**
 
 Read the "Gaps" section (YAML format):
+
 ```yaml
 - truth: "Comment appears immediately after submission"
   status: failed
@@ -82,6 +86,7 @@ Read the "Gaps" section (YAML format):
 For each gap, also read the corresponding test from "Tests" section to get full context.
 
 Build gap list:
+
 ```
 gaps = [
   {truth: "Comment appears immediately...", severity: "major", test_num: 2, reason: "..."},
@@ -89,6 +94,7 @@ gaps = [
   ...
 ]
 ```
+
 </step>
 
 <step name="report_plan">
@@ -112,6 +118,7 @@ Each agent will:
 
 This runs in parallel - all gaps investigated simultaneously.
 ```
+
 </step>
 
 <step name="spawn_agents">
@@ -137,6 +144,7 @@ Task(
 **All agents spawn in single message** (parallel execution).
 
 Template placeholders:
+
 - `{truth}`: The expected behavior that failed
 - `{expected}`: From UAT test
 - `{actual}`: Verbatim user description from reason field
@@ -145,12 +153,13 @@ Template placeholders:
 - `{timeline}`: "Discovered during UAT"
 - `{goal}`: `find_root_cause_only` (UAT flow - plan-phase --gaps handles fixes)
 - `{slug}`: Generated from truth
-</step>
+  </step>
 
 <step name="collect_results">
 **Collect root causes from agents:**
 
 Each agent returns with:
+
 ```
 ## ROOT CAUSE FOUND
 
@@ -171,16 +180,18 @@ Each agent returns with:
 ```
 
 Parse each return to extract:
+
 - root_cause: The diagnosed cause
 - files: Files involved
 - debug_path: Path to debug session file
 - suggested_fix: Hint for gap closure plan
 
 If agent returns `## INVESTIGATION INCONCLUSIVE`:
+
 - root_cause: "Investigation inconclusive - manual review needed"
 - Note which issue needs manual attention
 - Include remaining possibilities from agent return
-</step>
+  </step>
 
 <step name="update_uat">
 **Update UAT.md gaps with diagnosis:**
@@ -206,15 +217,18 @@ For each gap in the Gaps section, add artifacts and missing fields:
 Update status in frontmatter to "diagnosed".
 
 Commit the updated UAT.md:
+
 ```bash
 pi-gsd-tools commit "docs({phase_num}): add root causes from diagnosis" --files ".planning/phases/XX-name/{phase_num}-UAT.md"
 ```
+
 </step>
 
 <step name="report_results">
 **Report diagnosis results and hand off:**
 
 Display:
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  GSD ► DIAGNOSIS COMPLETE
@@ -244,25 +258,29 @@ Agents only diagnose-plan-phase --gaps handles fixes (no fix application).
 
 <failure_handling>
 **Agent fails to find root cause:**
+
 - Mark gap as "needs manual review"
 - Continue with other gaps
 - Report incomplete diagnosis
 
 **Agent times out:**
+
 - Check DEBUG-{slug}.md for partial progress
 - Can resume with /gsd-debug
 
 **All agents fail:**
+
 - Something systemic (permissions, git, etc.)
 - Report for manual investigation
 - Fall back to plan-phase --gaps without root causes (less precise)
-</failure_handling>
+  </failure_handling>
 
 <success_criteria>
+
 - [ ] Gaps parsed from UAT.md
 - [ ] Debug agents spawned in parallel
 - [ ] Root causes collected from all agents
 - [ ] UAT.md gaps updated with artifacts and missing
 - [ ] Debug sessions saved to ${DEBUG_DIR}/
 - [ ] Hand off to verify-work for automatic planning
-</success_criteria>
+  </success_criteria>

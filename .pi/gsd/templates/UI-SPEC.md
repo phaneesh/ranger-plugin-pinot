@@ -16,7 +16,7 @@ created: {date}
 ## Design System
 
 | Property          | Value                               |
-| ----------------- | ----------------------------------- |
+|-------------------|-------------------------------------|
 | Tool              | {shadcn / none}                     |
 | Preset            | {preset string or "not applicable"} |
 | Component library | {radix / base-ui / none}            |
@@ -30,7 +30,7 @@ created: {date}
 Declared values (must be multiples of 4):
 
 | Token | Value | Usage                     |
-| ----- | ----- | ------------------------- |
+|-------|-------|---------------------------|
 | xs    | 4px   | Icon gaps, inline padding |
 | sm    | 8px   | Compact element spacing   |
 | md    | 16px  | Default element spacing   |
@@ -46,7 +46,7 @@ Exceptions: {list any, or "none"}
 ## Typography
 
 | Role    | Size | Weight   | Line Height |
-| ------- | ---- | -------- | ----------- |
+|---------|------|----------|-------------|
 | Body    | {px} | {weight} | {ratio}     |
 | Label   | {px} | {weight} | {ratio}     |
 | Heading | {px} | {weight} | {ratio}     |
@@ -57,7 +57,7 @@ Exceptions: {list any, or "none"}
 ## Color
 
 | Role            | Value | Usage                         |
-| --------------- | ----- | ----------------------------- |
+|-----------------|-------|-------------------------------|
 | Dominant (60%)  | {hex} | Background, surfaces          |
 | Secondary (30%) | {hex} | Cards, sidebar, nav           |
 | Accent (10%)    | {hex} | {list specific elements only} |
@@ -70,7 +70,7 @@ Accent reserved for: {explicit list - never "all interactive elements"}
 ## Copywriting Contract
 
 | Element                  | Copy                               |
-| ------------------------ | ---------------------------------- |
+|--------------------------|------------------------------------|
 | Primary CTA              | {specific verb + noun}             |
 | Empty state heading      | {copy}                             |
 | Empty state body         | {copy + next step}                 |
@@ -82,7 +82,7 @@ Accent reserved for: {explicit list - never "all interactive elements"}
 ## Registry Safety
 
 | Registry           | Blocks Used | Safety Gate                 |
-| ------------------ | ----------- | --------------------------- |
+|--------------------|-------------|-----------------------------|
 | shadcn official    | {list}      | not required                |
 | {third-party name} | {list}      | shadcn view + diff required |
 

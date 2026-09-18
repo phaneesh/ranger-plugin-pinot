@@ -43,19 +43,20 @@
 <purpose>
 Extract implementation decisions that downstream agents need. Analyze the phase to identify gray areas, let the user choose what to discuss, then deep-dive each selected area until satisfied.
 
-You are a thinking partner, not an interviewer. The user is the visionary - you are the builder. Your job is to capture decisions that will guide research and planning, not to figure out implementation yourself.
+You are a thinking partner, not an interviewer. The user is the visionary - you are the builder. Your job is to capture
+decisions that will guide research and planning, not to figure out implementation yourself.
 </purpose>
 
 <downstream_awareness>
 **CONTEXT.md feeds into:**
 
 1. **gsd-phase-researcher** - Reads CONTEXT.md to know WHAT to research
-   - "User wants card-based layout" → researcher investigates card component patterns
-   - "Infinite scroll decided" → researcher looks into virtualization libraries
+    - "User wants card-based layout" → researcher investigates card component patterns
+    - "Infinite scroll decided" → researcher looks into virtualization libraries
 
 2. **gsd-planner** - Reads CONTEXT.md to know WHAT decisions are locked
-   - "Pull-to-refresh on mobile" → planner includes that in task specs
-   - "the agent's Discretion: loading skeleton" → planner can decide approach
+    - "Pull-to-refresh on mobile" → planner includes that in task specs
+    - "the agent's Discretion: loading skeleton" → planner can decide approach
 
 **Your job:** Capture decisions clearly enough that downstream agents can act on them without asking the user again.
 
@@ -66,12 +67,14 @@ You are a thinking partner, not an interviewer. The user is the visionary - you 
 **User = founder/visionary. the agent = builder.**
 
 The user knows:
+
 - How they imagine it working
 - What it should look/feel like
 - What's essential vs nice-to-have
 - Specific behaviors or references they have in mind
 
 The user doesn't know (and shouldn't be asked):
+
 - Codebase patterns (researcher reads the code)
 - Technical risks (researcher identifies these)
 - Implementation approach (planner figures this out)
@@ -83,21 +86,26 @@ Ask about vision and implementation choices. Capture decisions for downstream ag
 <scope_guardrail>
 **CRITICAL: No scope creep.**
 
-The phase boundary comes from ROADMAP.md and is FIXED. Discussion clarifies HOW to implement what's scoped, never WHETHER to add new capabilities.
+The phase boundary comes from ROADMAP.md and is FIXED. Discussion clarifies HOW to implement what's scoped, never
+WHETHER to add new capabilities.
 
 **Allowed (clarifying ambiguity):**
+
 - "How should posts be displayed?" (layout, density, info shown)
 - "What happens on empty state?" (within the feature)
 - "Pull to refresh or manual?" (behavior choice)
 
 **Not allowed (scope creep):**
+
 - "Should we also add comments?" (new capability)
 - "What about search/filtering?" (new capability)
 - "Maybe include bookmarking?" (new capability)
 
-**The heuristic:** Does this clarify how we implement what's already in the phase, or does it add a new capability that could be its own phase?
+**The heuristic:** Does this clarify how we implement what's already in the phase, or does it add a new capability that
+could be its own phase?
 
 **When user suggests scope creep:**
+
 ```
 "[Feature X] would be a new capability - that's its own phase.
 Want me to note it for the roadmap backlog?
@@ -109,17 +117,18 @@ Capture the idea in a "Deferred Ideas" section. Don't lose it, don't act on it.
 </scope_guardrail>
 
 <gray_area_identification>
-Gray areas are **implementation decisions the user cares about** - things that could go multiple ways and would change the result.
+Gray areas are **implementation decisions the user cares about** - things that could go multiple ways and would change
+the result.
 
 **How to identify gray areas:**
 
 1. **Read the phase goal** from ROADMAP.md
 2. **Understand the domain** - What kind of thing is being built?
-   - Something users SEE → visual presentation, interactions, states matter
-   - Something users CALL → interface contracts, responses, errors matter
-   - Something users RUN → invocation, output, behavior modes matter
-   - Something users READ → structure, tone, depth, flow matter
-   - Something being ORGANIZED → criteria, grouping, handling exceptions matter
+    - Something users SEE → visual presentation, interactions, states matter
+    - Something users CALL → interface contracts, responses, errors matter
+    - Something users RUN → invocation, output, behavior modes matter
+    - Something users READ → structure, tone, depth, flow matter
+    - Something being ORGANIZED → criteria, grouping, handling exceptions matter
 3. **Generate phase-specific gray areas** - Not generic categories, but concrete decisions for THIS phase
 
 **Don't use generic category labels** (UI, UX, Behavior). Generate specific gray areas:
@@ -141,17 +150,20 @@ Phase: "API documentation"
 **The key question:** What decisions would change the outcome that the user should weigh in on?
 
 **the agent handles these (don't ask):**
+
 - Technical implementation details
 - Architecture patterns
 - Performance optimization
 - Scope (roadmap defines this)
-</gray_area_identification>
+  </gray_area_identification>
 
 <answer_validation>
-**IMPORTANT: Answer validation** - After every AskUserQuestion call, check if the response is empty or whitespace-only. If so:
+**IMPORTANT: Answer validation** - After every AskUserQuestion call, check if the response is empty or whitespace-only.
+If so:
+
 1. Retry the question once with the same parameters
 2. If still empty, present the options as a plain-text numbered list and ask the user to type their choice number
-Never proceed with an empty answer.
+   Never proceed with an empty answer.
 
 **Text mode (`workflow.text_mode: true` in config or `--text` flag):**
 When text mode is active, **do not use AskUserQuestion at all**. Instead, present every
@@ -160,6 +172,7 @@ This is required for Claude Code remote sessions (`/rc` mode) where the the agen
 cannot forward TUI menu selections back to the host.
 
 Enable text mode:
+
 - Per-session: pass `--text` flag to any command (e.g., `/gsd-discuss-phase --text`)
 - Per-project: `gsd-tools config-set workflow.text_mode true`
 
@@ -168,32 +181,38 @@ Text mode applies to ALL workflows in the session, not just discuss-phase.
 
 <process>
 
-**Express path available:** If you already have a PRD or acceptance criteria document, use `/gsd-plan-phase {phase} --prd path/to/prd.md` to skip this discussion and go straight to planning.
+**Express path available:** If you already have a PRD or acceptance criteria document, use
+`/gsd-plan-phase {phase} --prd path/to/prd.md` to skip this discussion and go straight to planning.
 
 <step name="initialize" priority="first">
 Phase number from argument (required).
 
 <!-- Context pre-injected above via WXP - variables available via <gsd-paste name="..."> -->
 
-Parse JSON for: `commit_docs`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `padded_phase`, `has_research`, `has_context`, `has_plans`, `has_verification`, `plan_count`, `roadmap_exists`, `planning_exists`.
+Parse JSON for: `commit_docs`, `phase_found`, `phase_dir`, `phase_number`, `phase_name`, `phase_slug`, `padded_phase`,
+`has_research`, `has_context`, `has_plans`, `has_verification`, `plan_count`, `roadmap_exists`, `planning_exists`.
 
 **If `phase_found` is false:**
+
 ```
 Phase [X] not found in roadmap.
 
 Use /gsd-progress ${GSD_WS} to see available phases.
 ```
+
 Exit workflow.
 
 **If `phase_found` is true:** Continue to check_existing.
 
 **Auto mode** - If `--auto` is present in ARGUMENTS:
+
 - In `check_existing`: auto-select "Skip" (if context exists) or continue without prompting (if no context/plans)
 - In `present_gray_areas`: auto-select ALL gray areas without asking the user
-- In `discuss_areas`: for each discussion question, choose the recommended option (first option, or the one marked "recommended") without using AskUserQuestion
+- In `discuss_areas`: for each discussion question, choose the recommended option (first option, or the one marked
+  "recommended") without using AskUserQuestion
 - Log each auto-selected choice inline so the user can review decisions in the context file
 - After discussion completes, auto-advance to plan-phase (existing behavior)
-</step>
+  </step>
 
 <step name="check_existing">
 Check if CONTEXT.md already exists using `has_context` from init.
@@ -204,15 +223,17 @@ ls ${phase_dir}/*-CONTEXT.md 2>/dev/null || true
 
 **If exists:**
 
-**If `--auto`:** Auto-select "Update it" - load existing context and continue to analyze_phase. Log: `[auto] Context exists - updating with auto-selected decisions.`
+**If `--auto`:** Auto-select "Update it" - load existing context and continue to analyze_phase. Log:
+`[auto] Context exists - updating with auto-selected decisions.`
 
 **Otherwise:** Use AskUserQuestion:
+
 - header: "Context"
 - question: "Phase [X] already has context. What do you want to do?"
 - options:
-  - "Update it" - Review and revise existing context
-  - "View it" - Show me what's there
-  - "Skip" - Use existing context as-is
+    - "Update it" - Review and revise existing context
+    - "View it" - Show me what's there
+    - "Skip" - Use existing context as-is
 
 If "Update": Load existing, continue to analyze_phase
 If "View": Display CONTEXT.md, then offer update/skip
@@ -222,15 +243,18 @@ If "Skip": Exit workflow
 
 Check `has_plans` and `plan_count` from init. **If `has_plans` is true:**
 
-**If `--auto`:** Auto-select "Continue and replan after". Log: `[auto] Plans exist - continuing with context capture, will replan after.`
+**If `--auto`:** Auto-select "Continue and replan after". Log:
+`[auto] Plans exist - continuing with context capture, will replan after.`
 
 **Otherwise:** Use AskUserQuestion:
+
 - header: "Plans exist"
-- question: "Phase [X] already has {plan_count} plan(s) created without user context. Your decisions here won't affect existing plans unless you replan."
+- question: "Phase [X] already has {plan_count} plan (s) created without user context. Your decisions here won't affect
+  existing plans unless you replan."
 - options:
-  - "Continue and replan after" - Capture context, then run /gsd-plan-phase {X} ${GSD_WS} to replan
-  - "View existing plans" - Show plans before deciding
-  - "Cancel" - Skip discuss-phase
+    - "Continue and replan after" - Capture context, then run /gsd-plan-phase {X} ${GSD_WS} to replan
+    - "View existing plans" - Show plans before deciding
+    - "Cancel" - Skip discuss-phase
 
 If "Continue and replan after": Continue to analyze_phase.
 If "View existing plans": Display plan files, then offer "Continue" / "Cancel".
@@ -243,6 +267,7 @@ If "Cancel": Exit workflow.
 Read project-level and prior phase context to avoid re-asking decided questions and maintain consistency.
 
 **Step 1: Read project-level files**
+
 ```bash
 # Core project files
 cat .planning/PROJECT.md 2>/dev/null || true
@@ -251,17 +276,20 @@ cat .planning/STATE.md 2>/dev/null || true
 ```
 
 Extract from these:
+
 - **PROJECT.md** - Vision, principles, non-negotiables, user preferences
 - **REQUIREMENTS.md** - Acceptance criteria, constraints, must-haves vs nice-to-haves
 - **STATE.md** - Current progress, any flags or session notes
 
 **Step 2: Read all prior CONTEXT.md files**
+
 ```bash
 # Find all CONTEXT.md files from phases before current
 (find .planning/phases -name "*-CONTEXT.md" 2>/dev/null || true) | sort
 ```
 
 For each CONTEXT.md where phase number < current phase:
+
 - Read the `<decisions>` section - these are locked preferences
 - Read `<specifics>` - particular references or "I want it like X" moments
 - Note any patterns (e.g., "user consistently prefers minimal UI", "user rejected single-key shortcuts")
@@ -269,6 +297,7 @@ For each CONTEXT.md where phase number < current phase:
 **Step 3: Build internal `<prior_decisions>` context**
 
 Structure the extracted information:
+
 ```
 <prior_decisions>
 ## Project-Level
@@ -286,6 +315,7 @@ Structure the extracted information:
 ```
 
 **Usage in subsequent steps:**
+
 - `analyze_phase`: Skip gray areas already decided in prior phases
 - `present_gray_areas`: Annotate options with prior decisions ("You chose X in Phase 5")
 - `discuss_areas`: Pre-fill answers or flag conflicts ("This contradicts Phase 3 - same here or different?")
@@ -297,6 +327,7 @@ Structure the extracted information:
 Check if any pending todos are relevant to this phase's scope. Surfaces backlog items that might otherwise be missed.
 
 **Load and match todos:**
+
 ```bash
 TODO_MATCHES=$(pi-gsd-tools todo match-phase "${PHASE_NUMBER}")
 ```
@@ -324,10 +355,12 @@ Which of these todos should be folded into Phase {X} scope?
 ```
 
 **For selected (folded) todos:**
+
 - Store internally as `<folded_todos>` for inclusion in CONTEXT.md `<decisions>` section
 - These become additional scope items that downstream agents (researcher, planner) will see
 
 **For unselected (reviewed but not folded) todos:**
+
 - Store internally as `<reviewed_todos>` for inclusion in CONTEXT.md `<deferred>` section
 - This prevents future phases from re-surfacing the same todos as "missed"
 
@@ -338,11 +371,14 @@ Which of these todos should be folded into Phase {X} scope?
 Lightweight scan of existing code to inform gray area identification and discussion. Uses ~10% context - acceptable for an interactive session.
 
 **Step 1: Check for existing codebase maps**
+
 ```bash
 ls .planning/codebase/*.md 2>/dev/null || true
 ```
 
-**If codebase maps exist:** Read the most relevant ones (CONVENTIONS.md, STRUCTURE.md, STACK.md based on phase type). Extract:
+**If codebase maps exist:** Read the most relevant ones (CONVENTIONS.md, STRUCTURE.md, STACK.md based on phase type).
+Extract:
+
 - Reusable components/hooks/utilities
 - Established patterns (state management, styling, data fetching)
 - Integration points (where new code would connect)
@@ -368,12 +404,14 @@ Read the 3-5 most relevant files to understand existing patterns.
 **Step 3: Build internal codebase_context**
 
 From the scan, identify:
+
 - **Reusable assets** - existing components, hooks, utilities that could be used in this phase
 - **Established patterns** - how the codebase does state management, styling, data fetching
 - **Integration points** - where new code would connect (routes, nav, providers)
 - **Creative options** - approaches the existing architecture enables or constrains
 
-Store as internal `<codebase_context>` for use in analyze_phase and present_gray_areas. This is NOT written to a file - it's used within this session only.
+Store as internal `<codebase_context>` for use in analyze_phase and present_gray_areas. This is NOT written to a file -
+it's used within this session only.
 </step>
 
 <step name="analyze_phase">
@@ -383,23 +421,29 @@ Analyze the phase to identify gray areas worth discussing. **Use both `prior_dec
 
 1. **Domain boundary** - What capability is this phase delivering? State it clearly.
 
-1b. **Initialize canonical refs accumulator** - Start building the `<canonical_refs>` list for CONTEXT.md. This accumulates throughout the entire discussion, not just this step.
+1b. **Initialize canonical refs accumulator** - Start building the `<canonical_refs>` list for CONTEXT.md. This
+accumulates throughout the entire discussion, not just this step.
 
-   **Source 1 (now):** Copy `Canonical refs:` from ROADMAP.md for this phase. Expand each to a full relative path.
-   **Source 2 (now):** Check REQUIREMENTS.md and PROJECT.md for any specs/ADRs referenced for this phase.
-   **Source 3 (scout_codebase):** If existing code references docs (e.g., comments citing ADRs), add those.
-   **Source 4 (discuss_areas):** When the user says "read X", "check Y", or references any doc/spec/ADR during discussion - add it immediately. These are often the MOST important refs because they represent docs the user specifically wants followed.
+**Source 1 (now):** Copy `Canonical refs:` from ROADMAP.md for this phase. Expand each to a full relative path. **Source
+2 (now):** Check REQUIREMENTS.md and PROJECT.md for any specs/ADRs referenced for this phase. **Source 3 (
+scout_codebase):** If existing code references docs (e.g., comments citing ADRs), add those. **Source 4 (
+discuss_areas):** When the user says "read X", "check Y", or references any doc/spec/ADR during discussion - add it
+immediately. These are often the MOST important refs because they represent docs the user specifically wants followed.
 
-   This list is MANDATORY in CONTEXT.md. Every ref must have a full relative path so downstream agents can read it directly. If no external docs exist, note that explicitly.
+This list is MANDATORY in CONTEXT.md. Every ref must have a full relative path so downstream agents can read it
+directly. If no external docs exist, note that explicitly.
 
 2. **Check prior decisions** - Before generating gray areas, check if any were already decided:
-   - Scan `<prior_decisions>` for relevant choices (e.g., "Ctrl+C only, no single-key shortcuts")
-   - These are **pre-answered** - don't re-ask unless this phase has conflicting needs
-   - Note applicable prior decisions for use in presentation
+    - Scan `<prior_decisions>` for relevant choices (e.g., "Ctrl+C only, no single-key shortcuts")
+    - These are **pre-answered** - don't re-ask unless this phase has conflicting needs
+    - Note applicable prior decisions for use in presentation
 
-3. **Gray areas by category** - For each relevant category (UI, UX, Behavior, Empty States, Content), identify 1-2 specific ambiguities that would change implementation. **Annotate with code context where relevant** (e.g., "You already have a Card component" or "No existing pattern for this").
+3. **Gray areas by category** - For each relevant category (UI, UX, Behavior, Empty States, Content), identify 1-2
+   specific ambiguities that would change implementation. **Annotate with code context where relevant** (e.g., "You
+   already have a Card component" or "No existing pattern for this").
 
-4. **Skip assessment** - If no meaningful gray areas exist (pure infrastructure, clear-cut implementation, or all already decided in prior phases), the phase may not need discussion.
+4. **Skip assessment** - If no meaningful gray areas exist (pure infrastructure, clear-cut implementation, or all
+   already decided in prior phases), the phase may not need discussion.
 
 **Advisor Mode Detection:**
 
@@ -412,25 +456,27 @@ Check if advisor mode should activate:
    ADVISOR_MODE = file exists at PROFILE_PATH → true, otherwise → false
 
 2. If ADVISOR_MODE is true, resolve vendor_philosophy calibration tier:
-   - Priority 1: Read config.json > preferences.vendor_philosophy (project-level override)
-   - Priority 2: Read USER-PROFILE.md Vendor Choices/Philosophy rating (global)
-   - Priority 3: Default to "standard" if neither has a value or value is UNSCORED
+    - Priority 1: Read config.json > preferences.vendor_philosophy (project-level override)
+    - Priority 2: Read USER-PROFILE.md Vendor Choices/Philosophy rating (global)
+    - Priority 3: Default to "standard" if neither has a value or value is UNSCORED
 
    Map to calibration tier:
-   - conservative OR thorough-evaluator → full_maturity
-   - opinionated → minimal_decisive
-   - pragmatic-fast OR any other value OR empty → standard
+    - conservative OR thorough-evaluator → full_maturity
+    - opinionated → minimal_decisive
+    - pragmatic-fast OR any other value OR empty → standard
 
 3. Resolve model for advisor agents:
    ```bash
    ADVISOR_MODEL=$(pi-gsd-tools resolve-model gsd-advisor-researcher --raw)
    ```
 
-If ADVISOR_MODE is false, skip all advisor-specific steps - workflow proceeds with existing conversational flow unchanged.
+If ADVISOR_MODE is false, skip all advisor-specific steps - workflow proceeds with existing conversational flow
+unchanged.
 
 **Output your analysis internally, then present to user.**
 
 Example analysis for "Post Feed" phase (with code and prior context):
+
 ```
 Domain: Displaying posts from followed users
 Existing: Card component (src/components/ui/Card.tsx), useInfiniteQuery hook, Tailwind CSS
@@ -442,12 +488,14 @@ Gray areas:
 - Empty State: What shows when no posts exist - EmptyState component exists in ui/
 - Content: What metadata displays (time, author, reactions count)
 ```
+
 </step>
 
 <step name="present_gray_areas">
 Present the domain boundary, prior decisions, and gray areas to user.
 
 **First, state the boundary and any prior decisions that apply:**
+
 ```
 Phase [X]: [Name]
 Domain: [What this phase delivers - from your analysis]
@@ -461,29 +509,34 @@ We'll clarify HOW to implement this.
 - [Decision from Phase M that applies here]
 ```
 
-**If `--auto`:** Auto-select ALL gray areas. Log: `[auto] Selected all gray areas: [list area names].` Skip the AskUserQuestion below and continue directly to discuss_areas with all areas selected.
+**If `--auto`:** Auto-select ALL gray areas. Log: `[auto] Selected all gray areas: [list area names].` Skip the
+AskUserQuestion below and continue directly to discuss_areas with all areas selected.
 
 **Otherwise, use AskUserQuestion (multiSelect: true):**
+
 - header: "Discuss"
 - question: "Which areas do you want to discuss for [phase name]?"
 - options: Generate 3-4 phase-specific gray areas, each with:
-  - "[Specific area]" (label) - concrete, not generic
-  - [1-2 questions this covers + code context annotation] (description)
-  - **Highlight the recommended choice with brief explanation why**
+    - "[Specific area]" (label) - concrete, not generic
+    - [1-2 questions this covers + code context annotation] (description)
+    - **Highlight the recommended choice with brief explanation why**
 
 **Prior decision annotations:** When a gray area was already decided in a prior phase, annotate it:
+
 ```
 ☐ Exit shortcuts - How should users quit?
   (You decided "Ctrl+C only, no single-key shortcuts" in Phase 5 - revisit or keep?)
 ```
 
 **Code context annotations:** When the scout found relevant existing code, annotate the gray area description:
+
 ```
 ☐ Layout style - Cards vs list vs timeline?
   (You already have a Card component with shadow/rounded variants. Reusing it keeps the app consistent.)
 ```
 
 **Combining both:** When both prior decisions and code context apply:
+
 ```
 ☐ Loading behavior - Infinite scroll or pagination?
   (You chose infinite scroll in Phase 4. useInfiniteQuery hook already set up.)
@@ -494,6 +547,7 @@ We'll clarify HOW to implement this.
 **Examples by domain (with code context):**
 
 For "Post Feed" (visual feature):
+
 ```
 ☐ Layout style - Cards vs list vs timeline? (Card component exists with variants)
 ☐ Loading behavior - Infinite scroll or pagination? (useInfiniteQuery hook available)
@@ -502,6 +556,7 @@ For "Post Feed" (visual feature):
 ```
 
 For "Database backup CLI" (command-line tool):
+
 ```
 ☐ Output format - JSON, table, or plain text? Verbosity levels?
 ☐ Flag design - Short flags, long flags, or both? Required vs optional?
@@ -510,6 +565,7 @@ For "Database backup CLI" (command-line tool):
 ```
 
 For "Organize photo library" (organization task):
+
 ```
 ☐ Grouping criteria - By date, location, faces, or events?
 ☐ Duplicate handling - Keep best, keep all, or prompt each time?
@@ -527,36 +583,38 @@ After user selects gray areas in present_gray_areas, spawn parallel research age
 
 1. Display brief status: "Researching {N} areas..."
 
-2. For EACH user-selected gray area, spawn a Task() in parallel:
+2. For EACH user-selected gray area, spawn a Task () in parallel:
 
-   Task(
-     prompt="First, read @.pi/gsd/agents/gsd-advisor-researcher.md for your role and instructions.
+   Task (prompt="First, read @.pi/gsd/agents/gsd-advisor-researcher.md for your role and instructions.
 
-     <gray_area>{area_name}: {area_description from gray area identification}</gray_area>
-     <phase_context>{phase_goal and description from ROADMAP.md}</phase_context>
-     <project_context>{project name and brief description from PROJECT.md}</project_context>
-     <calibration_tier>{resolved calibration tier: full_maturity | standard | minimal_decisive}</calibration_tier>
+   <gray_area>{area_name}: {area_description from gray area identification}</gray_area>
+   <phase_context>{phase_goal and description from ROADMAP.md}</phase_context>
+   <project_context>{project name and brief description from PROJECT.md}</project_context>
+   <calibration_tier>{resolved calibration tier: full_maturity | standard | minimal_decisive}</calibration_tier>
 
-     Research this gray area and return a structured comparison table with rationale.
-     ${AGENT_SKILLS_ADVISOR}",
-     subagent_type="general-purpose",
-     model="{ADVISOR_MODEL}",
-     description="Research: {area_name}"
+   Research this gray area and return a structured comparison table with rationale.
+   ${AGENT_SKILLS_ADVISOR}",
+   subagent_type="general-purpose",
+   model="{ADVISOR_MODEL}",
+   description="Research: {area_name}"
    )
 
-   All Task() calls spawn simultaneously - do NOT wait for one before starting the next.
+   All Task () calls spawn simultaneously - do NOT wait for one before starting the next.
 
 3. After ALL agents return, SYNTHESIZE results before presenting:
    For each agent's return:
    a. Parse the markdown comparison table and rationale paragraph
-   b. Verify all 5 columns present (Option | Pros | Cons | Complexity | Recommendation) - fill any missing columns rather than showing broken table
+   b. Verify all 5 columns present (Option | Pros | Cons | Complexity | Recommendation) - fill any missing columns
+   rather than showing broken table
    c. Verify option count matches calibration tier:
-      - full_maturity: 3-5 options acceptable
-      - standard: 2-4 options acceptable
-      - minimal_decisive: 1-2 options acceptable
+    - full_maturity: 3-5 options acceptable
+    - standard: 2-4 options acceptable
+    - minimal_decisive: 1-2 options acceptable
       If agent returned too many, trim least viable. If too few, accept as-is.
-   d. Rewrite rationale paragraph to weave in project context and ongoing discussion context that the agent did not have access to
-   e. If agent returned only 1 option, convert from table format to direct recommendation: "Standard approach for {area}: {option}. {rationale}"
+      d. Rewrite rationale paragraph to weave in project context and ongoing discussion context that the agent did not
+      have access to
+      e. If agent returned only 1 option, convert from table format to direct recommendation: "Standard approach for
+      {area}: {option}. {rationale}"
 
 4. Store synthesized tables for use in discuss_areas.
 
@@ -575,26 +633,28 @@ Table-first discussion flow - present research-backed comparison tables, then ca
 1. **Present the synthesized comparison table + rationale paragraph** (from advisor_research step)
 
 2. **Use AskUserQuestion:**
-   - header: "{area_name}"
-   - question: "Which approach for {area_name}?"
-   - options: Extract from the table's Option column (AskUserQuestion adds "Other" automatically)
+    - header: "{area_name}"
+    - question: "Which approach for {area_name}?"
+    - options: Extract from the table's Option column (AskUserQuestion adds "Other" automatically)
 
 3. **Record the user's selection:**
-   - If user picks from table options → record as locked decision for that area
-   - If user picks "Other" → receive their input, reflect it back for confirmation, record
+    - If user picks from table options → record as locked decision for that area
+    - If user picks "Other" → receive their input, reflect it back for confirmation, record
 
 4. **After recording pick, the agent decides whether follow-up questions are needed:**
-   - If the pick has ambiguity that would affect downstream planning → ask 1-2 targeted follow-up questions using AskUserQuestion
-   - If the pick is clear and self-contained → move to next area
-   - Do NOT ask the standard 4 questions - the table already provided the context
+    - If the pick has ambiguity that would affect downstream planning → ask 1-2 targeted follow-up questions using
+      AskUserQuestion
+    - If the pick is clear and self-contained → move to next area
+    - Do NOT ask the standard 4 questions - the table already provided the context
 
 5. **After all areas processed:**
-   - header: "Done"
-   - question: "That covers [list areas]. Ready to create context?"
-   - options: "Create context" / "Revisit an area"
+    - header: "Done"
+    - question: "That covers [list areas]. Ready to create context?"
+    - options: "Create context" / "Revisit an area"
 
 **Scope creep handling (advisor mode):**
 If user mentions something outside the phase domain:
+
 ```
 "[Feature] sounds like a new capability - that belongs in its own phase.
 I'll note it as a deferred idea.
@@ -610,12 +670,15 @@ Track deferred ideas internally.
 
 For each selected area, conduct a focused discussion loop.
 
-**Research-before-questions mode:** Check if `workflow.research_before_questions` is enabled in config (from init context or `.planning/config.json`). When enabled, before presenting questions for each area:
+**Research-before-questions mode:** Check if `workflow.research_before_questions` is enabled in config (from init
+context or `.planning/config.json`). When enabled, before presenting questions for each area:
+
 1. Do a brief web search for best practices related to the area topic
 2. Summarize the top findings in 2-3 bullet points
 3. Present the research alongside the question so the user can make a more informed decision
 
 Example with research enabled:
+
 ```
 Let's talk about [Authentication Strategy].
 
@@ -630,6 +693,7 @@ With that context: How should users authenticate?
 When disabled (default), skip the research and present questions directly as before.
 
 **Text mode support:** Parse optional `--text` from `$ARGUMENTS`.
+
 - Accept `--text` flag OR read `workflow.text_mode` from config (from init context)
 - When active, replace ALL `AskUserQuestion` calls with plain-text numbered lists
 - User types a number to select, or types free text for "Other"
@@ -637,15 +701,19 @@ When disabled (default), skip the research and present questions directly as bef
   don't work through the the agent App
 
 **Batch mode support:** Parse optional `--batch` from `$ARGUMENTS`.
+
 - Accept `--batch`, `--batch=N`, or `--batch N`
 
 **Analyze mode support:** Parse optional `--analyze` from `$ARGUMENTS`.
-When `--analyze` is active, before presenting each question (or question group in batch mode), provide a brief **trade-off analysis** for the decision:
+When `--analyze` is active, before presenting each question (or question group in batch mode), provide a brief
+**trade-off analysis** for the decision:
+
 - 2-3 options with pros/cons based on codebase context and common patterns
 - A recommended approach with reasoning
 - Known pitfalls or constraints from prior phases
 
 Example with `--analyze`:
+
 ```
 **Trade-off analysis: Authentication strategy**
 
@@ -660,22 +728,28 @@ Example with `--analyze`:
 How should users authenticate?
 ```
 
-This gives the user context to make informed decisions without extra prompting. When `--analyze` is absent, present questions directly as before.
+This gives the user context to make informed decisions without extra prompting. When `--analyze` is absent, present
+questions directly as before.
+
 - Accept `--batch`, `--batch=N`, or `--batch N`
 - Default to 4 questions per batch when no number is provided
 - Clamp explicit sizes to 2-5 so a batch stays answerable
 - If `--batch` is absent, keep the existing one-question-at-a-time flow
 
 **Philosophy:** stay adaptive, but let the user choose the pacing.
+
 - Default mode: 4 single-question turns, then check whether to continue
 - `--batch` mode: 1 grouped turn with 2-5 numbered questions, then check whether to continue
 
 Each answer (or answer set, in batch mode) should reveal the next question or next batch.
 
-**Auto mode (`--auto`):** For each area, the agent selects the recommended option (first option, or the one explicitly marked "recommended") for every question without using AskUserQuestion. Log each auto-selected choice:
+**Auto mode (`--auto`):** For each area, the agent selects the recommended option (first option, or the one explicitly
+marked "recommended") for every question without using AskUserQuestion. Log each auto-selected choice:
+
 ```
 [auto] [Area] - Q: "[question text]" → Selected: "[chosen option]" (recommended default)
 ```
+
 After all areas are auto-resolved, skip the "Explore more gray areas" prompt and proceed directly to write_context.
 
 **Interactive mode (no `--auto`):**
@@ -690,64 +764,81 @@ After all areas are auto-resolved, skip the "Explore more gray areas" prompt and
 2. **Ask questions using the selected pacing:**
 
    **Default (no `--batch`): Ask 4 questions using AskUserQuestion**
-   - header: "[Area]" (max 12 chars - abbreviate if needed)
-   - question: Specific decision for this area
-   - options: 2-3 concrete choices (AskUserQuestion adds "Other" automatically), with the recommended choice highlighted and brief explanation why
-   - **Annotate options with code context** when relevant:
-     ```
-     "How should posts be displayed?"
-     - Cards (reuses existing Card component - consistent with Messages)
-     - List (simpler, would be a new pattern)
-     - Timeline (needs new Timeline component - none exists yet)
-     ```
-   - Include "You decide" as an option when reasonable - captures the agent discretion
-   - **Context7 for library choices:** When a gray area involves library selection (e.g., "magic links" → query next-auth docs) or API approach decisions, use `mcp__context7__*` tools to fetch current documentation and inform the options. Don't use Context7 for every question - only when library-specific knowledge improves the options.
+    - header: "[Area]" (max 12 chars - abbreviate if needed)
+    - question: Specific decision for this area
+    - options: 2-3 concrete choices (AskUserQuestion adds "Other" automatically), with the recommended choice
+      highlighted and brief explanation why
+    - **Annotate options with code context** when relevant:
+      ```
+      "How should posts be displayed?"
+      - Cards (reuses existing Card component - consistent with Messages)
+      - List (simpler, would be a new pattern)
+      - Timeline (needs new Timeline component - none exists yet)
+      ```
+    - Include "You decide" as an option when reasonable - captures the agent discretion
+    - **Context7 for library choices:** When a gray area involves library selection (e.g., "magic links" → query
+      next-auth docs) or API approach decisions, use `mcp__context7__*` tools to fetch current documentation and inform
+      the options. Don't use Context7 for every question - only when library-specific knowledge improves the options.
 
    **Batch mode (`--batch`): Ask 2-5 numbered questions in one plain-text turn**
-   - Group closely related questions for the current area into a single message
-   - Keep each question concrete and answerable in one reply
-   - When options are helpful, include short inline choices per question rather than a separate AskUserQuestion for every item
-   - After the user replies, reflect back the captured decisions, note any unanswered items, and ask only the minimum follow-up needed before moving on
-   - Preserve adaptiveness between batches: use the full set of answers to decide the next batch or whether the area is sufficiently clear
+    - Group closely related questions for the current area into a single message
+    - Keep each question concrete and answerable in one reply
+    - When options are helpful, include short inline choices per question rather than a separate AskUserQuestion for
+      every item
+    - After the user replies, reflect back the captured decisions, note any unanswered items, and ask only the minimum
+      follow-up needed before moving on
+    - Preserve adaptiveness between batches: use the full set of answers to decide the next batch or whether the area is
+      sufficiently clear
 
 3. **After the current set of questions, check:**
-   - header: "[Area]" (max 12 chars)
-   - question: "More questions about [area], or move to next? (Remaining: [list other unvisited areas])"
-   - options: "More questions" / "Next area"
+    - header: "[Area]" (max 12 chars)
+    - question: "More questions about [area], or move to next? (Remaining: [list other unvisited areas])"
+    - options: "More questions" / "Next area"
 
-   When building the question text, list the remaining unvisited areas so the user knows what's ahead. For example: "More questions about Layout, or move to next? (Remaining: Loading behavior, Content ordering)"
+   When building the question text, list the remaining unvisited areas so the user knows what's ahead. For example:
+   "More questions about Layout, or move to next? (Remaining: Loading behavior, Content ordering)"
 
-   If "More questions" → ask another 4 single questions, or another 2-5 question batch when `--batch` is active, then check again
+   If "More questions" → ask another 4 single questions, or another 2-5 question batch when `--batch` is active, then
+   check again
    If "Next area" → proceed to next selected area
-   If "Other" (free text) → interpret intent: continuation phrases ("chat more", "keep going", "yes", "more") map to "More questions"; advancement phrases ("done", "move on", "next", "skip") map to "Next area". If ambiguous, ask: "Continue with more questions about [area], or move to the next area?"
+   If "Other" (free text) → interpret intent: continuation phrases ("chat more", "keep going", "yes", "more") map to
+   "More questions"; advancement phrases ("done", "move on", "next", "skip") map to "Next area". If ambiguous, ask:
+   "Continue with more questions about [area], or move to the next area?"
 
 4. **After all initially-selected areas complete:**
-   - Summarize what was captured from the discussion so far
-   - AskUserQuestion:
-     - header: "Done"
-     - question: "We've discussed [list areas]. Which gray areas remain unclear?"
-     - options: "Explore more gray areas" / "I'm ready for context"
-   - If "Explore more gray areas":
-     - Identify 2-4 additional gray areas based on what was learned
-     - Return to present_gray_areas logic with these new areas
-     - Loop: discuss new areas, then prompt again
-   - If "I'm ready for context": Proceed to write_context
+    - Summarize what was captured from the discussion so far
+    - AskUserQuestion:
+        - header: "Done"
+        - question: "We've discussed [list areas]. Which gray areas remain unclear?"
+        - options: "Explore more gray areas" / "I'm ready for context"
+    - If "Explore more gray areas":
+        - Identify 2-4 additional gray areas based on what was learned
+        - Return to present_gray_areas logic with these new areas
+        - Loop: discuss new areas, then prompt again
+    - If "I'm ready for context": Proceed to write_context
 
 **Canonical ref accumulation during discussion:**
-When the user references a doc, spec, or ADR during any answer - e.g., "read adr-014", "check the MCP spec", "per browse-spec.md" - immediately:
+When the user references a doc, spec, or ADR during any answer - e.g., "read adr-014", "check the MCP spec", "per
+browse-spec.md" - immediately:
+
 1. Read the referenced doc (or confirm it exists)
 2. Add it to the canonical refs accumulator with full relative path
 3. Use what you learned from the doc to inform subsequent questions
 
-These user-referenced docs are often MORE important than ROADMAP.md refs because they represent docs the user specifically wants downstream agents to follow. Never drop them.
+These user-referenced docs are often MORE important than ROADMAP.md refs because they represent docs the user
+specifically wants downstream agents to follow. Never drop them.
 
 **Question design:**
+
 - Options should be concrete, not abstract ("Cards" not "Option A")
 - Each answer should inform the next question or next batch
-- If user picks "Other" to provide freeform input (e.g., "let me describe it", "something else", or an open-ended reply), ask your follow-up as plain text - NOT another AskUserQuestion. Wait for them to type at the normal prompt, then reflect their input back and confirm before resuming AskUserQuestion or the next numbered batch.
+- If user picks "Other" to provide freeform input (e.g., "let me describe it", "something else", or an open-ended
+  reply), ask your follow-up as plain text - NOT another AskUserQuestion. Wait for them to type at the normal prompt,
+  then reflect their input back and confirm before resuming AskUserQuestion or the next numbered batch.
 
 **Scope creep handling:**
 If user mentions something outside the phase domain:
+
 ```
 "[Feature] sounds like a new capability - that belongs in its own phase.
 I'll note it as a deferred idea.
@@ -759,12 +850,13 @@ Track deferred ideas internally.
 
 **Track discussion log data internally:**
 For each question asked, accumulate:
+
 - Area name
 - All options presented (label + description)
 - Which option the user selected (or their free-text response)
 - Any follow-up notes or clarifications the user provided
-This data is used to generate DISCUSSION-LOG.md in the `write_context` step.
-</step>
+  This data is used to generate DISCUSSION-LOG.md in the `write_context` step.
+  </step>
 
 <step name="write_context">
 Create CONTEXT.md capturing decisions made.
@@ -778,6 +870,7 @@ consumed by downstream agents (researcher, planner, executor).
 Use values from init: `phase_dir`, `phase_slug`, `padded_phase`.
 
 If `phase_dir` is null (phase exists in roadmap but no directory):
+
 ```bash
 mkdir -p ".planning/phases/${padded_phase}-${phase_slug}"
 ```
@@ -924,6 +1017,7 @@ Created: .planning/phases/${PADDED_PHASE}-${SLUG}/${PADDED_PHASE}-CONTEXT.md
 
 ---
 ```
+
 </step>
 
 <step name="git_commit">
@@ -977,7 +1071,7 @@ Commit phase context and discussion log:
 pi-gsd-tools commit "docs(${padded_phase}): capture phase context" --files "${phase_dir}/${padded_phase}-CONTEXT.md" "${phase_dir}/${padded_phase}-DISCUSSION-LOG.md"
 ```
 
-Confirm: "Committed: docs(${padded_phase}): capture phase context"
+Confirm: "Committed: docs (${padded_phase}): capture phase context"
 </step>
 
 <step name="update_state">
@@ -994,13 +1088,16 @@ Commit STATE.md:
 ```bash
 pi-gsd-tools commit "docs(state): record phase ${PHASE} context session" --files .planning/STATE.md
 ```
+
 </step>
 
 <step name="auto_advance">
 Check for auto-advance trigger:
 
 1. Parse `--auto` flag from $ARGUMENTS
-2. **Sync chain flag with intent** - if user invoked manually (no `--auto`), clear the ephemeral chain flag from any previous interrupted `--auto` chain. This does NOT touch `workflow.auto_advance` (the user's persistent settings preference):
+2. **Sync chain flag with intent** - if user invoked manually (no `--auto`), clear the ephemeral chain flag from any
+   previous interrupted `--auto` chain. This does NOT touch `workflow.auto_advance` (the user's persistent settings
+   preference):
    ```bash
    if [[ ! "$ARGUMENTS" =~ --auto ]]; then
      pi-gsd-tools config-set workflow._auto_chain_active false 2>/dev/null
@@ -1012,7 +1109,9 @@ Check for auto-advance trigger:
    AUTO_CFG=$(pi-gsd-tools config-get workflow.auto_advance 2>/dev/null || echo "false")
    ```
 
-**If `--auto` flag present AND `AUTO_CHAIN` is not true:** Persist chain flag to config (handles direct `--auto` usage without new-project):
+**If `--auto` flag present AND `AUTO_CHAIN` is not true:** Persist chain flag to config (handles direct `--auto` usage
+without new-project):
+
 ```bash
 pi-gsd-tools config-set workflow._auto_chain_active true
 ```
@@ -1020,6 +1119,7 @@ pi-gsd-tools config-set workflow._auto_chain_active true
 **If `--auto` flag present OR `AUTO_CHAIN` is true OR `AUTO_CFG` is true:**
 
 Display banner:
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  GSD ► AUTO-ADVANCING TO PLAN
@@ -1028,14 +1128,18 @@ Display banner:
 Context captured. Launching plan-phase...
 ```
 
-Launch plan-phase using the Skill tool to avoid nested Task sessions (which cause runtime freezes due to deep agent nesting - see #686):
+Launch plan-phase using the Skill tool to avoid nested Task sessions (which cause runtime freezes due to deep agent
+nesting - see #686):
+
 ```
 Skill(skill="gsd-plan-phase", args="${PHASE} --auto ${GSD_WS}")
 ```
 
-This keeps the auto-advance chain flat - discuss, plan, and execute all run at the same nesting level rather than spawning increasingly deep Task agents.
+This keeps the auto-advance chain flat - discuss, plan, and execute all run at the same nesting level rather than
+spawning increasingly deep Task agents.
 
 **Handle plan-phase return:**
+
 - **PHASE COMPLETE** → Full chain succeeded. Display:
   ```
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1070,6 +1174,7 @@ Route to `confirm_creation` step (existing behavior - show manual next steps).
 </process>
 
 <success_criteria>
+
 - Phase validated against roadmap
 - Prior context loaded (PROJECT.md, REQUIREMENTS.md, STATE.md, prior CONTEXT.md files)
 - Already-decided questions not re-asked (carried forward from prior phases)
@@ -1079,9 +1184,10 @@ Route to `confirm_creation` step (existing behavior - show manual next steps).
 - Each selected area explored until user satisfied (with code-informed and prior-decision-informed options)
 - Scope creep redirected to deferred ideas
 - CONTEXT.md captures actual decisions, not vague vision
-- CONTEXT.md includes canonical_refs section with full file paths to every spec/ADR/doc downstream agents need (MANDATORY - never omit)
+- CONTEXT.md includes canonical_refs section with full file paths to every spec/ADR/doc downstream agents need
+  (MANDATORY - never omit)
 - CONTEXT.md includes code_context section with reusable assets and patterns
 - Deferred ideas preserved for future phases
 - STATE.md updated with session info
 - User knows next steps
-</success_criteria>
+  </success_criteria>

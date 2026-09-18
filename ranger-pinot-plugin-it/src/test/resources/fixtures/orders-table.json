@@ -6,6 +6,10 @@
     "schemaName": "orders"
   },
   "tenants": {},
-  "routing": {"instanceSelectorType": "balanced"},
-  "tableIndexConfig": {"loadMode": "MMAP"}
+  "routing": {
+    "instanceSelectorType": "balanced"
+  },
+  "tableIndexConfig": {
+    "loadMode": "MMAP"
+  }
 }

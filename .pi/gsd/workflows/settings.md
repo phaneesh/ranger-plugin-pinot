@@ -47,6 +47,7 @@ cat .planning/config.json
 ```
 
 Parse current values (default to `true` if not present):
+
 - `workflow.research` - spawn researcher during plan-phase
 - `workflow.plan_check` - spawn plan checker during plan-phase
 - `workflow.verifier` - spawn verifier during execute-phase
@@ -55,7 +56,7 @@ Parse current values (default to `true` if not present):
 - `workflow.ui_safety_gate` - prompt to run /gsd-ui-phase before planning frontend phases (default: true if absent)
 - `model_profile` - which model each agent uses (default: `balanced`)
 - `git.branching_strategy` - branching approach (default: `"none"`)
-</step>
+  </step>
 
 <step name="present_settings">
 Use AskUserQuestion with current values pre-selected:
@@ -177,6 +178,7 @@ AskUserQuestion([
   }
 ])
 ```
+
 </step>
 
 <step name="update_config">
@@ -237,6 +239,7 @@ mkdir -p ~/.gsd
 ```
 
 Write `~/.gsd/defaults.json` with:
+
 ```json
 {
   "mode": <current>,
@@ -258,6 +261,7 @@ Write `~/.gsd/defaults.json` with:
   }
 }
 ```
+
 </step>
 
 <step name="confirm">
@@ -291,14 +295,16 @@ Quick commands:
 - /gsd-plan-phase --skip-research - skip research
 - /gsd-plan-phase --skip-verify - skip plan check
 ```
+
 </step>
 
 </process>
 
 <success_criteria>
+
 - [ ] Current config read
 - [ ] User presented with 10 settings (profile + 8 workflow toggles + git branching)
 - [ ] Config updated with model_profile, workflow, and git sections
 - [ ] User offered to save as global defaults (~/.gsd/defaults.json)
 - [ ] Changes confirmed to user
-</success_criteria>
+  </success_criteria>

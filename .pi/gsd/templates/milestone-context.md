@@ -2,12 +2,16 @@
 
 Template for `.planning/MILESTONE-CONTEXT.md` — captures product scope decisions for an upcoming milestone.
 
-**Purpose:** Document what the milestone should deliver so `/gsd-new-milestone` can start with known intent rather than gathering it inline. Consumed and deleted by `new-milestone` after it generates requirements and a roadmap.
+**Purpose:** Document what the milestone should deliver so `/gsd-new-milestone` can start with known intent rather than
+gathering it inline. Consumed and deleted by `new-milestone` after it generates requirements and a roadmap.
 
-**Key principle:** Product-level only. WHAT users will be able to do — not HOW it will be implemented. Implementation decisions happen in `/gsd-discuss-phase` per phase.
+**Key principle:** Product-level only. WHAT users will be able to do — not HOW it will be implemented. Implementation
+decisions happen in `/gsd-discuss-phase` per phase.
 
 **Downstream consumer:**
-- `new-milestone` — reads `<scope>` for feature scoping, `<constraints>` for requirements boundaries, `<success>` to inform success criteria in ROADMAP.md
+
+- `new-milestone` — reads `<scope>` for feature scoping, `<constraints>` for requirements boundaries, `<success>` to
+  inform success criteria in ROADMAP.md
 
 ---
 
@@ -209,23 +213,28 @@ This milestone is successful when:
 **What makes a good MILESTONE-CONTEXT.md:**
 
 Good goal (specific, user-observable):
+
 - "Users can invite teammates and collaborate on projects in real time."
 - "The backup CLI is reliable enough for unattended production use."
 
 Bad goal (too vague):
+
 - "Improve collaboration features"
 - "Make things more reliable"
 
 Good scope item (user action):
+
 - "User can invite colleagues by email address"
 - "Dry-run mode previews changes before committing"
 
 Bad scope item (implementation detail):
+
 - "Add Redis pub/sub for real-time updates"
 - "Refactor retry logic in backup module"
 
 **After creation:**
+
 - File lives at `.planning/MILESTONE-CONTEXT.md`
 - `new-milestone` reads it in step 2, uses it for requirements scoping, then deletes it
 - It does NOT persist — it's a handoff document, not a record
-</guidelines>
+  </guidelines>

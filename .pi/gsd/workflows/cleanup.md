@@ -24,7 +24,8 @@
 
 <purpose>
 
-Archive accumulated phase directories from completed milestones into `.planning/milestones/v{X.Y}-phases/`. Identifies which phases belong to each completed milestone, shows a dry-run summary, and moves directories on confirmation.
+Archive accumulated phase directories from completed milestones into `.planning/milestones/v{X.Y}-phases/`. Identifies
+which phases belong to each completed milestone, shows a dry-run summary, and moves directories on confirmation.
 
 </purpose>
 
@@ -68,7 +69,8 @@ Stop here.
 
 <step name="determine_phase_membership">
 
-For each completed milestone without a `-phases` archive, read the archived ROADMAP snapshot to determine which phases belong to it:
+For each completed milestone without a `-phases` archive, read the archived ROADMAP snapshot to determine which phases
+belong to it:
 
 ```bash
 cat .planning/milestones/v{X.Y}-ROADMAP.md

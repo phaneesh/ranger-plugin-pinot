@@ -61,7 +61,8 @@ completed: 2026-09-18
 
 # Phase 5 Plan 3: Docker-Compose Integration Harness Summary
 
-**Failsafe-gated IT module + docker-compose Ranger 2.8.0/Pinot harness running the real distro tarball, with E2E allow/deny/audit/row-filter/403/live-poll tests and a CI matrix over Pinot 1.4.0/1.5.1**
+**Failsafe-gated IT module + docker-compose Ranger 2.8.0/Pinot harness running the real distro tarball, with E2E
+allow/deny/audit/row-filter/403/live-poll tests and a CI matrix over Pinot 1.4.0/1.5.1**
 
 ## Performance
 
@@ -73,34 +74,52 @@ completed: 2026-09-18
 
 ## Accomplishments
 
-- New `ranger-pinot-plugin-it` Maven module: `mvn clean verify` builds it in ~0.3s with zero Docker involvement (skipITs=true, failsafe/exec plugins live only under `-Pintegration`)
-- docker-compose stack: `apache/ranger-db` + `apache/ranger-solr` + `apache/ranger` 2.8.0 + zookeeper + derived Pinot controller/broker/server images, all on one flat `rangernw` network (hostnames ranger-db.rangernw / ranger-admin.rangernw are load-bearing in the ranger image)
-- `Dockerfile.plugin`: real tarball extracted + real `enable-pinot-plugin.sh` run at build time, pollIntervalMs lowered to 5000 (spaces-tolerant sed), SSL keystore overridden to /dev/null, plus build-time asserts that the rendered configs are correct (service name pinotdev, admin URL, /dev/null in ranger-policymgr-ssl.xml, broker/controller access-control classes wired)
-- `PinotRangerIT`: 9 ordered tests covering FOUND-03 (validateConfig, with fallback), FOUND-04 (lookupResource, with fallback), deny-by-default + runtime broker-principal discovery, allow, deny-wins, audit (log4j grep + Solr fallback), row-filter (region='west' → 2 of 4 rows), controller 403 → grant → 200, and live policy poll (delete → denied → re-create → allowed, no restart)
-- `.github/workflows/ci.yml`: `integration` job (`needs: build`, matrix pinot [1.4.0, 1.5.1], fail-fast disabled, 30-min timeout); build job byte-for-byte untouched
+- New `ranger-pinot-plugin-it` Maven module: `mvn clean verify` builds it in ~0.3s with zero Docker involvement
+  (skipITs=true, failsafe/exec plugins live only under `-Pintegration`)
+- docker-compose stack: `apache/ranger-db` + `apache/ranger-solr` + `apache/ranger` 2.8.0 + zookeeper + derived Pinot
+  controller/broker/server images, all on one flat `rangernw` network (hostnames ranger-db.rangernw /
+  ranger-admin.rangernw are load-bearing in the ranger image)
+- `Dockerfile.plugin`: real tarball extracted + real `enable-pinot-plugin.sh` run at build time, pollIntervalMs lowered
+  to 5000 (spaces-tolerant sed), SSL keystore overridden to /dev/null, plus build-time asserts that the rendered configs
+  are correct (service name pinotdev, admin URL, /dev/null in ranger-policymgr-ssl.xml, broker/controller access-control
+  classes wired)
+- `PinotRangerIT`: 9 ordered tests covering FOUND-03 (validateConfig, with fallback), FOUND-04 (lookupResource, with
+  fallback), deny-by-default + runtime broker-principal discovery, allow, deny-wins, audit (log4j grep + Solr fallback),
+  row-filter (region='west' → 2 of 4 rows), controller 403 → grant → 200, and live policy poll (delete → denied →
+  re-create → allowed, no restart)
+- `.github/workflows/ci.yml`: `integration` job (`needs: build`, matrix pinot [1.4.0, 1.5.1], fail-fast disabled, 30-min
+  timeout); build job byte-for-byte untouched
 
 ## Automated Checks Run
 
-| Check | Result |
-| ----- | ------ |
-| `mvn -B clean verify` (full reactor, no profile) | ✅ PASS — all 5 modules green, Docker-free, ~12s |
-| `docker compose -f docker-compose.yml config -q` | ✅ PASS (client-side validation) |
-| `docker compose config --services` | ✅ PASS — all 7 services resolve |
+| Check                                                                       | Result                                                                                                                              |
+|-----------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `mvn -B clean verify` (full reactor, no profile)                            | ✅ PASS — all 5 modules green, Docker-free, ~12s                                                                                    |
+| `docker compose -f docker-compose.yml config -q`                            | ✅ PASS (client-side validation)                                                                                                    |
+| `docker compose config --services`                                          | ✅ PASS — all 7 services resolve                                                                                                    |
 | `mvn -B clean verify -Pintegration -Dit.pinot.version=1.4.0` (up to Docker) | ⚠️ builds 4 modules + IT compile green; antrun tarball copy verified (66MB tarball lands in target/); fails exactly at `compose-up` |
-| ci.yml YAML parse + matrix + needs:build greps | ✅ PASS |
-| python3 yaml.safe_load on ci.yml | ✅ PASS |
+| ci.yml YAML parse + matrix + needs:build greps                              | ✅ PASS                                                                                                                             |
+| python3 yaml.safe_load on ci.yml                                            | ✅ PASS                                                                                                                             |
 
 ## Skipped Checks (environment-blocked, not code gaps)
 
-The executor sandbox mounts the Docker socket `nobody:nogroup 660` with supplementary groups stripped and `no_new-privileges` set — the Docker daemon is unreachable:
+The executor sandbox mounts the Docker socket `nobody:nogroup 660` with supplementary groups stripped and
+`no_new-privileges` set — the Docker daemon is unreachable:
 
-1. **Derived image build** (`docker build -f Dockerfile.plugin`): the tarball, Dockerfile, and build context are all in place and verified (tarball present in context, sed pattern verified against the literal cfg line, enable-script outputs verified against its source), but the image itself could not be built here. CI (Docker preinstalled) runs it.
-2. **Live E2E run** (`-Pintegration` against the live stack): everything up to `compose-up` is verified; the live allow/deny/audit/row-filter/403/live-poll executions need the daemon.
-3. **1.5.1 matrix leg**: same daemon dependency; the wiring (matrix value → PINOT_VERSION build arg → image tag) is verified statically.
+1. **Derived image build** (`docker build -f Dockerfile.plugin`): the tarball, Dockerfile, and build context are all in
+   place and verified (tarball present in context, sed pattern verified against the literal cfg line, enable-script
+   outputs verified against its source), but the image itself could not be built here. CI (Docker preinstalled) runs it.
+2. **Live E2E run** (`-Pintegration` against the live stack): everything up to `compose-up` is verified; the live
+   allow/deny/audit/row-filter/403/live-poll executions need the daemon.
+3. **1.5.1 matrix leg**: same daemon dependency; the wiring (matrix value → PINOT_VERSION build arg → image tag) is
+   verified statically.
 
 ## Commits — BLOCKED BY SANDBOX
 
-**⚠️ `.git` is mounted read-only in this executor sandbox** (`/dev/nvme0n1p3 on .../.git type ext4 (ro,...)`). `git add` fails with `Unable to create .git/index.lock: Read-only file system`. All 3 tasks' changes are complete on disk and verified, but the per-task commits and the docs commit could NOT be created from this sandbox. The orchestrator must commit:
+**⚠️ `.git` is mounted read-only in this executor sandbox** (`/dev/nvme0n1p3 on .../.git type ext4 (ro,...)`). `git add`
+fails with `Unable to create .git/index.lock: Read-only file system`. All 3 tasks' changes are complete on disk and
+verified, but the per-task commits and the docs commit could NOT be created from this sandbox. The orchestrator must
+commit:
 
 ```
 Task 1 (feat 05-03): pom.xml, ranger-pinot-plugin-it/pom.xml,
@@ -116,13 +135,18 @@ Docs (docs 05-03): .planning/STATE.md, .planning/ROADMAP.md,
 
 ## Files Created/Modified
 
-- `ranger-pinot-plugin-it/pom.xml` — module with distro dependency (reactor ordering), antrun tarball copy, `-Pintegration` profile (exec-maven-plugin compose up/down + failsafe with system properties)
-- `ranger-pinot-plugin-it/docker/docker-compose.yml` — 7-service stack, one rangernw network, healthchecks, JAVA_OPTS capped at 1G per JVM
+- `ranger-pinot-plugin-it/pom.xml` — module with distro dependency (reactor ordering), antrun tarball copy,
+  `-Pintegration` profile (exec-maven-plugin compose up/down + failsafe with system properties)
+- `ranger-pinot-plugin-it/docker/docker-compose.yml` — 7-service stack, one rangernw network, healthchecks, JAVA_OPTS
+  capped at 1G per JVM
 - `ranger-pinot-plugin-it/docker/pinot/Dockerfile.plugin` — derived image + rendered-config sanity asserts
-- `ranger-pinot-plugin-it/src/.../RangerRestClient.java` — JDK-HttpClient REST helper (Ranger provisioning, controller/broker REST, compose logs/exec, poll loops)
-- `ranger-pinot-plugin-it/src/.../PinotRangerIT.java` — the 9-test ordered E2E story; javadoc documents the broker-identity limitation
+- `ranger-pinot-plugin-it/src/.../RangerRestClient.java` — JDK-HttpClient REST helper (Ranger provisioning,
+  controller/broker REST, compose logs/exec, poll loops)
+- `ranger-pinot-plugin-it/src/.../PinotRangerIT.java` — the 9-test ordered E2E story; javadoc documents the
+  broker-identity limitation
 - `ranger-pinot-plugin-it/src/test/resources/fixtures/*` — orders schema/table/CSV (2 west + 2 east rows)
-- `pom.xml` — `<module>ranger-pinot-plugin-it</module>` + RAT excludes (`**/docker/**`, `**/src/test/resources/**/*.{json,csv}`)
+- `pom.xml` — `<module>ranger-pinot-plugin-it</module>` + RAT excludes (`**/docker/**`,
+  `**/src/test/resources/**/*.{json,csv}`)
 - `.github/workflows/ci.yml` — integration matrix job appended
 
 ## Decisions Made
@@ -134,19 +158,25 @@ Docs (docs 05-03): .planning/STATE.md, .planning/ROADMAP.md,
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] dependency:copy → antrun copy**
+
 - **Found during:** Task 1 verification
-- **Issue:** `maven-dependency-plugin:copy` resolves `artifactItems` from the local repository, not the reactor — on a clean CI checkout it would fail to resolve `ranger-pinot-plugin-distro:tar.gz` (never installed)
-- **Fix:** antrun `<copy>` of the sibling module's `target/ranger-*-pinot-plugin.tar.gz` (the distro dependency still guarantees reactor ordering)
+- **Issue:** `maven-dependency-plugin:copy` resolves `artifactItems` from the local repository, not the reactor — on a
+  clean CI checkout it would fail to resolve `ranger-pinot-plugin-distro:tar.gz` (never installed)
+- **Fix:** antrun `<copy>` of the sibling module's `target/ranger-*-pinot-plugin.tar.gz` (the distro dependency still
+  guarantees reactor ordering)
 - **Files modified:** ranger-pinot-plugin-it/pom.xml
 
 **2. [Rule 3 - Blocking] exec-maven-plugin 3.2.0 → 3.6.3**
+
 - **Found during:** Task 1 verification
 - **Issue:** sandbox ~/.m2 is read-only and only plugin versions already cached resolve; 3.2.0 was not cached
 - **Fix:** pinned 3.6.3 (latest release — also the more current choice regardless)
 
 **3. [Rule 3 - Blocking] RAT exclude patterns rewritten module-relative**
+
 - **Found during:** Task 1 verification
-- **Issue:** `ranger-pinot-plugin-it/docker/**` never matched because RAT evaluates excludes against each module's basedir; build failed with 3 unapproved-license files
+- **Issue:** `ranger-pinot-plugin-it/docker/**` never matched because RAT evaluates excludes against each module's
+  basedir; build failed with 3 unapproved-license files
 - **Fix:** `**/docker/**`, `**/src/test/resources/**/*.json`, `**/src/test/resources/**/*.csv`
 - **Files modified:** pom.xml
 
@@ -157,12 +187,16 @@ Docs (docs 05-03): .planning/STATE.md, .planning/ROADMAP.md,
 
 ## Known Limitations (documented, not hidden)
 
-- Broker identity: per-user broker tests are impossible upstream (RequesterIdentity has no user) — the suite discovers the client-IP principal at runtime; per-user assertions run on the controller path (Basic auth)
+- Broker identity: per-user broker tests are impossible upstream (RequesterIdentity has no user) — the suite discovers
+  the client-IP principal at runtime; per-user assertions run on the controller path (Basic auth)
 - Environment-blocked verifications listed above require a Docker-capable run (CI) to complete
 
 ## Self-Check: PARTIAL
 
-Files: all 8 created + 2 modified files verified present on disk (mvn build compiles and RAT/checkstyle/spotbugs pass over them all).
-Commits: **NOT VERIFIABLE — .git is read-only in this sandbox; no commits could be created.** Files are on disk and ready for the orchestrator to commit per the list above.
+Files: all 8 created + 2 modified files verified present on disk (mvn build compiles and RAT/checkstyle/spotbugs pass
+over them all).
+Commits: **NOT VERIFIABLE — .git is read-only in this sandbox; no commits could be created.** Files are on disk and
+ready for the orchestrator to commit per the list above.
 
-Re-verified 2026-09-18T05:35Z: all 14 files (8 created + 6 modified, including all 4 planning docs) present on disk; PinotRangerIT.java is 395 lines; HEAD still c781a9a (no commits possible from this sandbox).
+Re-verified 2026-09-18T05:35Z: all 14 files (8 created + 6 modified, including all 4 planning docs) present on disk;
+PinotRangerIT.java is 395 lines; HEAD still c781a9a (no commits possible from this sandbox).

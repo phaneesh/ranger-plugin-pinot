@@ -16,7 +16,7 @@ created: {date}
 ## Test Infrastructure
 
 | Property               | Value                                               |
-| ---------------------- | --------------------------------------------------- |
+|------------------------|-----------------------------------------------------|
 | **Framework**          | {pytest 7.x / jest 29.x / vitest / go test / other} |
 | **Config file**        | {path or "none - Wave 0 installs"}                  |
 | **Quick run command**  | `{quick command}`                                   |
@@ -36,9 +36,9 @@ created: {date}
 
 ## Per-Task Verification Map
 
-| Task ID   | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status    |
-| --------- | ---- | ---- | ----------- | --------- | ----------------- | ----------- | --------- |
-| {N}-01-01 | 01   | 1    | REQ-{XX}    | unit      | `{command}`       | ✅ / ❌ W0    | ⬜ pending |
+| Task ID   | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status     |
+|-----------|------|------|-------------|-----------|-------------------|-------------|------------|
+| {N}-01-01 | 01   | 1    | REQ-{XX}    | unit      | `{command}`       | ✅ / ❌ W0  | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -57,7 +57,7 @@ created: {date}
 ## Manual-Only Verifications
 
 | Behavior   | Requirement | Why Manual | Test Instructions |
-| ---------- | ----------- | ---------- | ----------------- |
+|------------|-------------|------------|-------------------|
 | {behavior} | REQ-{XX}    | {reason}   | {steps}           |
 
 *If none: "All phase behaviors have automated verification."*

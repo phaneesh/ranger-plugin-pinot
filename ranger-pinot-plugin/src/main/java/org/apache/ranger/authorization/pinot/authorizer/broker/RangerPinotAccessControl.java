@@ -21,19 +21,11 @@ package org.apache.ranger.authorization.pinot.authorizer.broker;
 
 import org.apache.pinot.broker.api.AccessControl;
 import org.apache.pinot.common.request.BrokerRequest;
-import org.apache.pinot.spi.auth.AuthorizationResult;
-import org.apache.pinot.spi.auth.BasicAuthorizationResultImpl;
-import org.apache.pinot.spi.auth.TableAuthorizationResult;
-import org.apache.pinot.spi.auth.TableRowColAccessResult;
-import org.apache.pinot.spi.auth.TableRowColAccessResultImpl;
+import org.apache.pinot.spi.auth.*;
 import org.apache.pinot.spi.auth.broker.RequesterIdentity;
 import org.apache.ranger.authorization.pinot.authorizer.RangerPinotAuthorizer;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Phase 2: real Ranger table-ACL enforcement for Pinot broker queries, replacing Phase 1's
@@ -91,7 +83,7 @@ public class RangerPinotAccessControl implements AccessControl {
      */
     @Override
     public TableAuthorizationResult authorize(RequesterIdentity requesterIdentity, Set<String> tables) {
-        String      user       = deriveUser(requesterIdentity);
+        String user = deriveUser(requesterIdentity);
         Set<String> userGroups = Collections.emptySet();
         Set<String> failedTables = new HashSet<>();
 
@@ -163,7 +155,9 @@ public class RangerPinotAccessControl implements AccessControl {
         }
     }
 
-    /** Decodes a {@code Basic base64(user:password)} header value to the username. */
+    /**
+     * Decodes a {@code Basic base64(user:password)} header value to the username.
+     */
     private static String basicAuthUser(String header) {
         try {
             String trimmed = header == null ? "" : header.trim();

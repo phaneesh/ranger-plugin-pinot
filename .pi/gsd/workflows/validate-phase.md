@@ -138,14 +138,15 @@ find . \( -name "*.test.*" -o -name "*.spec.*" -o -name "test_*" \) -not -path "
 
 ### 2d. Cross-Reference
 
-Match each requirement to existing tests by filename, imports, test descriptions. Record: requirement → test_file → status.
+Match each requirement to existing tests by filename, imports, test descriptions. Record: requirement → test_file →
+status.
 
 ## 3. Gap Analysis
 
 Classify each requirement:
 
 | Status  | Criteria                                  |
-| ------- | ----------------------------------------- |
+|---------|-------------------------------------------|
 | COVERED | Test exists, targets behavior, runs green |
 | PARTIAL | Test exists, failing or incomplete        |
 | MISSING | No test found                             |
@@ -157,6 +158,7 @@ No gaps → skip to Step 6, set `nyquist_compliant: true`.
 ## 4. Present Gap Plan
 
 Call AskUserQuestion with gap table and options:
+
 1. "Fix all gaps" → Step 5
 2. "Skip - mark manual-only" → add to Manual-Only, Step 6
 3. "Cancel" → exit
@@ -178,6 +180,7 @@ Task(
 ```
 
 Handle return:
+
 - `## GAPS FILLED` → record tests + map updates, Step 6
 - `## PARTIAL` → record resolved, move escalated to manual-only, Step 6
 - `## ESCALATE` → move all to manual-only, Step 6
@@ -185,11 +188,13 @@ Handle return:
 ## 6. Generate/Update VALIDATION.md
 
 **State B (create):**
+
 1. Read template from `.pi/gsd/templates/VALIDATION.md`
 2. Fill: frontmatter, Test Infrastructure, Per-Task Map, Manual-Only, Sign-Off
 3. Write to `${PHASE_DIR}/${PADDED_PHASE}-VALIDATION.md`
 
 **State A (update):**
+
 1. Update Per-Task Map statuses, add escalated to Manual-Only, update frontmatter
 2. Append audit trail:
 
@@ -214,6 +219,7 @@ pi-gsd-tools commit "docs(phase-${PHASE}): add/update validation strategy"
 ## 8. Results + Routing
 
 **Compliant:**
+
 ```
 GSD > PHASE {N} IS NYQUIST-COMPLIANT
 All requirements have automated verification.
@@ -221,6 +227,7 @@ All requirements have automated verification.
 ```
 
 **Partial:**
+
 ```
 GSD > PHASE {N} VALIDATED (PARTIAL)
 {M} automated, {K} manual-only.
@@ -232,6 +239,7 @@ Display `/new` reminder.
 </process>
 
 <success_criteria>
+
 - [ ] Nyquist config checked (exit if disabled)
 - [ ] Input state detected (A/B/C)
 - [ ] State C exits cleanly
@@ -244,4 +252,4 @@ Display `/new` reminder.
 - [ ] VALIDATION.md created or updated
 - [ ] Test files committed separately
 - [ ] Results with routing presented
-</success_criteria>
+  </success_criteria>

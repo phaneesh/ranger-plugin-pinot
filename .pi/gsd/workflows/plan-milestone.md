@@ -75,9 +75,11 @@ For each unplanned phase `N`:
 
 Read `.planning/REQUIREMENTS.md` and the phase entry from ROADMAP.md (goal + success criteria).
 
-Ask internally: *"Does executing this phase risk implementing anything not covered by active requirements, or conflict with what previous phases were meant to deliver?"*
+Ask internally: *"Does executing this phase risk implementing anything not covered by active requirements, or conflict
+with what previous phases were meant to deliver?"*
 
 Classify risk:
+
 - **low** - continue silently
 - **medium** - log in scope-notes, continue
 - **high + interactive** - surface to user before proceeding, ask whether to adjust or continue
@@ -86,22 +88,26 @@ Classify risk:
 ### 2. Plan the Phase
 
 Invoke:
+
 ```
 Skill(skill="gsd-plan-phase", args="${N} --skip-research")
 ```
+
 Unless the phase has no RESEARCH.md yet → drop `--skip-research`.
 In **silent** mode, append `--auto` to suppress discussion prompts inside plan-phase.
 
 ### 3. Checkpoint
 
 After each phase plan is committed:
+
 ```bash
 pi-gsd-tools state update current_phase ${N}
 ```
 
 Announce: `✓ Phase ${N} planned - ${plan_count} plan(s) created`
 
-Check context remaining. If < 25%: stop immediately, emit summary of planned vs remaining phases, suggest `/gsd-plan-milestone --from ${next_unplanned}` to continue.
+Check context remaining. If < 25%: stop immediately, emit summary of planned vs remaining phases, suggest
+`/gsd-plan-milestone --from ${next_unplanned}` to continue.
 
 ---
 

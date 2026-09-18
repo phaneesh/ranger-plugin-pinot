@@ -3,7 +3,8 @@
 > **Note:** Planning methodology is in `agents/gsd-planner.md`.
 > This template defines the PLAN.md output format that the agent produces.
 
-Template for `.planning/phases/XX-name/{phase}-{plan}-PLAN.md` - executable phase plans optimized for parallel execution.
+Template for `.planning/phases/XX-name/{phase}-{plan}-PLAN.md` - executable phase plans optimized for parallel
+execution.
 
 **Naming:** Use `{phase}-{plan}-PLAN.md` format (e.g., `01-02-PLAN.md` for Phase 1, Plan 2)
 
@@ -130,7 +131,7 @@ After completion, create `.planning/phases/XX-name/{phase}-{plan}-SUMMARY.md`
 ## Frontmatter Fields
 
 | Field            | Required | Purpose                                                                                                 |
-| ---------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+|------------------|----------|---------------------------------------------------------------------------------------------------------|
 | `phase`          | Yes      | Phase identifier (e.g., `01-foundation`)                                                                |
 | `plan`           | Yes      | Plan number within phase (e.g., `01`, `02`)                                                             |
 | `type`           | Yes      | Always `execute` for standard plans, `tdd` for TDD plans                                                |
@@ -142,9 +143,12 @@ After completion, create `.planning/phases/XX-name/{phase}-{plan}-SUMMARY.md`
 | `user_setup`     | No       | Array of human-required setup items (external services)                                                 |
 | `must_haves`     | Yes      | Goal-backward verification criteria (see below)                                                         |
 
-**Wave is pre-computed:** Wave numbers are assigned during `/gsd-plan-phase`. Execute-phase reads `wave` directly from frontmatter and groups plans by wave number. No runtime dependency analysis needed.
+**Wave is pre-computed:** Wave numbers are assigned during `/gsd-plan-phase`. Execute-phase reads `wave` directly from
+frontmatter and groups plans by wave number. No runtime dependency analysis needed.
 
-**Must-haves enable verification:** The `must_haves` field carries goal-backward requirements from planning to execution. After all plans complete, execute-phase spawns a verification subagent that checks these criteria against the actual codebase.
+**Must-haves enable verification:** The `must_haves` field carries goal-backward requirements from planning to
+execution. After all plans complete, execute-phase spawns a verification subagent that checks these criteria against the
+actual codebase.
 
 ---
 
@@ -233,6 +237,7 @@ Wave 3 runs after Waves 1 and 2. Pauses at checkpoint, orchestrator presents to 
 ```
 
 **Bad pattern (creates false dependencies):**
+
 ```markdown
 <context>
 @.planning/phases/03-features/03-01-SUMMARY.md  # Just because it's earlier
@@ -253,7 +258,7 @@ Wave 3 runs after Waves 1 and 2. Pauses at checkpoint, orchestrator presents to 
 **When to split:**
 
 - Different subsystems (auth vs API vs UI)
-- >3 tasks
+- > 3 tasks
 - Risk of context overflow
 - TDD candidates - separate plans
 
@@ -285,13 +290,14 @@ See `.pi/gsd/references/tdd.md` for TDD plan structure.
 ## Task Types
 
 | Type                      | Use For                                   | Autonomy                        |
-| ------------------------- | ----------------------------------------- | ------------------------------- |
+|---------------------------|-------------------------------------------|---------------------------------|
 | `auto`                    | Everything the agent can do independently | Fully autonomous                |
 | `checkpoint:human-verify` | Visual/functional verification            | Pauses, returns to orchestrator |
 | `checkpoint:decision`     | Implementation choices                    | Pauses, returns to orchestrator |
 | `checkpoint:human-action` | Truly unavoidable manual steps (rare)     | Pauses, returns to orchestrator |
 
 **Checkpoint behavior in parallel execution:**
+
 - Plan runs until checkpoint
 - Agent returns with checkpoint details + agent_id
 - Orchestrator presents to user
@@ -437,11 +443,13 @@ After completion, create `.planning/phases/03-features/03-03-SUMMARY.md`
 ## Anti-Patterns
 
 **Bad: Reflexive dependency chaining**
+
 ```yaml
 depends_on: ["03-01"]  # Just because 01 comes before 02
 ```
 
 **Bad: Horizontal layer grouping**
+
 ```
 Plan 01: All models
 Plan 02: All APIs (depends on 01)
@@ -449,6 +457,7 @@ Plan 03: All UIs (depends on 02)
 ```
 
 **Bad: Missing autonomy flag**
+
 ```yaml
 # Has checkpoint but no autonomous: false
 depends_on: []
@@ -457,6 +466,7 @@ files_modified: [...]
 ```
 
 **Bad: Vague tasks**
+
 ```xml
 <task type="auto">
   <name>Set up authentication</name>
@@ -465,6 +475,7 @@ files_modified: [...]
 ```
 
 **Bad: Missing read_first (executor modifies files it hasn't read)**
+
 ```xml
 <task type="auto">
   <name>Update database config</name>
@@ -475,6 +486,7 @@ files_modified: [...]
 ```
 
 **Bad: Vague acceptance criteria (not verifiable)**
+
 ```xml
 <acceptance_criteria>
   - Config is properly set up
@@ -483,6 +495,7 @@ files_modified: [...]
 ```
 
 **Good: Concrete with read_first + verifiable criteria**
+
 ```xml
 <task type="auto">
   <name>Update database config for connection pooling</name>
@@ -532,6 +545,7 @@ user_setup:
 ```
 
 **The automation-first rule:** `user_setup` contains ONLY what the agent literally cannot do:
+
 - Account creation (requires human signup)
 - Secret retrieval (requires dashboard access)
 - Dashboard configuration (requires human in browser)
@@ -546,7 +560,8 @@ See `.pi/gsd/templates/user-setup.md` for full schema and examples
 
 ## Must-Haves (Goal-Backward Verification)
 
-The `must_haves` field defines what must be TRUE for the phase goal to be achieved. Derived during planning, verified after execution.
+The `must_haves` field defines what must be TRUE for the phase goal to be achieved. Derived during planning, verified
+after execution.
 
 **Structure:**
 
@@ -580,7 +595,7 @@ must_haves:
 **Field descriptions:**
 
 | Field                   | Purpose                                                            |
-| ----------------------- | ------------------------------------------------------------------ |
+|-------------------------|--------------------------------------------------------------------|
 | `truths`                | Observable behaviors from user perspective. Each must be testable. |
 | `artifacts`             | Files that must exist with real implementation.                    |
 | `artifacts[].path`      | File path relative to project root.                                |
@@ -596,7 +611,8 @@ must_haves:
 
 **Why this matters:**
 
-Task completion ≠ Goal achievement. A task "create chat component" can complete by creating a placeholder. The `must_haves` field captures what must actually work, enabling verification to catch gaps before they compound.
+Task completion ≠ Goal achievement. A task "create chat component" can complete by creating a placeholder. The
+`must_haves` field captures what must actually work, enabling verification to catch gaps before they compound.
 
 **Verification flow:**
 

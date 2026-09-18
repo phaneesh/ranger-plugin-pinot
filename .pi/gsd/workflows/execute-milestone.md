@@ -72,7 +72,8 @@ git worktree list
 ```
 
 If not in an isolated worktree:
-> "Large-scale milestone execution should run in an isolated worktree to protect your main branch. Create one now? (y/n, default: y)"
+> "Large-scale milestone execution should run in an isolated worktree to protect your main branch. Create one now? (y/n,
+> default: y)"
 
 If yes: `Skill(skill="gsd-new-workspace", args="milestone-exec")`, then continue in the new worktree.
 If no: warn once, proceed on current branch.
@@ -112,10 +113,12 @@ For each pending phase `N`:
 ### A. Scope Pre-check (lightweight, one LLM call)
 
 Read:
+
 - `.planning/REQUIREMENTS.md`
 - Phase goal + success criteria from ROADMAP.md
 
-Prompt (internal): *"Does executing this phase risk implementing anything not covered by active requirements, or conflict with what previous phases delivered? Rate: low / medium / high. One sentence reason."*
+Prompt (internal): *"Does executing this phase risk implementing anything not covered by active requirements, or
+conflict with what previous phases delivered? Rate: low / medium / high. One sentence reason."*
 
 - **low** - continue silently
 - **medium** - log in scope-log, continue
@@ -133,11 +136,13 @@ Skill(skill="gsd-execute-phase", args="${N}")
 Read new SUMMARY.md files from the phase directory.
 
 Check:
+
 1. **Undelivered must-haves** - PLAN.md `must_haves` entries absent from SUMMARY
 2. **Scope creep** - files modified that are outside this phase's stated scope
 3. **Requirement drift** - work done that has no matching REQUIREMENTS entry
 
 Classify result as `SCOPE_STATUS`:
+
 - **clean** - continue
 - **drift** - log + warn, continue
 - **violation** - trigger recovery (see §F)
@@ -154,7 +159,7 @@ Default threshold: **80%**. Override with `--uat-threshold N`.
 ### E. Gate Check
 
 | Condition                 | Interactive                    | Silent                 |
-| ------------------------- | ------------------------------ | ---------------------- |
+|---------------------------|--------------------------------|------------------------|
 | UAT pass rate < threshold | Ask: fix gaps now or continue? | → Recovery loop        |
 | Context remaining < 20%   | Warn, ask: stop or continue?   | → Write HANDOFF, stop  |
 | SCOPE_STATUS = violation  | Surface details, ask           | → Recovery loop        |
@@ -179,6 +184,7 @@ When triggered:
 On unrecoverable stop, write two files matching original GSD pause-work convention:
 
 **`.planning/HANDOFF.json`** (machine-readable, consumed by `/gsd-resume-work`):
+
 ```json
 {
   "stopped_at": "ISO-timestamp",
@@ -200,6 +206,7 @@ On unrecoverable stop, write two files matching original GSD pause-work conventi
 ```
 
 **`.planning/phases/NN-name/.continue-here.md`** (human-readable):
+
 ```markdown
 ---
 phase: N
@@ -257,6 +264,7 @@ Stop. The user owns the audit decision.
 ### Silent mode - Auto Lifecycle
 
 Only in silent mode. Display transition banner:
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  All phases complete → lifecycle: audit → complete → cleanup
@@ -264,12 +272,14 @@ Only in silent mode. Display transition banner:
 ```
 
 Read config once:
+
 - `config.workflow.auto_retry_audit` (default: `true`)
 - `config.workflow.auto_retry_audit_budget` (default: `1`)
 - `config.workflow.auto_retry_tech_debt` (default: `true`)
 - `config.workflow.auto_retry_tech_debt_budget` (default: `1`)
 
 Initialise accumulators (persist across the outer loop):
+
 - `gaps_store = []` - unsatisfied requirements not yet resolved
 - `debt_store = []` - tech debt items not yet resolved
 - `gaps_phases_tried = []` - inserted phases attempted for gap closure
@@ -291,6 +301,7 @@ Skill(skill="gsd-audit-milestone")
 If no result / malformed → Write HANDOFF (§G), stop.
 
 Extract from audit result:
+
 - `current_gaps[]` - unsatisfied requirement IDs + affected phase numbers
 - `current_debt[]` - tech debt items + affected phase numbers
 
@@ -323,6 +334,7 @@ While `current_gaps` non-empty and `auto_retry_audit_budget > 0`:
 ```
 
 After loop:
+
 - If `current_gaps` empty → gaps resolved ✅, `gaps_store = []`
 - If still non-empty → `gaps_store = current_gaps` (budget exhausted or disabled)
 
@@ -353,6 +365,7 @@ While `current_debt` non-empty and `auto_retry_tech_debt_budget > 0`:
 ```
 
 After loop:
+
 - If `current_debt` empty → debt resolved ✅, `debt_store = []`
 - If still non-empty → `debt_store = current_debt`
 
@@ -364,6 +377,7 @@ If `gaps_store` empty AND `debt_store` empty:
 → AUDIT CLEAN. Proceed to Step D.
 
 If anything remains in stores:
+
 - Increment `outer_cycles`
 - If outer budget remaining (derived from max of both budgets > 0):
   → `GOTO outer_loop` (re-run full audit from top, fresh eyes)
@@ -379,9 +393,11 @@ Skill(skill="gsd-complete-milestone", args="${milestone_version}")
 ```
 
 Verify archive produced:
+
 ```bash
 ls .planning/milestones/v${milestone_version}-ROADMAP.md 2>/dev/null || true
 ```
+
 If absent → Write HANDOFF, stop. Message: "complete-milestone did not produce archive files."
 
 #### Step E - Cleanup
@@ -400,6 +416,7 @@ If running in an isolated worktree, ask:
 > "Merge this worktree back to your main branch? (y/n, default: y)"
 
 If yes:
+
 ```bash
 git checkout main
 git merge --no-ff milestone-exec -m "feat: complete milestone ${milestone_version}"

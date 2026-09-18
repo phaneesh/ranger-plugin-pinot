@@ -60,36 +60,42 @@ files_changed: []
 <section_rules>
 
 **Frontmatter (status, trigger, timestamps):**
+
 - `status`: OVERWRITE - reflects current phase
 - `trigger`: IMMUTABLE - verbatim user input, never changes
 - `created`: IMMUTABLE - set once
 - `updated`: OVERWRITE - update on every change
 
 **Current Focus:**
+
 - OVERWRITE entirely on each update
 - Always reflects what the agent is doing RIGHT NOW
 - If the agent reads this after /new, it knows exactly where to resume
 - Fields: hypothesis, test, expecting, next_action
 
 **Symptoms:**
+
 - Written during initial gathering phase
 - IMMUTABLE after gathering complete
 - Reference point for what we're trying to fix
 - Fields: expected, actual, errors, reproduction, started
 
 **Eliminated:**
+
 - APPEND only - never remove entries
 - Prevents re-investigating dead ends after context reset
 - Each entry: hypothesis, evidence that disproved it, timestamp
 - Critical for efficiency across /new boundaries
 
 **Evidence:**
+
 - APPEND only - never remove entries
 - Facts discovered during investigation
 - Each entry: timestamp, what checked, what found, implication
 - Builds the case for root cause
 
 **Resolution:**
+
 - OVERWRITE as understanding evolves
 - May update multiple times as fixes are tried
 - Final state shows confirmed root cause and verified fix
@@ -100,39 +106,46 @@ files_changed: []
 <lifecycle>
 
 **Creation:** Immediately when /gsd-debug is called
+
 - Create file with trigger from user input
 - Set status to "gathering"
 - Current Focus: next_action = "gather symptoms"
 - Symptoms: empty, to be filled
 
 **During symptom gathering:**
+
 - Update Symptoms section as user answers questions
 - Update Current Focus with each question
 - When complete: status → "investigating"
 
 **During investigation:**
+
 - OVERWRITE Current Focus with each hypothesis
 - APPEND to Evidence with each finding
 - APPEND to Eliminated when hypothesis disproved
 - Update timestamp in frontmatter
 
 **During fixing:**
+
 - status → "fixing"
 - Update Resolution.root_cause when confirmed
 - Update Resolution.fix when applied
 - Update Resolution.files_changed
 
 **During verification:**
+
 - status → "verifying"
 - Update Resolution.verification with results
 - If verification fails: status → "investigating", try again
 
 **After self-verification passes:**
+
 - status -> "awaiting_human_verify"
 - Request explicit user confirmation in a checkpoint
 - Do NOT move file to resolved yet
 
 **On resolution:**
+
 - status → "resolved"
 - Move file to .planning/debug/resolved/ (only after user confirms fix)
 
@@ -155,10 +168,12 @@ The file IS the debugging brain. the agent should be able to resume perfectly fr
 <size_constraint>
 
 Keep debug files focused:
+
 - Evidence entries: 1-2 lines each, just the facts
 - Eliminated: brief - hypothesis + why it failed
 - No narrative prose - structured data only
 
-If evidence grows very large (10+ entries), consider whether you're going in circles. Check Eliminated to ensure you're not re-treading.
+If evidence grows very large (10+ entries), consider whether you're going in circles. Check Eliminated to ensure you're
+not re-treading.
 
 </size_constraint>

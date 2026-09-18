@@ -72,7 +72,9 @@ Read all files referenced by the invoking prompt's execution_context before star
 
 <!-- Context pre-injected above via WXP - variables available via <gsd-paste name="..."> -->
 
-Extract from init JSON: `project_exists`, `roadmap_exists`, `state_exists`, `phases`, `current_phase`, `next_phase`, `milestone_version`, `completed_count`, `phase_count`, `paused_at`, `state_path`, `roadmap_path`, `project_path`, `config_path`.
+Extract from init JSON: `project_exists`, `roadmap_exists`, `state_exists`, `phases`, `current_phase`, `next_phase`,
+`milestone_version`, `completed_count`, `phase_count`, `paused_at`, `state_path`, `roadmap_path`, `project_path`,
+`config_path`.
 
 ```bash
 DISCUSS_MODE=$(pi-gsd-tools config-get workflow.discuss_mode 2>/dev/null || echo "discuss")
@@ -101,6 +103,7 @@ If missing both ROADMAP.md and PROJECT.md: suggest `/gsd-new-project`.
 **Use structured extraction from gsd-tools:**
 
 Instead of reading full files, use targeted tools to get only the data needed for the report:
+
 - `ROADMAP=$(pi-gsd-tools roadmap analyze)`
 - `STATE=$(pi-gsd-tools state-snapshot)`
 
@@ -115,6 +118,7 @@ ROADMAP=$(pi-gsd-tools roadmap analyze)
 ```
 
 This returns structured JSON with:
+
 - All phases with disk status (complete/partial/planned/empty/no_directory)
 - Goal and dependencies per phase
 - Plan and summary counts per phase
@@ -216,12 +220,14 @@ grep -l "status: diagnosed\|status: partial" .planning/phases/[current-phase-dir
 ```
 
 Track:
+
 - `uat_with_gaps`: UAT.md files with status "diagnosed" (gaps need fixing)
 - `uat_partial`: UAT.md files with status "partial" (incomplete testing)
 
 **Step 1.6: Cross-phase health check**
 
-Scan ALL phases in the current milestone for outstanding verification debt using the CLI (which respects milestone boundaries via `getMilestonePhaseFilter`):
+Scan ALL phases in the current milestone for outstanding verification debt using the CLI (which respects milestone
+boundaries via `getMilestonePhaseFilter`):
 
 ```bash
 DEBT=$(pi-gsd-tools audit-uat --raw 2>/dev/null)
@@ -231,7 +237,8 @@ Parse JSON for `summary.total_items` and `summary.total_files`.
 
 Track: `outstanding_debt` - `summary.total_items` from the audit.
 
-**If outstanding_debt > 0:** Add a warning section to the progress report output (in the `report` step), placed between "## What's Next" and the route suggestion:
+**If outstanding_debt > 0:** Add a warning section to the progress report output (in the `report` step), placed between
+"## What's Next" and the route suggestion:
 
 ```markdown
 ## Verification Debt ({N} files across prior phases)
@@ -245,12 +252,13 @@ Review: `/gsd-audit-uat ${GSD_WS}` - full cross-phase audit
 Resume testing: `/gsd-verify-work {phase} ${GSD_WS}` - retest specific phase
 ```
 
-This is a WARNING, not a blocker - routing proceeds normally. The debt is visible so the user can make an informed choice.
+This is a WARNING, not a blocker - routing proceeds normally. The debt is visible so the user can make an informed
+choice.
 
 **Step 2: Route based on counts**
 
 | Condition                       | Meaning                 | Action              |
-| ------------------------------- | ----------------------- | ------------------- |
+|---------------------------------|-------------------------|---------------------|
 | uat_partial > 0                 | UAT testing incomplete  | Go to **Route E.2** |
 | uat_with_gaps > 0               | UAT gaps need fix plans | Go to **Route E**   |
 | summaries < plans               | Unexecuted plans exist  | Go to **Route A**   |
@@ -410,6 +418,7 @@ UAT.md exists with `status: partial` - testing session ended before all items re
 **Step 3: Check milestone status (only when phase complete)**
 
 Read ROADMAP.md and identify:
+
 1. Current phase number
 2. All phase numbers in the current milestone section
 
@@ -420,7 +429,7 @@ State: "Current phase is {X}. Milestone has {N} phases (highest: {Y})."
 **Route based on milestone status:**
 
 | Condition                     | Meaning            | Action            |
-| ----------------------------- | ------------------ | ----------------- |
+|-------------------------------|--------------------|-------------------|
 | current phase < highest phase | More phases remain | Go to **Route C** |
 | current phase = highest phase | Milestone complete | Go to **Route D** |
 
@@ -560,4 +569,4 @@ Ready to plan the next milestone.
 - [ ] Smart routing: /gsd-execute-phase if plans exist, /gsd-plan-phase if not
 - [ ] User confirms before any action
 - [ ] Seamless handoff to appropriate gsd command
-      </success_criteria>
+  </success_criteria>

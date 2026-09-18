@@ -3,6 +3,7 @@
 Configuration options for `.planning/` directory behavior.
 
 <config_schema>
+
 ```json
 "planning": {
   "commit_docs": true,
@@ -17,23 +18,26 @@ Configuration options for `.planning/` directory behavior.
 ```
 
 | Option                          | Default                      | Description                                                   |
-| ------------------------------- | ---------------------------- | ------------------------------------------------------------- |
+|---------------------------------|------------------------------|---------------------------------------------------------------|
 | `commit_docs`                   | `true`                       | Whether to commit planning artifacts to git                   |
 | `search_gitignored`             | `false`                      | Add `--no-ignore` to broad rg searches                        |
 | `git.branching_strategy`        | `"none"`                     | Git branching approach: `"none"`, `"phase"`, or `"milestone"` |
 | `git.phase_branch_template`     | `"gsd/phase-{phase}-{slug}"` | Branch template for phase strategy                            |
 | `git.milestone_branch_template` | `"gsd/{milestone}-{slug}"`   | Branch template for milestone strategy                        |
 | `git.quick_branch_template`     | `null`                       | Optional branch template for quick-task runs                  |
+
 </config_schema>
 
 <commit_docs_behavior>
 
 **When `commit_docs: true` (default):**
+
 - Planning files committed normally
 - SUMMARY.md, STATE.md, ROADMAP.md tracked in git
 - Full history of planning decisions preserved
 
 **When `commit_docs: false`:**
+
 - Skip all `git add`/`git commit` for `.planning/` files
 - User must add `.planning/` to `.gitignore`
 - Useful for: OSS contributions, client projects, keeping planning private
@@ -55,7 +59,8 @@ if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 # commit_docs is included in all init command outputs
 ```
 
-**Auto-detection:** If `.planning/` is gitignored, `commit_docs` is automatically `false` regardless of config.json. This prevents git errors when users have `.planning/` in `.gitignore`.
+**Auto-detection:** If `.planning/` is gitignored, `commit_docs` is automatically `false` regardless of config.json.
+This prevents git errors when users have `.planning/` in `.gitignore`.
 
 **Commit via CLI (handles checks automatically):**
 
@@ -70,11 +75,13 @@ The CLI checks `commit_docs` config and gitignore status internally - no manual 
 <search_behavior>
 
 **When `search_gitignored: false` (default):**
+
 - Standard rg behavior (respects .gitignore)
 - Direct path searches work: `rg "pattern" .planning/` finds files
 - Broad searches skip gitignored: `rg "pattern"` skips `.planning/`
 
 **When `search_gitignored: true`:**
+
 - Add `--no-ignore` to broad rg searches that should include `.planning/`
 - Only needed when searching entire repo and expecting `.planning/` matches
 
@@ -105,7 +112,8 @@ To use uncommitted mode:
    git commit -m "chore: stop tracking planning docs"
    ```
 
-4. **Branch merges:** When using `branching_strategy: phase` or `milestone`, the `complete-milestone` workflow automatically strips `.planning/` files from staging before merge commits when `commit_docs: false`.
+4. **Branch merges:** When using `branching_strategy: phase` or `milestone`, the `complete-milestone` workflow
+   automatically strips `.planning/` files from staging before merge commits when `commit_docs: false`.
 
 </setup_uncommitted_mode>
 
@@ -114,16 +122,18 @@ To use uncommitted mode:
 **Branching Strategies:**
 
 | Strategy    | When branch created                   | Branch scope     | Merge point             |
-| ----------- | ------------------------------------- | ---------------- | ----------------------- |
+|-------------|---------------------------------------|------------------|-------------------------|
 | `none`      | Never                                 | N/A              | N/A                     |
 | `phase`     | At `execute-phase` start              | Single phase     | User merges after phase |
 | `milestone` | At first `execute-phase` of milestone | Entire milestone | At `complete-milestone` |
 
 **When `git.branching_strategy: "none"` (default):**
+
 - All work commits to current branch
 - Standard GSD behavior
 
 **When `git.branching_strategy: "phase"`:**
+
 - `execute-phase` creates/switches to a branch before execution
 - Branch name from `phase_branch_template` (e.g., `gsd/phase-03-authentication`)
 - All plan commits go to that branch
@@ -131,6 +141,7 @@ To use uncommitted mode:
 - `complete-milestone` offers to merge all phase branches
 
 **When `git.branching_strategy: "milestone"`:**
+
 - First `execute-phase` of milestone creates the milestone branch
 - Branch name from `milestone_branch_template` (e.g., `gsd/v1.0-mvp`)
 - All phases in milestone commit to same branch
@@ -139,7 +150,7 @@ To use uncommitted mode:
 **Template variables:**
 
 | Variable      | Available in              | Description                           |
-| ------------- | ------------------------- | ------------------------------------- |
+|---------------|---------------------------|---------------------------------------|
 | `{phase}`     | phase_branch_template     | Zero-padded phase number (e.g., "03") |
 | `{slug}`      | Both                      | Lowercase, hyphenated name            |
 | `{milestone}` | milestone_branch_template | Milestone version (e.g., "v1.0")      |
@@ -147,6 +158,7 @@ To use uncommitted mode:
 **Checking the config:**
 
 Use `init execute-phase` which returns all config as JSON:
+
 ```bash
 INIT=$(node ".pi/gsd/bin/gsd-tools.cjs" init execute-phase "1")
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
@@ -154,6 +166,7 @@ if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
 Or use `state load` for the config values:
+
 ```bash
 INIT=$(node ".pi/gsd/bin/gsd-tools.cjs" state load)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
@@ -181,18 +194,19 @@ fi
 **Merge options at complete-milestone:**
 
 | Option                     | Git command          | Result                           |
-| -------------------------- | -------------------- | -------------------------------- |
+|----------------------------|----------------------|----------------------------------|
 | Squash merge (recommended) | `git merge --squash` | Single clean commit per branch   |
 | Merge with history         | `git merge --no-ff`  | Preserves all individual commits |
 | Delete without merging     | `git branch -D`      | Discard branch work              |
 | Keep branches              | (none)               | Manual handling later            |
 
-Squash merge is recommended - keeps main branch history clean while preserving the full development history in the branch (until deleted).
+Squash merge is recommended - keeps main branch history clean while preserving the full development history in the
+branch (until deleted).
 
 **Use cases:**
 
 | Strategy    | Best for                                                     |
-| ----------- | ------------------------------------------------------------ |
+|-------------|--------------------------------------------------------------|
 | `none`      | Solo development, simple projects                            |
 | `phase`     | Code review per phase, granular rollback, team collaboration |
 | `milestone` | Release branches, staging environments, PR per version       |

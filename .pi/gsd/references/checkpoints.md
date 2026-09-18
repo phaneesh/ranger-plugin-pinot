@@ -1,15 +1,19 @@
 <overview>
 Plans execute autonomously. Checkpoints formalize interaction points where human verification or decisions are needed.
 
-**Core principle:** the agent automates everything with CLI/API. Checkpoints are for verification and decisions, not manual work.
+**Core principle:** the agent automates everything with CLI/API. Checkpoints are for verification and decisions, not
+manual work.
 
 **Golden rules:**
+
 1. **If the agent can run it, the agent runs it** - Never ask user to execute CLI commands, start servers, or run builds
 2. **the agent sets up the verification environment** - Start dev servers, seed databases, configure env vars
 3. **User only does what requires human judgment** - Visual checks, UX evaluation, "does this feel right?"
 4. **Secrets come from user, automation comes from the agent** - Ask for API keys, then the agent uses them via CLI
-5. **Auto-mode bypasses verification/decision checkpoints** - When `workflow._auto_chain_active` or `workflow.auto_advance` is true in config: human-verify auto-approves, decision auto-selects first option, human-action still stops (auth gates cannot be automated)
-</overview>
+5. **Auto-mode bypasses verification/decision checkpoints** - When `workflow._auto_chain_active` or
+   `workflow.auto_advance` is true in config: human-verify auto-approves, decision auto-selects first option,
+   human-action still stops (auth gates cannot be automated)
+   </overview>
 
 <checkpoint_types>
 
@@ -19,6 +23,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 **When:** the agent completed automated work, human confirms it works correctly.
 
 **Use for:**
+
 - Visual UI checks (layout, styling, responsiveness)
 - Interactive flows (click through wizard, test user flows)
 - Functional verification (feature works as expected)
@@ -27,6 +32,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 - Accessibility testing
 
 **Structure:**
+
 ```xml
 <task type="checkpoint:human-verify" gate="blocking">
   <what-built>[What the agent automated and deployed/built]</what-built>
@@ -38,6 +44,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 ```
 
 **Example: UI Component (shows key pattern: the agent starts server BEFORE checkpoint)**
+
 ```xml
 <task type="auto">
   <name>Build responsive dashboard layout</name>
@@ -68,6 +75,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 ```
 
 **Example: Xcode Build**
+
 ```xml
 <task type="auto">
   <name>Build macOS app with Xcode</name>
@@ -89,6 +97,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
   <resume-signal>Type "approved" or describe issues</resume-signal>
 </task>
 ```
+
 </type>
 
 <type name="decision">
@@ -97,6 +106,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 **When:** Human must make choice that affects implementation direction.
 
 **Use for:**
+
 - Technology selection (which auth provider, which database)
 - Architecture decisions (monorepo vs separate repos)
 - Design choices (color scheme, layout approach)
@@ -104,6 +114,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 - Data model decisions (schema structure)
 
 **Structure:**
+
 ```xml
 <task type="checkpoint:decision" gate="blocking">
   <decision>[What's being decided]</decision>
@@ -125,6 +136,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 ```
 
 **Example: Auth Provider Selection**
+
 ```xml
 <task type="checkpoint:decision" gate="blocking">
   <decision>Select authentication provider</decision>
@@ -153,6 +165,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 ```
 
 **Example: Database Selection**
+
 ```xml
 <task type="checkpoint:decision" gate="blocking">
   <decision>Select database for user data</decision>
@@ -180,14 +193,17 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
   <resume-signal>Select: supabase, planetscale, or convex</resume-signal>
 </task>
 ```
+
 </type>
 
 <type name="human-action">
 ## checkpoint:human-action (1% - Rare)
 
-**When:** Action has NO CLI/API and requires human-only interaction, OR the agent hit an authentication gate during automation.
+**When:** Action has NO CLI/API and requires human-only interaction, OR the agent hit an authentication gate during
+automation.
 
 **Use ONLY for:**
+
 - **Authentication gates** - the agent tried CLI/API but needs credentials (this is NOT a failure)
 - Email verification links (clicking email)
 - SMS 2FA codes (phone verification)
@@ -196,12 +212,14 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 - OAuth app approvals (web-based approval)
 
 **Do NOT use for pre-planned manual work:**
+
 - Deploying (use CLI - auth gate if needed)
 - Creating webhooks/databases (use API/CLI - auth gate if needed)
 - Running builds/tests (use Bash tool)
 - Creating files (use Write tool)
 
 **Structure:**
+
 ```xml
 <task type="checkpoint:human-action" gate="blocking">
   <action>[What human must do - the agent already did everything automatable]</action>
@@ -215,6 +233,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 ```
 
 **Example: Email Verification**
+
 ```xml
 <task type="auto">
   <name>Create SendGrid account via API</name>
@@ -235,6 +254,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 ```
 
 **Example: Authentication Gate (Dynamic Checkpoint)**
+
 ```xml
 <task type="auto">
   <name>Deploy to Vercel</name>
@@ -265,7 +285,8 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 </task>
 ```
 
-**Key distinction:** Auth gates are created dynamically when the agent encounters auth errors. NOT pre-planned - the agent automates first, asks for credentials only when blocked.
+**Key distinction:** Auth gates are created dynamically when the agent encounters auth errors. NOT pre-planned - the
+agent automates first, asks for credentials only when blocked.
 </type>
 </checkpoint_types>
 
@@ -280,6 +301,7 @@ When the agent encounters `type="checkpoint:*"`:
 5. **Resume execution** - continue to next task only after confirmation
 
 **For checkpoint:human-verify:**
+
 ```
 ╔═══════════════════════════════════════════════════════╗
 ║  CHECKPOINT: Verification Required                    ║
@@ -302,6 +324,7 @@ How to verify:
 ```
 
 **For checkpoint:decision:**
+
 ```
 ╔═══════════════════════════════════════════════════════╗
 ║  CHECKPOINT: Decision Required                        ║
@@ -333,6 +356,7 @@ Options:
 ```
 
 **For checkpoint:human-action:**
+
 ```
 ╔═══════════════════════════════════════════════════════╗
 ║  CHECKPOINT: Action Required                          ║
@@ -355,15 +379,18 @@ I'll verify: vercel whoami returns your account
 → YOUR ACTION: Type "done" when authenticated
 ────────────────────────────────────────────────────────
 ```
+
 </execution_protocol>
 
 <authentication_gates>
 
 **Auth gate = the agent tried CLI/API, got auth error.** Not a failure - a gate requiring human input to unblock.
 
-**Pattern:** the agent tries automation → auth error → creates checkpoint:human-action → user authenticates → the agent retries → continues
+**Pattern:** the agent tries automation → auth error → creates checkpoint:human-action → user authenticates → the agent
+retries → continues
 
 **Gate protocol:**
+
 1. Recognize it's not a failure - missing auth is expected
 2. Stop current task - don't retry repeatedly
 3. Create checkpoint:human-action dynamically
@@ -373,6 +400,7 @@ I'll verify: vercel whoami returns your account
 7. Continue normally
 
 **Key distinction:**
+
 - Pre-planned checkpoint: "I need you to do X" (wrong - the agent should automate)
 - Auth gate: "I tried to automate X but need credentials" (correct - unblocks automation)
 
@@ -385,7 +413,7 @@ I'll verify: vercel whoami returns your account
 ## Service CLI Reference
 
 | Service     | CLI/API        | Key Commands                              | Auth Gate            |
-| ----------- | -------------- | ----------------------------------------- | -------------------- |
+|-------------|----------------|-------------------------------------------|----------------------|
 | Vercel      | `vercel`       | `--yes`, `env add`, `--prod`, `ls`        | `vercel login`       |
 | Railway     | `railway`      | `init`, `up`, `variables set`             | `railway login`      |
 | Fly         | `fly`          | `launch`, `deploy`, `secrets set`         | `fly auth login`     |
@@ -405,7 +433,7 @@ I'll verify: vercel whoami returns your account
 **Dashboard env vars via CLI:**
 
 | Platform | CLI Command             | Example                                    |
-| -------- | ----------------------- | ------------------------------------------ |
+|----------|-------------------------|--------------------------------------------|
 | Convex   | `npx convex env set`    | `npx convex env set OPENAI_API_KEY sk-...` |
 | Vercel   | `vercel env add`        | `vercel env add STRIPE_KEY production`     |
 | Railway  | `railway variables set` | `railway variables set API_KEY=value`      |
@@ -413,6 +441,7 @@ I'll verify: vercel whoami returns your account
 | Supabase | `supabase secrets set`  | `supabase secrets set MY_SECRET=value`     |
 
 **Secret collection pattern:**
+
 ```xml
 <!-- WRONG: Asking user to add env vars in dashboard -->
 <task type="checkpoint:human-action">
@@ -442,7 +471,7 @@ I'll verify: vercel whoami returns your account
 ## Dev Server Automation
 
 | Framework | Start Command                | Ready Signal                   | Default URL           |
-| --------- | ---------------------------- | ------------------------------ | --------------------- |
+|-----------|------------------------------|--------------------------------|-----------------------|
 | Next.js   | `npm run dev`                | "Ready in" or "started server" | http://localhost:3000 |
 | Vite      | `npm run dev`                | "ready in"                     | http://localhost:5173 |
 | Convex    | `npx convex dev`             | "Convex functions ready"       | N/A (backend only)    |
@@ -450,6 +479,7 @@ I'll verify: vercel whoami returns your account
 | Django    | `python manage.py runserver` | "Starting development server"  | http://localhost:8000 |
 
 **Server lifecycle:**
+
 ```bash
 # Run in background, capture PID
 npm run dev &
@@ -461,12 +491,13 @@ timeout 30 bash -c 'until node -e "fetch(\"http://localhost:3000\").then(r=>{pro
 
 **Port conflicts:** Kill stale process (`lsof -ti:3000 | xargs kill`) or use alternate port (`--port 3001`).
 
-**Server stays running** through checkpoints. Only kill when plan complete, switching to production, or port needed for different service.
+**Server stays running** through checkpoints. Only kill when plan complete, switching to production, or port needed for
+different service.
 
 ## CLI Installation Handling
 
 | CLI           | Auto-install? | Command                                               |
-| ------------- | ------------- | ----------------------------------------------------- |
+|---------------|---------------|-------------------------------------------------------|
 | npm/pnpm/yarn | No - ask user | User chooses package manager                          |
 | vercel        | Yes           | `npm i -g vercel`                                     |
 | gh (GitHub)   | Yes           | `brew install gh` (macOS) or `apt install gh` (Linux) |
@@ -476,12 +507,13 @@ timeout 30 bash -c 'until node -e "fetch(\"http://localhost:3000\").then(r=>{pro
 | fly           | Yes           | `brew install flyctl` or curl installer               |
 | railway       | Yes           | `npm i -g @railway/cli`                               |
 
-**Protocol:** Try command → "command not found" → auto-installable? → yes: install silently, retry → no: checkpoint asking user to install.
+**Protocol:** Try command → "command not found" → auto-installable? → yes: install silently, retry → no: checkpoint
+asking user to install.
 
 ## Pre-Checkpoint Automation Failures
 
 | Failure            | Response                                                    |
-| ------------------ | ----------------------------------------------------------- |
+|--------------------|-------------------------------------------------------------|
 | Server won't start | Check error, fix issue, retry (don't proceed to checkpoint) |
 | Port in use        | Kill stale process or use alternate port                    |
 | Missing dependency | Run `npm install`, retry                                    |
@@ -489,9 +521,11 @@ timeout 30 bash -c 'until node -e "fetch(\"http://localhost:3000\").then(r=>{pro
 | Auth error         | Create auth gate checkpoint                                 |
 | Network timeout    | Retry with backoff, then checkpoint if persistent           |
 
-**Never present a checkpoint with broken verification environment.** If the local server isn't responding, don't ask user to "visit localhost:3000".
+**Never present a checkpoint with broken verification environment.** If the local server isn't responding, don't ask
+user to "visit localhost:3000".
 
-> **Cross-platform note:** Use `node -e "fetch('http://localhost:3000').then(r=>console.log(r.status))"` instead of `curl` for health checks. `curl` is broken on Windows MSYS/Git Bash due to SSL/path mangling issues.
+> **Cross-platform note:** Use `node -e "fetch('http://localhost:3000').then(r=>console.log(r.status))"` instead of
+> `curl` for health checks. `curl` is broken on Windows MSYS/Git Bash due to SSL/path mangling issues.
 
 ```xml
 <!-- WRONG: Checkpoint with broken environment -->
@@ -516,7 +550,7 @@ timeout 30 bash -c 'until node -e "fetch(\"http://localhost:3000\").then(r=>{pro
 ## Automatable Quick Reference
 
 | Action                           | Automatable?               | the agent does it? |
-| -------------------------------- | -------------------------- | ------------------ |
+|----------------------------------|----------------------------|--------------------|
 | Deploy to Vercel                 | Yes (`vercel`)             | YES                |
 | Create Stripe webhook            | Yes (API)                  | YES                |
 | Write .env file                  | Yes (Write tool)           | YES                |
@@ -537,6 +571,7 @@ timeout 30 bash -c 'until node -e "fetch(\"http://localhost:3000\").then(r=>{pro
 <writing_guidelines>
 
 **DO:**
+
 - Automate everything with CLI/API before checkpoint
 - Be specific: "Visit https://myapp.vercel.app" not "check deployment"
 - Number verification steps
@@ -544,12 +579,14 @@ timeout 30 bash -c 'until node -e "fetch(\"http://localhost:3000\").then(r=>{pro
 - Provide context: why this checkpoint exists
 
 **DON'T:**
+
 - Ask human to do work the agent can automate ❌
 - Assume knowledge: "Configure the usual settings" ❌
 - Skip steps: "Set up database" (too vague) ❌
 - Mix multiple verifications in one checkpoint ❌
 
 **Placement:**
+
 - **After automation completes** - not before the agent does the work
 - **After UI buildout** - before declaring phase complete
 - **Before dependent work** - decisions before implementation
@@ -628,6 +665,7 @@ timeout 30 bash -c 'until node -e "fetch(\"http://localhost:3000\").then(r=>{pro
   <resume-signal>Type "approved" or describe issues</resume-signal>
 </task>
 ```
+
 </examples>
 
 <anti_patterns>
@@ -766,13 +804,16 @@ Checkpoints formalize human-in-the-loop points for verification and decisions, n
 **The golden rule:** If the agent CAN automate it, the agent MUST automate it.
 
 **Checkpoint priority:**
+
 1. **checkpoint:human-verify** (90%) - the agent automated everything, human confirms visual/functional correctness
 2. **checkpoint:decision** (9%) - Human makes architectural/technology choices
 3. **checkpoint:human-action** (1%) - Truly unavoidable manual steps with no API/CLI
 
 **When NOT to use checkpoints:**
+
 - Things the agent can verify programmatically (tests, builds)
 - File operations (the agent can read files)
 - Code correctness (tests and static analysis)
 - Anything automatable via CLI/API
+
 </summary>

@@ -1,8 +1,10 @@
 # User Setup Template
 
-Template for `.planning/phases/XX-name/{phase}-USER-SETUP.md` - human-required configuration that the agent cannot automate.
+Template for `.planning/phases/XX-name/{phase}-USER-SETUP.md` - human-required configuration that the agent cannot
+automate.
 
-**Purpose:** Document setup tasks that literally require human action - account creation, dashboard configuration, secret retrieval. the agent automates everything possible; this file captures only what remains.
+**Purpose:** Document setup tasks that literally require human action - account creation, dashboard configuration,
+secret retrieval. the agent automates everything possible; this file captures only what remains.
 
 ---
 
@@ -50,11 +52,13 @@ After completing setup, verify with:
 ```
 
 Expected results:
+
 - [What success looks like]
 
 ---
 
 **Once all items complete:** Mark status as "Complete" at top of file.
+
 ```
 
 ---
@@ -99,16 +103,17 @@ user_setup:
 
 **USER-SETUP.md contains ONLY what the agent literally cannot do.**
 
-| the agent CAN Do (not in USER-SETUP) | the agent CANNOT Do (→ USER-SETUP) |
-|-----------------------------------|--------------------------------|
-| `npm install stripe` | Create Stripe account |
-| Write webhook handler code | Get API keys from dashboard |
-| Create `.env.local` file structure | Copy actual secret values |
-| Run `stripe listen` | Authenticate Stripe CLI (browser OAuth) |
-| Configure package.json | Access external service dashboards |
-| Write any code | Retrieve secrets from third-party systems |
+| the agent CAN Do (not in USER-SETUP) | the agent CANNOT Do (→ USER-SETUP)        |
+|--------------------------------------|-------------------------------------------|
+| `npm install stripe`                 | Create Stripe account                     |
+| Write webhook handler code           | Get API keys from dashboard               |
+| Create `.env.local` file structure   | Copy actual secret values                 |
+| Run `stripe listen`                  | Authenticate Stripe CLI (browser OAuth)   |
+| Configure package.json               | Access external service dashboards        |
+| Write any code                       | Retrieve secrets from third-party systems |
 
 **The test:** "Does this require a human in a browser, accessing an account the agent doesn't have credentials for?"
+
 - Yes → USER-SETUP.md
 - No → the agent does it automatically
 
@@ -117,6 +122,7 @@ user_setup:
 ## Service-Specific Examples
 
 <stripe_example>
+
 ```markdown
 # Phase 10: User Setup Required
 
@@ -164,6 +170,7 @@ For local webhook testing:
 ```bash
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
 ```
+
 Use the webhook signing secret from CLI output (starts with `whsec_`).
 
 ## Verification
@@ -188,6 +195,7 @@ Expected: Build passes, webhook returns 400 (signature validation working).
 ---
 
 **Once all items complete:** Mark status as "Complete" at top of file.
+
 ```
 </stripe_example>
 
@@ -242,6 +250,7 @@ npx supabase status
 ---
 
 **Once all items complete:** Mark status as "Complete" at top of file.
+
 ```
 </supabase_example>
 
@@ -297,6 +306,7 @@ curl -X POST http://localhost:3000/api/test-email \
 ---
 
 **Once all items complete:** Mark status as "Complete" at top of file.
+
 ```
 </sendgrid_example>
 

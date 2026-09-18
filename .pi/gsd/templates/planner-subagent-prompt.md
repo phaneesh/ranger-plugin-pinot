@@ -1,6 +1,7 @@
 # Planner Subagent Prompt Template
 
-Template for spawning gsd-planner agent. The agent contains all planning expertise - this template provides planning context only.
+Template for spawning gsd-planner agent. The agent contains all planning expertise - this template provides planning
+context only.
 
 ---
 
@@ -57,18 +58,19 @@ Before returning PLANNING COMPLETE:
 
 ## Placeholders
 
-| Placeholder | Source | Example |
-|-------------|--------|---------|
-| `{phase_number}` | From roadmap/arguments | `5` or `2.1` |
-| `{phase_dir}` | Phase directory name | `05-user-profiles` |
-| `{phase}` | Phase prefix | `05` |
-| `{standard \| gap_closure}` | Mode flag | `standard` |
+| Placeholder                 | Source                 | Example            |
+|-----------------------------|------------------------|--------------------|
+| `{phase_number}`            | From roadmap/arguments | `5` or `2.1`       |
+| `{phase_dir}`               | Phase directory name   | `05-user-profiles` |
+| `{phase}`                   | Phase prefix           | `05`               |
+| `{standard \| gap_closure}` | Mode flag              | `standard`         |
 
 ---
 
 ## Usage
 
 **From /gsd-plan-phase (standard mode):**
+
 ```python
 Task(
   prompt=filled_template,
@@ -78,6 +80,7 @@ Task(
 ```
 
 **From /gsd-plan-phase --gaps (gap closure mode):**
+
 ```python
 Task(
   prompt=filled_template,  # with mode: gap_closure
@@ -114,4 +117,5 @@ Continue: {standard | gap_closure}
 
 ---
 
-**Note:** Planning methodology, task breakdown, dependency analysis, wave assignment, TDD detection, and goal-backward derivation are baked into the gsd-planner agent. This template only passes context.
+**Note:** Planning methodology, task breakdown, dependency analysis, wave assignment, TDD detection, and goal-backward
+derivation are baked into the gsd-planner agent. This template only passes context.

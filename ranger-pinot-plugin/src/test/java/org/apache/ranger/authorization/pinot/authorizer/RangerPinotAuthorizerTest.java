@@ -30,16 +30,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Exercises {@link RangerPinotAuthorizer} against a real Ranger policy engine, using
@@ -64,12 +58,12 @@ class RangerPinotAuthorizerTest {
     private static final AtomicLong POLICY_ID_SEQ = new AtomicLong(1);
 
     private static RangerPolicy tablePolicy(String table, String user, String accessType) {
-        RangerPolicy.RangerPolicyResource   resource = new RangerPolicy.RangerPolicyResource(table, false, false);
-        RangerPolicy.RangerPolicyItemAccess access   = new RangerPolicy.RangerPolicyItemAccess(accessType, true);
-        RangerPolicy.RangerPolicyItem       item     = new RangerPolicy.RangerPolicyItem(
+        RangerPolicy.RangerPolicyResource resource = new RangerPolicy.RangerPolicyResource(table, false, false);
+        RangerPolicy.RangerPolicyItemAccess access = new RangerPolicy.RangerPolicyItemAccess(accessType, true);
+        RangerPolicy.RangerPolicyItem item = new RangerPolicy.RangerPolicyItem(
                 Collections.singletonList(access), Collections.singletonList(user), null, null, null, false);
 
-        long         id     = POLICY_ID_SEQ.getAndIncrement();
+        long id = POLICY_ID_SEQ.getAndIncrement();
         RangerPolicy policy = new RangerPolicy();
 
         // Every RangerPolicy needs a unique id/guid (as a real Ranger Admin would assign) — two
@@ -122,7 +116,7 @@ class RangerPinotAuthorizerTest {
 
     @Test
     void auditEmittedForBothAllowAndDeny() throws IOException {
-        RangerBasePlugin         plugin          = new RangerBasePlugin("pinot", "pinot");
+        RangerBasePlugin plugin = new RangerBasePlugin("pinot", "pinot");
         List<RangerAccessResult> recordedResults = new ArrayList<>();
 
         plugin.setResultProcessor(new RangerAccessResultProcessor() {

@@ -131,6 +131,7 @@ Template for `.planning/codebase/CONVENTIONS.md` - captures coding style and pat
 ```
 
 <good_examples>
+
 ```markdown
 # Coding Conventions
 
@@ -265,6 +266,7 @@ Template for `.planning/codebase/CONVENTIONS.md` - captures coding style and pat
 *Convention analysis: 2025-01-20*
 *Update when patterns change*
 ```
+
 </good_examples>
 
 <guidelines>
@@ -278,12 +280,14 @@ Template for `.planning/codebase/CONVENTIONS.md` - captures coding style and pat
 - Function and module design patterns
 
 **What does NOT belong here:**
+
 - Architecture decisions (that's ARCHITECTURE.md)
 - Technology choices (that's STACK.md)
 - Test patterns (that's TESTING.md)
 - File organization (that's STRUCTURE.md)
 
 **When filling this template:**
+
 - Check .prettierrc, .eslintrc, or similar config files
 - Examine 5-10 representative source files for patterns
 - Look for consistency: if 80%+ follows a pattern, document it
@@ -292,6 +296,7 @@ Template for `.planning/codebase/CONVENTIONS.md` - captures coding style and pat
 - Keep under ~150 lines total
 
 **Useful for phase planning when:**
+
 - Writing new code (match existing style)
 - Adding features (follow naming patterns)
 - Refactoring (apply consistent conventions)
@@ -299,9 +304,10 @@ Template for `.planning/codebase/CONVENTIONS.md` - captures coding style and pat
 - Onboarding (understand style expectations)
 
 **Analysis approach:**
+
 - Scan src/ directory for file naming patterns
 - Check package.json scripts for lint/format commands
 - Read 5-10 files to identify function naming, error handling
 - Look for config files (.prettierrc, eslint.config.js)
 - Note patterns in imports, comments, function signatures
-</guidelines>
+  </guidelines>

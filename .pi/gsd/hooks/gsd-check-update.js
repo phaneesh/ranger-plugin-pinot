@@ -10,7 +10,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { spawn } = require('child_process');
+const {spawn} = require('child_process');
 
 const homeDir = os.homedir();
 const cwd = process.cwd();
@@ -49,7 +49,7 @@ const globalVersionFile = path.join(globalConfigDir, 'get-shit-done', 'VERSION')
 
 // Ensure cache directory exists
 if (!fs.existsSync(cacheDir)) {
-    fs.mkdirSync(cacheDir, { recursive: true });
+    fs.mkdirSync(cacheDir, {recursive: true});
 }
 
 // Run check in background (spawn background process, windowsHide prevents console flash)

@@ -32,7 +32,8 @@
 
     <name>Ranger Pinot Plugin Integration Tests</name>
     <description>End-to-end integration tests: real Ranger Admin 2.8.0 + real Pinot cluster running
-        the shipped distro tarball, gated behind -Pintegration (Docker required)</description>
+        the shipped distro tarball, gated behind -Pintegration (Docker required)
+    </description>
 
     <properties>
         <skipITs>true</skipITs>

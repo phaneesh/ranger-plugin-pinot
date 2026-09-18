@@ -73,7 +73,7 @@ Track whether `.planning/` exists - some routes require it, others don't.
 Evaluate `$ARGUMENTS` against these routing rules. Apply the **first matching** rule:
 
 | If the text describes...                                                         | Route to                  | Why                                      |
-| -------------------------------------------------------------------------------- | ------------------------- | ---------------------------------------- |
+|----------------------------------------------------------------------------------|---------------------------|------------------------------------------|
 | Starting a new project, "set up", "initialize"                                   | `/gsd-new-project`        | Needs full project initialization        |
 | Mapping or analyzing an existing codebase                                        | `/gsd-map-codebase`       | Codebase discovery                       |
 | A bug, error, crash, failure, or something broken                                | `/gsd-debug`              | Needs systematic investigation           |
@@ -91,9 +91,11 @@ Evaluate `$ARGUMENTS` against these routing rules. Apply the **first matching** 
 | Completing a milestone, shipping, releasing                                      | `/gsd-complete-milestone` | Milestone lifecycle                      |
 | A specific, actionable, small task (add feature, fix typo, update config)        | `/gsd-quick`              | Self-contained, single executor          |
 
-**Requires `.planning/` directory:** All routes except `/gsd-new-project`, `/gsd-map-codebase`, `/gsd-help`, and `/gsd-join-discord`. If the project doesn't exist and the route requires it, suggest `/gsd-new-project` first.
+**Requires `.planning/` directory:** All routes except `/gsd-new-project`, `/gsd-map-codebase`, `/gsd-help`, and
+`/gsd-join-discord`. If the project doesn't exist and the route requires it, suggest `/gsd-new-project` first.
 
-**Ambiguity handling:** If the text could reasonably match multiple routes, ask the user via AskUserQuestion with the top 2-3 options. For example:
+**Ambiguity handling:** If the text could reasonably match multiple routes, ask the user via AskUserQuestion with the
+top 2-3 options. For example:
 
 ```
 "Refactor the authentication system" could be:
@@ -102,6 +104,7 @@ Evaluate `$ARGUMENTS` against these routing rules. Apply the **first matching** 
 
 Which approach fits better?
 ```
+
 </step>
 
 <step name="display">
@@ -116,6 +119,7 @@ Which approach fits better?
 **Routing to:** {chosen command}
 **Reason:** {one-line explanation}
 ```
+
 </step>
 
 <step name="dispatch">
@@ -123,7 +127,8 @@ Which approach fits better?
 
 Run the selected `/gsd-*` command, passing `$ARGUMENTS` as args.
 
-If the chosen command expects a phase number and one wasn't provided in the text, extract it from context or ask via AskUserQuestion.
+If the chosen command expects a phase number and one wasn't provided in the text, extract it from context or ask via
+AskUserQuestion.
 
 After invoking the command, stop. The dispatched command handles everything from here.
 </step>
@@ -131,6 +136,7 @@ After invoking the command, stop. The dispatched command handles everything from
 </process>
 
 <success_criteria>
+
 - [ ] Input validated (not empty)
 - [ ] Intent matched to exactly one GSD command
 - [ ] Ambiguity resolved via user question (if needed)
@@ -138,4 +144,4 @@ After invoking the command, stop. The dispatched command handles everything from
 - [ ] Routing decision displayed before dispatch
 - [ ] Command invoked with appropriate arguments
 - [ ] No work done directly - dispatcher only
-</success_criteria>
+  </success_criteria>

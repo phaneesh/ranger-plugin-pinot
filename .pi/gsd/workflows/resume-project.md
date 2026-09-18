@@ -84,11 +84,12 @@ Load all context in one call:
 
 <!-- Context pre-injected above via WXP - variables available via <gsd-paste name="..."> -->
 
-Parse JSON for: `state_exists`, `roadmap_exists`, `project_exists`, `planning_exists`, `has_interrupted_agent`, `interrupted_agent_id`, `commit_docs`.
+Parse JSON for: `state_exists`, `roadmap_exists`, `project_exists`, `planning_exists`, `has_interrupted_agent`,
+`interrupted_agent_id`, `commit_docs`.
 
-**If `state_exists` is true:** Proceed to load_state
-**If `state_exists` is false but `roadmap_exists` or `project_exists` is true:** Offer to reconstruct STATE.md
-**If `planning_exists` is false:** This is a new project - route to /gsd-new-project
+**If `state_exists` is true:** Proceed to load_state **If `state_exists` is false but `roadmap_exists` or
+`project_exists` is true:** Offer to reconstruct STATE.md **If `planning_exists` is false:** This is a new project -
+route to /gsd-new-project
 </step>
 
 <step name="load_state">
@@ -325,7 +326,7 @@ Based on user selection, route to appropriate workflow:
 - **Check todos** → Read .planning/todos/pending/, present summary
 - **Review alignment** → Read PROJECT.md, compare to current state
 - **Something else** → Ask what they need
-</step>
+  </step>
 
 <step name="update_session">
 Before proceeding to routed workflow, update session continuity:
@@ -367,6 +368,7 @@ This handles cases where:
 
 <quick_resume>
 If user says "continue" or "go":
+
 - Load state silently
 - Determine primary action
 - Execute immediately without presenting options
@@ -383,4 +385,4 @@ Resume is complete when:
 - [ ] Contextual next actions offered
 - [ ] User knows exactly where project stands
 - [ ] Session continuity updated
-      </success_criteria>
+  </success_criteria>

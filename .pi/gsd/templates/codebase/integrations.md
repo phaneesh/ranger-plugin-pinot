@@ -2,7 +2,8 @@
 
 Template for `.planning/codebase/INTEGRATIONS.md` - captures external service dependencies.
 
-**Purpose:** Document what external systems this codebase communicates with. Focused on "what lives outside our code that we depend on."
+**Purpose:** Document what external systems this codebase communicates with. Focused on "what lives outside our code
+that we depend on."
 
 ---
 
@@ -127,6 +128,7 @@ Template for `.planning/codebase/INTEGRATIONS.md` - captures external service de
 ```
 
 <good_examples>
+
 ```markdown
 # External Integrations
 
@@ -239,6 +241,7 @@ Template for `.planning/codebase/INTEGRATIONS.md` - captures external service de
 *Integration audit: 2025-01-20*
 *Update when adding/removing external services*
 ```
+
 </good_examples>
 
 <guidelines>
@@ -253,6 +256,7 @@ Template for `.planning/codebase/INTEGRATIONS.md` - captures external service de
 - Monitoring and logging services
 
 **What does NOT belong here:**
+
 - Actual API keys or secrets (NEVER write these)
 - Internal architecture (that's ARCHITECTURE.md)
 - Code patterns (that's PATTERNS.md)
@@ -260,6 +264,7 @@ Template for `.planning/codebase/INTEGRATIONS.md` - captures external service de
 - Performance issues (that's CONCERNS.md)
 
 **When filling this template:**
+
 - Check .env.example or .env.template for required env vars
 - Look for SDK imports (stripe, @sendgrid/mail, etc.)
 - Check for webhook handlers in routes/endpoints
@@ -268,6 +273,7 @@ Template for `.planning/codebase/INTEGRATIONS.md` - captures external service de
 - Include auth patterns for each service
 
 **Useful for phase planning when:**
+
 - Adding new external service integrations
 - Debugging authentication issues
 - Understanding data flow outside the application

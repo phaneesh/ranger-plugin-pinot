@@ -2,11 +2,14 @@
 
 Template for `.planning/phases/XX-name/{phase_num}-CONTEXT.md` - captures implementation decisions for a phase.
 
-**Purpose:** Document decisions that downstream agents need. Researcher uses this to know WHAT to investigate. Planner uses this to know WHAT choices are locked vs flexible.
+**Purpose:** Document decisions that downstream agents need. Researcher uses this to know WHAT to investigate. Planner
+uses this to know WHAT choices are locked vs flexible.
 
-**Key principle:** Categories are NOT predefined. They emerge from what was actually discussed for THIS phase. A CLI phase has CLI-relevant sections, a UI phase has UI-relevant sections.
+**Key principle:** Categories are NOT predefined. They emerge from what was actually discussed for THIS phase. A CLI
+phase has CLI-relevant sections, a UI phase has UI-relevant sections.
 
 **Downstream consumers:**
+
 - `gsd-phase-researcher` - Reads decisions to focus research (e.g., "card layout" → research card component patterns)
 - `gsd-planner` - Reads decisions to create specific tasks (e.g., "infinite scroll" → task includes virtualization)
 
@@ -326,27 +329,32 @@ Organize existing photo library into structured folders. Handle duplicates and a
 The output should answer: "What does the researcher need to investigate? What choices are locked for the planner?"
 
 **Good content (concrete decisions):**
+
 - "Card-based layout, not timeline"
 - "Retry 3 times on network failure, then fail"
 - "Group by year, then by month"
 - "JSON for programmatic use, table for humans"
 
 **Bad content (too vague):**
+
 - "Should feel modern and clean"
 - "Good user experience"
 - "Fast and responsive"
 - "Easy to use"
 
 **After creation:**
+
 - File lives in phase directory: `.planning/phases/XX-name/{phase_num}-CONTEXT.md`
 - `gsd-phase-researcher` uses decisions to focus investigation AND reads canonical_refs to know WHAT docs to study
 - `gsd-planner` uses decisions + research to create executable tasks AND reads canonical_refs to verify alignment
 - Downstream agents should NOT need to ask the user again about captured decisions
 
 **CRITICAL - Canonical references:**
+
 - The `<canonical_refs>` section is MANDATORY. Every CONTEXT.md must have one.
 - If your project has external specs, ADRs, or design docs, list them with full relative paths grouped by topic
 - If ROADMAP.md lists `Canonical refs:` per phase, extract and expand those
-- Inline mentions like "see ADR-019" scattered in decisions are useless to downstream agents - they need full paths and section references in a dedicated section they can find
+- Inline mentions like "see ADR-019" scattered in decisions are useless to downstream agents - they need full paths and
+  section references in a dedicated section they can find
 - If no external specs exist, say so explicitly - don't silently omit the section
-</guidelines>
+  </guidelines>

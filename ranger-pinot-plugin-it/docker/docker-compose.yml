@@ -23,7 +23,7 @@ services:
     networks:
       - rangernw
     healthcheck:
-      test: ["CMD-SHELL", "su -c 'pg_isready -q' postgres"]
+      test: [ "CMD-SHELL", "su -c 'pg_isready -q' postgres" ]
       interval: 10s
       timeout: 5s
       retries: 30
@@ -71,7 +71,7 @@ services:
     networks:
       - rangernw
     healthcheck:
-      test: ["CMD", "zkServer.sh", "status"]
+      test: [ "CMD", "zkServer.sh", "status" ]
       interval: 10s
       timeout: 5s
       retries: 30

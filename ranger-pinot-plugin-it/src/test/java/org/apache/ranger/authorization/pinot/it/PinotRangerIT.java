@@ -18,12 +18,7 @@
 
 package org.apache.ranger.authorization.pinot.it;
 
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -34,10 +29,7 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * End-to-end IT: the shipped distro tarball, installed by the real enable script into
@@ -312,7 +304,7 @@ public class PinotRangerIT {
             boolean segmentUnavailable = filtered.body().contains("segments unavailable");
             if (filtered.statusCode() == 200 && !segmentUnavailable
                     && (filtered.body().contains("\"value\":\"2\"")
-                        || countRows(filtered.body()) == 2)) {
+                    || countRows(filtered.body()) == 2)) {
                 client.updatePolicy(allowPolicyId, allowPolicyJson());
                 return;
             }
@@ -360,7 +352,7 @@ public class PinotRangerIT {
         // Pinot needs the table's schema to pre-exist; upload it as the provisioning
         // admin (the schema is not the authorization subject under test).
         String allowedSchemaJson = Files.readString(
-                client.getModuleDir().resolve("src/test/resources/fixtures/orders-schema.json"))
+                        client.getModuleDir().resolve("src/test/resources/fixtures/orders-schema.json"))
                 .replace("\"orders\"", "\"orders_allowed\"");
         client.postSchemaAsAdmin(allowedSchemaJson);
 
@@ -369,7 +361,7 @@ public class PinotRangerIT {
         String lastResponse = "";
         while (System.currentTimeMillis() < deadline) {
             String allowedJson = Files.readString(
-                    client.getModuleDir().resolve("src/test/resources/fixtures/orders-table.json"))
+                            client.getModuleDir().resolve("src/test/resources/fixtures/orders-table.json"))
                     .replace("\"orders\"", "\"orders_allowed\"");
             HttpResponse<String> allowed = client.controllerPostWithAuth(
                     "/tables", allowedJson, "pinot-admin-test", "PinotTest1");
@@ -459,7 +451,9 @@ public class PinotRangerIT {
         return last;
     }
 
-    /** Solr audit query; empty string when the Solr channel is unreachable. */
+    /**
+     * Solr audit query; empty string when the Solr channel is unreachable.
+     */
     private static String querySolrAudits() {
         try {
             String query = "http://localhost:8983/solr/ranger_audits/select?q="

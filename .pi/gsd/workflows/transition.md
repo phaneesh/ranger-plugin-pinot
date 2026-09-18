@@ -69,6 +69,7 @@ There is no `/gsd-transition` command. This workflow is invoked automatically by
 verification. Users should never be told to run `/gsd-transition`.
 
 **Valid user commands for phase progression:**
+
 - `/gsd-discuss-phase {N}` - discuss a phase before planning
 - `/gsd-plan-phase {N}` - plan a phase
 - `/gsd-execute-phase {N}` - execute a phase
@@ -90,7 +91,8 @@ verification. Users should never be told to run `/gsd-transition`.
 
 <purpose>
 
-Mark current phase complete and advance to next. This is the natural point where progress tracking and PROJECT.md evolution happen.
+Mark current phase complete and advance to next. This is the natural point where progress tracking and PROJECT.md
+evolution happen.
 
 "Planning next phase" = "current phase is done"
 
@@ -229,6 +231,7 @@ TRANSITION=$(pi-gsd-tools phase complete "${current_phase}")
 ```
 
 The CLI handles:
+
 - Marking the phase checkbox as `[x]` complete with today's date
 - Updating plan count to final (e.g., "3/3 plans complete")
 - Updating the Progress table (Status → Complete, adding date)
@@ -259,24 +262,24 @@ cat .planning/phases/XX-current/*-SUMMARY.md
 **Assess requirement changes:**
 
 1. **Requirements validated?**
-   - Any Active requirements shipped in this phase?
-   - Move to Validated with phase reference: `- ✓ [Requirement] - Phase X`
+    - Any Active requirements shipped in this phase?
+    - Move to Validated with phase reference: `- ✓ [Requirement] - Phase X`
 
 2. **Requirements invalidated?**
-   - Any Active requirements discovered to be unnecessary or wrong?
-   - Move to Out of Scope with reason: `- [Requirement] - [why invalidated]`
+    - Any Active requirements discovered to be unnecessary or wrong?
+    - Move to Out of Scope with reason: `- [Requirement] - [why invalidated]`
 
 3. **Requirements emerged?**
-   - Any new requirements discovered during building?
-   - Add to Active: `- [ ] [New requirement]`
+    - Any new requirements discovered during building?
+    - Add to Active: `- [ ] [New requirement]`
 
 4. **Decisions to log?**
-   - Extract decisions from SUMMARY.md files
-   - Add to Key Decisions table with outcome if known
+    - Extract decisions from SUMMARY.md files
+    - Add to Key Decisions table with outcome if known
 
 5. **"What This Is" still accurate?**
-   - If the product has meaningfully changed, update the description
-   - Keep it current and accurate
+    - If the product has meaningfully changed, update the description
+    - Keep it current and accurate
 
 **Update PROJECT.md:**
 
@@ -335,7 +338,8 @@ After (Phase 2 shipped JWT auth, discovered rate limiting needed):
 
 <step name="update_current_position_after_transition">
 
-**Note:** Basic position updates (Current Phase, Status, Current Plan, Last Activity) were already handled by `gsd-tools phase complete` in the update_roadmap_and_state step.
+**Note:** Basic position updates (Current Phase, Status, Current Plan, Last Activity) were already handled by
+`gsd-tools phase complete` in the update_roadmap_and_state step.
 
 Verify the updates are correct by reading STATE.md. If the progress bar needs updating, use:
 
@@ -442,12 +446,14 @@ Resume file: None
 **Use the transition result from `gsd-tools phase complete`:**
 
 The `is_last_phase` field from the phase complete result tells you directly:
+
 - `is_last_phase: false` → More phases remain → Go to **Route A**
 - `is_last_phase: true` → Last phase done → **Check for workstream collisions first**
 
 The `next_phase` and `next_phase_name` fields give you the next phase details.
 
 If you need additional context, use:
+
 ```bash
 ROADMAP=$(pi-gsd-tools roadmap analyze)
 ```
@@ -508,7 +514,7 @@ Next: Phase [X+1] - [Name]
 ⚡ Auto-continuing: Plan Phase [X+1] in detail
 ```
 
-Exit skill and invoke SlashCommand("/gsd-plan-phase [X+1] --auto ${GSD_WS}")
+Exit skill and invoke SlashCommand ("/gsd-plan-phase [X+1] --auto ${GSD_WS}")
 
 **If CONTEXT.md does NOT exist:**
 
@@ -520,7 +526,7 @@ Next: Phase [X+1] - [Name]
 ⚡ Auto-continuing: Discuss Phase [X+1] first
 ```
 
-Exit skill and invoke SlashCommand("/gsd-discuss-phase [X+1] --auto ${GSD_WS}")
+Exit skill and invoke SlashCommand ("/gsd-discuss-phase [X+1] --auto ${GSD_WS}")
 
 </if>
 
@@ -637,6 +643,7 @@ Do NOT auto-invoke any further slash commands.
 **Route B: Milestone complete (all phases done)**
 
 **This route is only reached when:**
+
 - `is_last_phase: true` AND no other active workstreams exist (or flat mode)
 
 **Clear auto-advance chain flag** - milestone boundary is the natural stopping point:
@@ -655,7 +662,7 @@ Phase {X} marked complete.
 ⚡ Auto-continuing: Complete milestone and archive
 ```
 
-Exit skill and invoke SlashCommand("/gsd-complete-milestone {version} ${GSD_WS}")
+Exit skill and invoke SlashCommand ("/gsd-complete-milestone {version} ${GSD_WS}")
 
 </if>
 
@@ -691,7 +698,8 @@ Exit skill and invoke SlashCommand("/gsd-complete-milestone {version} ${GSD_WS}"
 </process>
 
 <implicit_tracking>
-Progress tracking is IMPLICIT: planning phase N implies phases 1-(N-1) complete. No separate progress step-forward motion IS progress.
+Progress tracking is IMPLICIT: planning phase N implies phases 1- (N-1) complete. No separate progress step-forward
+motion IS progress.
 </implicit_tracking>
 
 <partial_completion>

@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Registers the "pinot" service type with Ranger Admin: validates controller connectivity
  * ("Test Connection") and looks up table names for the policy-editor autocomplete.
- *
+ * <p>
  * {@link #getDefaultRangerPolicies()} is intentionally not overridden — the
  * {@link RangerBaseService} base implementation (one default-allow policy per mandatory
  * resource hierarchy level) is sufficient for the single "table" resource defined in

@@ -82,9 +82,11 @@ Executed by a verification subagent spawned from execute-phase.md.
 <core_principle>
 **Task completion ≠ Goal achievement**
 
-A task "create chat component" can be marked complete when the component is a placeholder. The task was done - but the goal "working chat interface" was not achieved.
+A task "create chat component" can be marked complete when the component is a placeholder. The task was done - but the
+goal "working chat interface" was not achieved.
 
 Goal-backward verification:
+
 1. What must be TRUE for the goal to be achieved?
 2. What must EXIST for those truths to hold?
 3. What must be WIRED for those artifacts to function?
@@ -107,13 +109,15 @@ Load phase operation context:
 Extract from init JSON: `phase_dir`, `phase_number`, `phase_name`, `has_plans`, `plan_count`.
 
 Then load phase details and list plans/summaries:
+
 ```bash
 pi-gsd-tools roadmap get-phase "${phase_number}"
 grep -E "^| ${phase_number}" .planning/REQUIREMENTS.md 2>/dev/null || true
 ls "$phase_dir"/*-SUMMARY.md "$phase_dir"/*-PLAN.md 2>/dev/null || true
 ```
 
-Extract **phase goal** from ROADMAP.md (the outcome to verify, not tasks) and **requirements** from REQUIREMENTS.md if it exists.
+Extract **phase goal** from ROADMAP.md (the outcome to verify, not tasks) and **requirements** from REQUIREMENTS.md if
+it exists.
 </step>
 
 <step name="establish_must_haves">
@@ -141,6 +145,7 @@ PHASE_DATA=$(pi-gsd-tools roadmap get-phase "${phase_number}" --raw)
 ```
 
 Parse the `success_criteria` array from the JSON output. If non-empty:
+
 1. Use each Success Criterion directly as a **truth** (they are already written as observable, testable behaviors)
 2. Derive **artifacts** (concrete file paths for each truth)
 3. Derive **key links** (critical wiring where stubs hide)
@@ -151,21 +156,25 @@ Success Criteria from ROADMAP.md are the contract - they override PLAN-level mus
 **Option C: Derive from phase goal (fallback)**
 
 If no must_haves in frontmatter AND no Success Criteria in ROADMAP:
+
 1. State the goal from ROADMAP.md
 2. Derive **truths** (3-7 observable behaviors, each testable)
 3. Derive **artifacts** (concrete file paths for each truth)
 4. Derive **key links** (critical wiring where stubs hide)
 5. Document derived must-haves before proceeding
-</step>
+   </step>
 
 <step name="verify_truths">
 For each observable truth, determine if the codebase enables it.
 
-**Status:** ✓ VERIFIED (all supporting artifacts pass) | ✗ FAILED (artifact missing/stub/unwired) | ? UNCERTAIN (needs human)
+**Status:** ✓ VERIFIED (all supporting artifacts pass) | ✗ FAILED (artifact missing/stub/unwired) | ? UNCERTAIN (needs
+human)
 
 For each truth: identify supporting artifacts → check artifact status → check wiring → determine truth status.
 
-**Example:** Truth "User can see existing messages" depends on Chat.tsx (renders), /api/chat GET (provides), Message model (schema). If Chat.tsx is a stub or API returns hardcoded [] → FAILED. If all exist, are substantive, and connected → VERIFIED.
+**Example:** Truth "User can see existing messages" depends on Chat.tsx (renders), /api/chat GET (provides), Message
+model (schema). If Chat.tsx is a stub or API returns hardcoded [] → FAILED. If all exist, are substantive, and
+connected → VERIFIED.
 </step>
 
 <step name="verify_artifacts">
@@ -181,27 +190,31 @@ done
 Parse JSON result: `{ all_passed, passed, total, artifacts: [{path, exists, issues, passed}] }`
 
 **Artifact status from result:**
+
 - `exists=false` → MISSING
 - `issues` not empty → STUB (check issues for "Only N lines" or "Missing pattern")
 - `passed=true` → VERIFIED (Levels 1-2 pass)
 
 **Level 3 - Wired (manual check for artifacts that pass Levels 1-2):**
+
 ```bash
 grep -r "import.*$artifact_name" src/ --include="*.ts" --include="*.tsx"  # IMPORTED
 grep -r "$artifact_name" src/ --include="*.ts" --include="*.tsx" | grep -v "import"  # USED
 ```
+
 WIRED = imported AND used. ORPHANED = exists but not imported/used.
 
-| Exists | Substantive | Wired | Status     |
-| ------ | ----------- | ----- | ---------- |
-| ✓      | ✓           | ✓     | ✓ VERIFIED |
-| ✓      | ✓           | ✗     | ⚠️ ORPHANED |
-| ✓      | ✗           | -     | ✗ STUB     |
-| ✗      | -           | -     | ✗ MISSING  |
+| Exists | Substantive | Wired | Status      |
+|--------|-------------|-------|-------------|
+| ✓     | ✓          | ✓    | ✓ VERIFIED |
+| ✓     | ✓          | ✗    | ⚠️ ORPHANED |
+| ✓     | ✗          | -     | ✗ STUB     |
+| ✗     | -           | -     | ✗ MISSING  |
 
 **Export-level spot check (WARNING severity):**
 
 For artifacts that pass Level 3, spot-check individual exports:
+
 - Extract key exported symbols (functions, constants, classes - skip types/interfaces)
 - For each, grep for usage outside the defining file
 - Flag exports with zero external call sites as "exported but unused"
@@ -224,6 +237,7 @@ done
 Parse JSON result: `{ all_verified, verified, total, links: [{from, to, via, verified, detail}] }`
 
 **Link status from result:**
+
 - `verified=true` → WIRED
 - `verified=false` with "not found" → NOT_WIRED
 - `verified=false` with "Pattern not found" → PARTIAL
@@ -231,7 +245,7 @@ Parse JSON result: `{ all_verified, verified, total, links: [{from, to, via, ver
 **Fallback patterns (if key_links not in must_haves):**
 
 | Pattern         | Check                                                                                  | Status                                                 |
-| --------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+|-----------------|----------------------------------------------------------------------------------------|--------------------------------------------------------|
 | Component → API | fetch/axios call to API path, response used (await/.then/setState)                     | WIRED / PARTIAL (call but unused response) / NOT_WIRED |
 | API → Database  | Prisma/DB query on model, result returned via res.json()                               | WIRED / PARTIAL (query but not returned) / NOT_WIRED   |
 | Form → Handler  | onSubmit with real implementation (fetch/axios/mutate/dispatch), not console.log/empty | WIRED / STUB (log-only/empty) / NOT_WIRED              |
@@ -246,14 +260,15 @@ If REQUIREMENTS.md exists:
 grep -E "Phase ${PHASE_NUM}" .planning/REQUIREMENTS.md 2>/dev/null || true
 ```
 
-For each requirement: parse description → identify supporting truths/artifacts → status: ✓ SATISFIED / ✗ BLOCKED / ? NEEDS HUMAN.
+For each requirement: parse description → identify supporting truths/artifacts → status: ✓ SATISFIED / ✗ BLOCKED / ?
+NEEDS HUMAN.
 </step>
 
 <step name="scan_antipatterns">
 Extract files modified in this phase from SUMMARY.md, scan each:
 
-| Pattern             | Search                                                        | Severity  |
-| ------------------- | ------------------------------------------------------------- | --------- |
+| Pattern             | Search                                                        | Severity   |
+|---------------------|---------------------------------------------------------------|------------|
 | TODO/FIXME/XXX/HACK | `grep -n -E "TODO\|FIXME\|XXX\|HACK"`                         | ⚠️ Warning |
 | Placeholder content | `grep -n -iE "placeholder\|coming soon\|will be here"`        | 🛑 Blocker |
 | Empty returns       | `grep -n -E "return null\|return \{\}\|return \[\]\|=> \{\}"` | ⚠️ Warning |
@@ -283,19 +298,22 @@ Format each as: Test Name → What to do → Expected result → Why can't verif
 <step name="generate_fix_plans">
 If gaps_found:
 
-1. **Cluster related gaps:** API stub + component unwired → "Wire frontend to backend". Multiple missing → "Complete core implementation". Wiring only → "Connect existing components".
+1. **Cluster related gaps:** API stub + component unwired → "Wire frontend to backend". Multiple missing → "Complete
+   core implementation". Wiring only → "Connect existing components".
 
-2. **Generate plan per cluster:** Objective, 2-3 tasks (files/action/verify each), re-verify step. Keep focused: single concern per plan.
+2. **Generate plan per cluster:** Objective, 2-3 tasks (files/action/verify each), re-verify step. Keep focused: single
+   concern per plan.
 
 3. **Order by dependency:** Fix missing → fix stubs → fix wiring → verify.
-</step>
+   </step>
 
 <step name="create_report">
 ```bash
 REPORT_PATH="$PHASE_DIR/${PHASE_NUM}-VERIFICATION.md"
 ```
 
-Fill template sections: frontmatter (phase/timestamp/status/score), goal achievement, artifact table, wiring table, requirements coverage, anti-patterns, human verification, gaps summary, fix plans (if gaps_found), metadata.
+Fill template sections: frontmatter (phase/timestamp/status/score), goal achievement, artifact table, wiring table,
+requirements coverage, anti-patterns, human verification, gaps summary, fix plans (if gaps_found), metadata.
 
 See .pi/gsd/templates/verification-report.md for complete template.
 </step>
@@ -306,12 +324,14 @@ Return status (`passed` | `gaps_found` | `human_needed`), score (N/M must-haves)
 If gaps_found: list gaps + recommended fix plan names.
 If human_needed: list items requiring human testing.
 
-Orchestrator routes: `passed` → update_roadmap | `gaps_found` → create/execute fixes, re-verify | `human_needed` → present to user.
+Orchestrator routes: `passed` → update_roadmap | `gaps_found` → create/execute fixes, re-verify | `human_needed` →
+present to user.
 </step>
 
 </process>
 
 <success_criteria>
+
 - [ ] Must-haves established (from frontmatter or derived)
 - [ ] All truths verified with status and evidence
 - [ ] All artifacts checked at all three levels
@@ -323,4 +343,4 @@ Orchestrator routes: `passed` → update_roadmap | `gaps_found` → create/execu
 - [ ] Fix plans generated (if gaps_found)
 - [ ] VERIFICATION.md created with complete report
 - [ ] Results returned to orchestrator
-</success_criteria>
+  </success_criteria>

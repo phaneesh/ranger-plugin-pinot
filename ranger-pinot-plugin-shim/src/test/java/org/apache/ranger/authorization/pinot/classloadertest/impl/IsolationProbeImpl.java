@@ -20,6 +20,7 @@
 package org.apache.ranger.authorization.pinot.classloadertest.impl;
 
 import org.apache.ranger.authorization.pinot.classloadertest.IsolationProbe;
+import org.apache.ranger.authorization.pinot.classloadertest.RangerPluginClassLoaderIsolationTest;
 
 /**
  * The "ambient" implementation: compiled normally into this module's {@code target/test-classes},

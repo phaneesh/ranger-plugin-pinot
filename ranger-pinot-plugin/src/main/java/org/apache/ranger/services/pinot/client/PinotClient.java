@@ -30,11 +30,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,32 +43,32 @@ public class PinotClient {
     private static final Logger LOG = LoggerFactory.getLogger(PinotClient.class);
 
     static final String CONFIG_CONTROLLER_URL = "controller.url";
-    static final String CONFIG_USERNAME       = "username";
-    static final String CONFIG_PASSWORD       = "password";
+    static final String CONFIG_USERNAME = "username";
+    static final String CONFIG_PASSWORD = "password";
 
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
 
     // ponytail: hand-rolled scrape of the {"tables":[...]} shape instead of a JSON library
     // dependency; swap in Jackson (already transitively present via ranger-plugins-common) if
     // the controller response shape ever grows past a flat string array.
-    private static final Pattern TABLES_ARRAY_PATTERN  = Pattern.compile("\"tables\"\\s*:\\s*\\[(.*?)]", Pattern.DOTALL);
+    private static final Pattern TABLES_ARRAY_PATTERN = Pattern.compile("\"tables\"\\s*:\\s*\\[(.*?)]", Pattern.DOTALL);
     private static final Pattern QUOTED_STRING_PATTERN = Pattern.compile("\"([^\"]*)\"");
 
-    private final String              serviceName;
+    private final String serviceName;
     private final Map<String, String> configs;
-    private final HttpClient          httpClient;
+    private final HttpClient httpClient;
 
     public PinotClient(String serviceName, Map<String, String> configs) {
         this.serviceName = serviceName;
-        this.configs     = new HashMap<>(configs);
-        this.httpClient  = HttpClient.newBuilder()
+        this.configs = new HashMap<>(configs);
+        this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(REQUEST_TIMEOUT)
                 .build();
     }
 
     public Map<String, Object> connectionTest() {
-        Map<String, Object> responseData    = new HashMap<>();
-        String              controllerUrl   = getControllerUrl();
+        Map<String, Object> responseData = new HashMap<>();
+        String controllerUrl = getControllerUrl();
 
         LOG.debug("==> PinotClient.connectionTest({})", serviceName);
 
@@ -102,9 +98,9 @@ public class PinotClient {
     }
 
     public List<String> getResources(ResourceLookupContext context) {
-        List<String> ret           = new ArrayList<>();
-        String       userInput     = context == null ? null : context.getUserInput();
-        String       controllerUrl = getControllerUrl();
+        List<String> ret = new ArrayList<>();
+        String userInput = context == null ? null : context.getUserInput();
+        String controllerUrl = getControllerUrl();
 
         LOG.debug("==> PinotClient.getResources({}) userInput={}", serviceName, userInput);
 
@@ -169,8 +165,8 @@ public class PinotClient {
     }
 
     private static List<String> parseTableNames(String responseBody) {
-        List<String> ret     = new ArrayList<>();
-        Matcher      matcher = TABLES_ARRAY_PATTERN.matcher(responseBody);
+        List<String> ret = new ArrayList<>();
+        Matcher matcher = TABLES_ARRAY_PATTERN.matcher(responseBody);
 
         if (matcher.find()) {
             Matcher nameMatcher = QUOTED_STRING_PATTERN.matcher(matcher.group(1));

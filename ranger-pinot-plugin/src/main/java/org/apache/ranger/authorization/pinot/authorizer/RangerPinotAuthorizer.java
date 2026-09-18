@@ -27,11 +27,7 @@ import org.apache.ranger.plugin.service.RangerBasePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Shared Ranger policy-engine wrapper for the Pinot plugin, used by both the broker (query-time)
@@ -48,9 +44,9 @@ public class RangerPinotAuthorizer {
     private static final Logger LOG = LoggerFactory.getLogger(RangerPinotAuthorizer.class);
 
     private static final String RANGER_SERVICE_TYPE = "pinot";
-    private static final String RANGER_APP_ID        = "pinot";
-    private static final String RESOURCE_TABLE       = "table";
-    private static final String ACCESS_TYPE_QUERY   = "query";
+    private static final String RANGER_APP_ID = "pinot";
+    private static final String RESOURCE_TABLE = "table";
+    private static final String ACCESS_TYPE_QUERY = "query";
 
     private final RangerBasePlugin rangerPlugin;
 
@@ -97,8 +93,8 @@ public class RangerPinotAuthorizer {
      * @param user       requesting user
      * @param userGroups requesting user's groups
      * @return {@code true} only if the policy engine explicitly allowed the request. A null
-     *         result (no policy cache loaded yet, e.g. Ranger Admin unreachable) is treated as a
-     *         deny — {@link RangerBasePlugin} does not fail closed on its own, the caller must.
+     * result (no policy cache loaded yet, e.g. Ranger Admin unreachable) is treated as a
+     * deny — {@link RangerBasePlugin} does not fail closed on its own, the caller must.
      */
     public boolean isTableAccessAllowed(String tableName, String accessType, String user, Set<String> userGroups) {
         return isAccessAllowed(Collections.singletonMap(RESOURCE_TABLE, tableName), accessType, user, userGroups);
@@ -110,24 +106,24 @@ public class RangerPinotAuthorizer {
      * table CRUD/endpoint checks and {@code {"cluster": ...}} for cluster-wide actions.
      *
      * @param resourceElements service-def resource names to values, e.g. {@code {"table": "orders"}}
-     *                          or {@code {"cluster": "*"}}
+     *                         or {@code {"cluster": "*"}}
      * @param accessType       must match an {@code accessTypes[].name} entry from the pinot service-def
-     *                          ({@code query}/{@code create}/{@code read}/{@code update}/{@code delete}/
-     *                          the {@code Actions.*}-derived names/{@code all})
+     *                         ({@code query}/{@code create}/{@code read}/{@code update}/{@code delete}/
+     *                         the {@code Actions.*}-derived names/{@code all})
      * @param user             requesting user
      * @param userGroups       requesting user's groups
      * @return {@code true} only if the policy engine explicitly allowed the request. A null
-     *                         result (no policy cache loaded yet, e.g. Ranger Admin unreachable) is treated as a
-     *                         deny — {@link RangerBasePlugin} does not fail closed on its own, the caller must.
+     * result (no policy cache loaded yet, e.g. Ranger Admin unreachable) is treated as a
+     * deny — {@link RangerBasePlugin} does not fail closed on its own, the caller must.
      */
     public boolean isAccessAllowed(Map<String, Object> resourceElements, String accessType, String user, Set<String> userGroups) {
         RangerAccessResourceImpl resource = new RangerAccessResourceImpl(resourceElements);
-        RangerAccessRequestImpl  request  = new RangerAccessRequestImpl(resource, accessType, user, userGroups, null);
+        RangerAccessRequestImpl request = new RangerAccessRequestImpl(resource, accessType, user, userGroups, null);
 
         request.setAccessTime(new Date());
 
-        RangerAccessResult result    = rangerPlugin.isAccessAllowed(request);
-        boolean             isAllowed = result != null && result.getIsAllowed();
+        RangerAccessResult result = rangerPlugin.isAccessAllowed(request);
+        boolean isAllowed = result != null && result.getIsAllowed();
 
         LOG.debug("isAccessAllowed(resource={}, accessType={}, user={}) = {}", resourceElements, accessType, user, isAllowed);
 
@@ -161,12 +157,12 @@ public class RangerPinotAuthorizer {
      */
     public Optional<String> getRowFilter(String tableName, String user, Set<String> userGroups) {
         RangerAccessResourceImpl resource = new RangerAccessResourceImpl(Collections.singletonMap(RESOURCE_TABLE, tableName));
-        RangerAccessRequestImpl  request  = new RangerAccessRequestImpl(resource, ACCESS_TYPE_QUERY, user, userGroups, null);
+        RangerAccessRequestImpl request = new RangerAccessRequestImpl(resource, ACCESS_TYPE_QUERY, user, userGroups, null);
 
         request.setAccessTime(new Date());
 
         RangerAccessResult result = rangerPlugin.evalRowFilterPolicies(request, null);
-        Optional<String>     ret   = result != null && result.isRowFilterEnabled() ? Optional.of(result.getFilterExpr()) : Optional.empty();
+        Optional<String> ret = result != null && result.isRowFilterEnabled() ? Optional.of(result.getFilterExpr()) : Optional.empty();
 
         LOG.debug("getRowFilter(table={}, user={}) = {}", tableName, user, ret);
 

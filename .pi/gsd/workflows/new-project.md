@@ -50,10 +50,11 @@ Read all files referenced by the invoking prompt's execution_context before star
 
 <available_agent_types>
 Valid GSD subagent types (use exact names - do not fall back to 'general-purpose'):
+
 - gsd-project-researcher - Researches project-level technical decisions
 - gsd-research-synthesizer - Synthesizes findings from parallel research agents
 - gsd-roadmapper - Creates phased execution roadmaps
-</available_agent_types>
+  </available_agent_types>
 
 <auto_mode>
 
@@ -67,10 +68,10 @@ Check if `--auto` flag is present in $ARGUMENTS.
 - Skip deep questioning (extract context from provided document)
 - Config: YOLO mode is implicit (skip that question), but ask granularity/git/agents FIRST (Step 2a)
 - After config: run Steps 6-9 automatically with smart defaults:
-  - Research: Always yes
-  - Requirements: Include all table stakes + features from provided document
-  - Requirements approval: Auto-approve
-  - Roadmap approval: Auto-approve
+    - Research: Always yes
+    - Requirements: Include all table stakes + features from provided document
+    - Requirements approval: Auto-approve
+    - Roadmap approval: Auto-approve
 
 **Document requirement:**
 Auto mode requires an idea document - either:
@@ -100,7 +101,9 @@ The document should describe what you want to build.
 
 <!-- Context pre-injected above via WXP - variables available via <gsd-paste name="..."> -->
 
-Parse JSON for: `researcher_model`, `synthesizer_model`, `roadmapper_model`, `commit_docs`, `project_exists`, `has_codebase_map`, `planning_exists`, `has_existing_code`, `has_package_file`, `is_brownfield`, `needs_codebase_map`, `has_git`, `project_path`.
+Parse JSON for: `researcher_model`, `synthesizer_model`, `roadmapper_model`, `commit_docs`, `project_exists`,
+`has_codebase_map`, `planning_exists`, `has_existing_code`, `has_package_file`, `is_brownfield`, `needs_codebase_map`,
+`has_git`, `project_path`.
 
 **If `project_exists` is true:** Error - project already initialized. Use `/gsd-progress`.
 
@@ -121,8 +124,8 @@ Use AskUserQuestion:
 - header: "Codebase"
 - question: "I detected existing code in this directory. Would you like to map the codebase first?"
 - options:
-  - "Map codebase first" - Run /gsd-map-codebase to understand existing architecture (Recommended)
-  - "Skip mapping" - Proceed with project initialization
+    - "Map codebase first" - Run /gsd-map-codebase to understand existing architecture (Recommended)
+    - "Skip mapping" - Proceed with project initialization
 
 **If "Map codebase first":**
 
@@ -246,7 +249,8 @@ Proceed to Step 4 (skip Steps 3 and 5).
 
 ## 3. Deep Questioning
 
-**If auto mode:** Skip (already handled in Step 2a). Extract project context from provided document instead and proceed to Step 4.
+**If auto mode:** Skip (already handled in Step 2a). Extract project context from provided document instead and proceed
+to Step 4.
 
 **Display stage banner:**
 
@@ -264,17 +268,20 @@ Ask inline (freeform, NOT AskUserQuestion):
 
 Wait for their response. This gives you the context needed to ask intelligent follow-up questions.
 
-**Research-before-questions mode:** Check if `workflow.research_before_questions` is enabled in `.planning/config.json` (or the config from init context). When enabled, before asking follow-up questions about a topic area:
+**Research-before-questions mode:** Check if `workflow.research_before_questions` is enabled in `.planning/config.json`
+(or the config from init context). When enabled, before asking follow-up questions about a topic area:
 
 1. Do a brief web search for best practices related to what the user described
-2. Mention key findings naturally as you ask questions (e.g., "Most projects like this use X - is that what you're thinking, or something different?")
+2. Mention key findings naturally as you ask questions (e.g., "Most projects like this use X - is that what you're
+   thinking, or something different?")
 3. This makes questions more informed without changing the conversational flow
 
 When disabled (default), ask questions directly as before.
 
 **Follow the thread:**
 
-Based on what they said, ask follow-up questions that dig into their response. Use AskUserQuestion with options that probe what they mentioned - interpretations, clarifications, concrete examples.
+Based on what they said, ask follow-up questions that dig into their response. Use AskUserQuestion with options that
+probe what they mentioned - interpretations, clarifications, concrete examples.
 
 Keep following threads. Each answer opens new threads to explore. Ask about:
 
@@ -294,7 +301,8 @@ Consult `questioning.md` for techniques:
 
 **Check context (background, not out loud):**
 
-As you go, mentally check the context checklist from `questioning.md`. If gaps remain, weave questions naturally. Don't suddenly switch to checklist mode.
+As you go, mentally check the context checklist from `questioning.md`. If gaps remain, weave questions naturally. Don't
+suddenly switch to checklist mode.
 
 **Decision gate:**
 
@@ -303,8 +311,8 @@ When you could write a clear PROJECT.md, use AskUserQuestion:
 - header: "Ready?"
 - question: "I think I understand what you're after. Ready to create PROJECT.md?"
 - options:
-  - "Create PROJECT.md" - Let's move forward
-  - "Keep exploring" - I want to share more / ask me more
+    - "Create PROJECT.md" - Let's move forward
+    - "Keep exploring" - I want to share more / ask me more
 
 If "Keep exploring" - ask what they want to add, or identify gaps and probe naturally.
 
@@ -437,7 +445,8 @@ AskUserQuestion([
 ])
 ```
 
-If "Yes": read `~/.gsd/defaults.json`, use those values for config.json, and skip directly to **Commit config.json** below.
+If "Yes": read `~/.gsd/defaults.json`, use those values for config.json, and skip directly to **Commit config.json**
+below.
 
 If "No" or `~/.gsd/defaults.json` doesn't exist: proceed with the questions below.
 
@@ -490,7 +499,7 @@ questions: [
 These spawn additional agents during planning/execution. They add tokens and time but improve quality.
 
 | Agent            | When it runs               | What it does                                          |
-| ---------------- | -------------------------- | ----------------------------------------------------- |
+|------------------|----------------------------|-------------------------------------------------------|
 | **Researcher**   | Before planning each phase | Investigates domain, finds patterns, surfaces gotchas |
 | **Plan Checker** | After plan is created      | Verifies plan actually achieves the phase goal        |
 | **Verifier**     | After phase execution      | Confirms must-haves were delivered                    |
@@ -547,7 +556,8 @@ mkdir -p .planning
 pi-gsd-tools config-new-project --choices '{"mode":"[yolo|interactive]","granularity":"[selected]","parallelization":true|false,"commit_docs":true|false,"model_profile":"quality|balanced|budget|inherit","workflow":{"research":true|false,"plan_check":true|false,"verifier":true|false,"nyquist_validation":[false if granularity=coarse, true otherwise]}}'
 ```
 
-**Note:** Run `/gsd-settings` anytime to update model profile, workflow agents, branching strategy, and other preferences.
+**Note:** Run `/gsd-settings` anytime to update model profile, workflow agents, branching strategy, and other
+preferences.
 
 **If commit_docs = No:**
 
@@ -584,7 +594,7 @@ Use AskUserQuestion:
 - question: "I detected separate git repos in this workspace. Which directories contain code that GSD should commit to?"
 - multiSelect: true
 - options: one option per detected directory
-  - "[directory name]" - Separate git repo
+    - "[directory name]" - Separate git repo
 
 **If user selects one or more directories:**
 
@@ -609,8 +619,8 @@ Use AskUserQuestion:
 - header: "Research"
 - question: "Research the domain ecosystem before defining requirements?"
 - options:
-  - "Research first (Recommended)" - Discover standard stacks, expected features, architecture patterns
-  - "Skip research" - I know this domain well, go straight to requirements
+    - "Research first (Recommended)" - Discover standard stacks, expected features, architecture patterns
+    - "Skip research" - I know this domain well, go straight to requirements
 
 **If "Research first":**
 
@@ -927,10 +937,10 @@ For each category, use AskUserQuestion:
 - question: "Which [category] features are in v1?"
 - multiSelect: true
 - options:
-  - "[Feature 1]" - [brief description]
-  - "[Feature 2]" - [brief description]
-  - "[Feature 3]" - [brief description]
-  - "None for v1" - Defer entire category
+    - "[Feature 1]" - [brief description]
+    - "[Feature 2]" - [brief description]
+    - "[Feature 3]" - [brief description]
+    - "None for v1" - Defer entire category
 
 Track responses:
 
@@ -945,8 +955,8 @@ Use AskUserQuestion:
 - header: "Additions"
 - question: "Any requirements research missed? (Features specific to your vision)"
 - options:
-  - "No, research covered it" - Proceed
-  - "Yes, let me add some" - Capture additions
+    - "No, research covered it" - Proceed
+    - "Yes, let me add some" - Capture additions
 
 **Validate core value:**
 
@@ -1108,9 +1118,9 @@ Use AskUserQuestion:
 - header: "Roadmap"
 - question: "Does this roadmap structure work for you?"
 - options:
-  - "Approve" - Commit and continue
-  - "Adjust phases" - Tell me what to change
-  - "Review full file" - Show raw ROADMAP.md
+    - "Approve" - Commit and continue
+    - "Adjust phases" - Tell me what to change
+    - "Review full file" - Show raw ROADMAP.md
 
 **If "Approve":** Continue to commit.
 
@@ -1187,7 +1197,7 @@ Present completion summary:
 ╚══════════════════════════════════════════╝
 ```
 
-Exit skill and invoke SlashCommand("/gsd-discuss-phase 1 --auto")
+Exit skill and invoke SlashCommand ("/gsd-discuss-phase 1 --auto")
 
 **If interactive mode:**
 
@@ -1248,11 +1258,11 @@ PHASE1_HAS_UI=$(echo "$PHASE1_SECTION" | grep -qi "UI hint.*yes" && echo "true" 
 - `.planning/PROJECT.md`
 - `.planning/config.json`
 - `.planning/research/` (if research selected)
-  - `STACK.md`
-  - `FEATURES.md`
-  - `ARCHITECTURE.md`
-  - `PITFALLS.md`
-  - `SUMMARY.md`
+    - `STACK.md`
+    - `FEATURES.md`
+    - `ARCHITECTURE.md`
+    - `PITFALLS.md`
+    - `SUMMARY.md`
 - `.planning/REQUIREMENTS.md`
 - `.planning/ROADMAP.md`
 - `.planning/STATE.md`

@@ -18,7 +18,8 @@ For each gap in `<gaps>`: generate minimal behavioral test, run it, debug if fai
 
 **Mandatory Initial Read:** If prompt contains `<files_to_read>`, load ALL listed files before any action.
 
-**Implementation files are READ-ONLY.** Only create/modify: test files, fixtures, VALIDATION.md. Implementation bugs → ESCALATE. Never fix implementation.
+**Implementation files are READ-ONLY.** Only create/modify: test files, fixtures, VALIDATION.md. Implementation bugs →
+ESCALATE. Never fix implementation.
 </role>
 
 <execution_flow>
@@ -40,7 +41,7 @@ For each gap in `<gaps>`:
 3. Classify test type:
 
 | Behavior                | Test Type   |
-| ----------------------- | ----------- |
+|-------------------------|-------------|
 | Pure function I/O       | Unit        |
 | API endpoint            | Integration |
 | CLI command             | Smoke       |
@@ -49,22 +50,24 @@ For each gap in `<gaps>`:
 4. Map to test file path per project conventions
 
 Action by gap type:
+
 - `no_test_file` → Create test file
 - `test_fails` → Diagnose and fix the test (not impl)
 - `no_automated_command` → Determine command, update map
-</step>
+  </step>
 
 <step name="generate_tests">
 Convention discovery: existing tests → framework defaults → fallback.
 
 | Framework | File Pattern     | Runner                   | Assert Style                       |
-| --------- | ---------------- | ------------------------ | ---------------------------------- |
+|-----------|------------------|--------------------------|------------------------------------|
 | pytest    | `test_{name}.py` | `pytest {file} -v`       | `assert result == expected`        |
 | jest      | `{name}.test.ts` | `npx jest {file}`        | `expect(result).toBe(expected)`    |
 | vitest    | `{name}.test.ts` | `npx vitest run {file}`  | `expect(result).toBe(expected)`    |
 | go test   | `{name}_test.go` | `go test -v -run {Name}` | `if got != want { t.Errorf(...) }` |
 
-Per gap: Write test file. One focused test per requirement behavior. Arrange/Act/Assert. Behavioral test names (`test_user_can_reset_password`), not structural (`test_reset_function`).
+Per gap: Write test file. One focused test per requirement behavior. Arrange/Act/Assert. Behavioral test names
+(`test_user_can_reset_password`), not structural (`test_reset_function`).
 </step>
 
 <step name="run_and_verify">
@@ -77,7 +80,7 @@ Run every test. Never mark untested tests as passing.
 Max 3 iterations per failing test.
 
 | Failure Type                                            | Action                        |
-| ------------------------------------------------------- | ----------------------------- |
+|---------------------------------------------------------|-------------------------------|
 | Import/syntax/fixture error                             | Fix test, re-run              |
 | Assertion: actual matches impl but violates requirement | IMPLEMENTATION BUG → ESCALATE |
 | Assertion: test expectation wrong                       | Fix assertion, re-run         |
@@ -163,6 +166,7 @@ Return one of three formats below.
 </structured_returns>
 
 <success_criteria>
+
 - [ ] All `<files_to_read>` loaded before any action
 - [ ] Each gap analyzed with correct test type
 - [ ] Tests follow project conventions
@@ -173,4 +177,4 @@ Return one of three formats below.
 - [ ] Implementation bugs escalated, not fixed
 - [ ] Structured return provided (GAPS FILLED / PARTIAL / ESCALATE)
 - [ ] Test files listed for commit
-</success_criteria>
+  </success_criteria>

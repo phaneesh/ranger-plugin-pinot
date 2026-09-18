@@ -84,8 +84,9 @@ Retroactive 6-pillar visual audit of implemented frontend code. Standalone comma
 
 <available_agent_types>
 Valid GSD subagent types (use exact names - do not fall back to 'general-purpose'):
+
 - gsd-ui-auditor - Audits UI against design requirements
-</available_agent_types>
+  </available_agent_types>
 
 <process>
 
@@ -100,6 +101,7 @@ UI_AUDITOR_MODEL=$(pi-gsd-tools resolve-model gsd-ui-auditor --raw)
 ```
 
 Display banner:
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  GSD ► UI AUDIT - PHASE {N}: {name}
@@ -117,11 +119,12 @@ UI_REVIEW_FILE=$(ls "${PHASE_DIR}"/*-UI-REVIEW.md 2>/dev/null | head -1)
 **If `SUMMARY_FILES` empty:** Exit - "Phase {N} not executed. Run /gsd-execute-phase {N} first."
 
 **If `UI_REVIEW_FILE` non-empty:** Use AskUserQuestion:
+
 - header: "Existing UI Review"
 - question: "UI-REVIEW.md already exists for Phase {N}."
 - options:
-  - "Re-audit - run fresh audit"
-  - "View - display current review and exit"
+    - "Re-audit - run fresh audit"
+    - "View - display current review and exit"
 
 If "View": display file, exit.
 If "Re-audit": continue.
@@ -129,6 +132,7 @@ If "Re-audit": continue.
 ## 2. Gather Context Paths
 
 Build file list for auditor:
+
 - All SUMMARY.md files in phase dir
 - All PLAN.md files in phase dir
 - UI-SPEC.md (if exists - audit baseline)
@@ -227,6 +231,7 @@ pi-gsd-tools commit "docs(${padded_phase}): UI audit review" --files "${PHASE_DI
 </process>
 
 <success_criteria>
+
 - [ ] Phase validated
 - [ ] SUMMARY.md files found (execution completed)
 - [ ] Existing review handled (re-audit/view)
@@ -234,4 +239,4 @@ pi-gsd-tools commit "docs(${padded_phase}): UI audit review" --files "${PHASE_DI
 - [ ] UI-REVIEW.md created in phase directory
 - [ ] Score summary displayed to user
 - [ ] Next steps presented
-</success_criteria>
+  </success_criteria>

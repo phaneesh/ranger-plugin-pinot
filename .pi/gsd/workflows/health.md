@@ -43,6 +43,7 @@ if arguments contain "--repair"; then
   REPAIR_FLAG="--repair"
 fi
 ```
+
 </step>
 
 <step name="run_health_check">
@@ -53,13 +54,14 @@ pi-gsd-tools validate health $REPAIR_FLAG
 ```
 
 Parse JSON output:
+
 - `status`: "healthy" | "degraded" | "broken"
 - `errors[]`: Critical issues (code, message, fix, repairable)
 - `warnings[]`: Non-critical issues
 - `info[]`: Informational notes
 - `repairable_count`: Number of auto-fixable issues
 - `repairs_performed[]`: Actions taken if --repair was used
-</step>
+  </step>
 
 <step name="format_output">
 **Format and display results:**
@@ -74,6 +76,7 @@ Errors: N | Warnings: N | Info: N
 ```
 
 **If repairs were performed:**
+
 ```
 ## Repairs Performed
 
@@ -82,6 +85,7 @@ Errors: N | Warnings: N | Info: N
 ```
 
 **If errors exist:**
+
 ```
 ## Errors
 
@@ -93,6 +97,7 @@ Errors: N | Warnings: N | Info: N
 ```
 
 **If warnings exist:**
+
 ```
 ## Warnings
 
@@ -104,6 +109,7 @@ Errors: N | Warnings: N | Info: N
 ```
 
 **If info exists:**
+
 ```
 ## Info
 
@@ -112,10 +118,12 @@ Errors: N | Warnings: N | Info: N
 ```
 
 **Footer (if repairable issues exist and --repair was NOT used):**
+
 ```
 ---
 N issues can be auto-repaired. Run: /gsd-health --repair
 ```
+
 </step>
 
 <step name="offer_repair">
@@ -147,7 +155,7 @@ Report final status.
 <error_codes>
 
 | Code | Severity | Description                                                                               | Repairable |
-| ---- | -------- | ----------------------------------------------------------------------------------------- | ---------- |
+|------|----------|-------------------------------------------------------------------------------------------|------------|
 | E001 | error    | .planning/ directory not found                                                            | No         |
 | E002 | error    | PROJECT.md not found                                                                      | No         |
 | E003 | error    | ROADMAP.md not found                                                                      | No         |
@@ -169,13 +177,14 @@ Report final status.
 <repair_actions>
 
 | Action          | Effect                                                    | Risk                            |
-| --------------- | --------------------------------------------------------- | ------------------------------- |
+|-----------------|-----------------------------------------------------------|---------------------------------|
 | createConfig    | Create config.json with defaults                          | None                            |
 | resetConfig     | Delete + recreate config.json                             | Loses custom settings           |
 | regenerateState | Create STATE.md from ROADMAP structure when it is missing | Loses session history           |
 | addNyquistKey   | Add workflow.nyquist_validation: true to config.json      | None - matches existing default |
 
 **Not repairable (too risky):**
+
 - PROJECT.md, ROADMAP.md content
 - Phase directory renaming
 - Orphaned plan cleanup

@@ -10,7 +10,8 @@ Always use `gsd-tools.cjs commit` for `.planning/` files - it handles `commit_do
 node ".pi/gsd/bin/gsd-tools.cjs" commit "docs({scope}): {description}" --files .planning/STATE.md .planning/ROADMAP.md
 ```
 
-The CLI will return `skipped` (with reason) if `commit_docs` is `false` or `.planning/` is gitignored. No manual conditional checks needed.
+The CLI will return `skipped` (with reason) if `commit_docs` is `false` or `.planning/` is gitignored. No manual
+conditional checks needed.
 
 ## Amend previous commit
 
@@ -23,7 +24,7 @@ node ".pi/gsd/bin/gsd-tools.cjs" commit "" --files .planning/codebase/*.md --ame
 ## Commit Message Patterns
 
 | Command       | Scope     | Example                                         |
-| ------------- | --------- | ----------------------------------------------- |
+|---------------|-----------|-------------------------------------------------|
 | plan-phase    | phase     | `docs(phase-03): create authentication plans`   |
 | execute-phase | phase     | `docs(phase-03): complete authentication phase` |
 | new-milestone | milestone | `docs: start milestone v1.1`                    |

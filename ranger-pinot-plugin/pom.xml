@@ -30,7 +30,8 @@
     <packaging>jar</packaging>
 
     <name>Ranger Pinot Plugin</name>
-    <description>Ranger service definition, admin connectivity, and authorization implementation for Apache Pinot</description>
+    <description>Ranger service definition, admin connectivity, and authorization implementation for Apache Pinot
+    </description>
 
     <dependencies>
         <dependency>

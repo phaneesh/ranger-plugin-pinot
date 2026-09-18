@@ -32,16 +32,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Exercises {@link RangerPinotAccessControl} itself (not just the {@link RangerPinotAuthorizer}
@@ -63,12 +57,12 @@ class RangerPinotAccessControlTest {
     private static final AtomicLong POLICY_ID_SEQ = new AtomicLong(1);
 
     private static RangerPolicy tablePolicy(String table, String user) {
-        RangerPolicy.RangerPolicyResource   resource = new RangerPolicy.RangerPolicyResource(table, false, false);
-        RangerPolicy.RangerPolicyItemAccess access   = new RangerPolicy.RangerPolicyItemAccess(ACCESS_QUERY, true);
-        RangerPolicy.RangerPolicyItem       item     = new RangerPolicy.RangerPolicyItem(
+        RangerPolicy.RangerPolicyResource resource = new RangerPolicy.RangerPolicyResource(table, false, false);
+        RangerPolicy.RangerPolicyItemAccess access = new RangerPolicy.RangerPolicyItemAccess(ACCESS_QUERY, true);
+        RangerPolicy.RangerPolicyItem item = new RangerPolicy.RangerPolicyItem(
                 Collections.singletonList(access), Collections.singletonList(user), null, null, null, false);
 
-        long         id     = POLICY_ID_SEQ.getAndIncrement();
+        long id = POLICY_ID_SEQ.getAndIncrement();
         RangerPolicy policy = new RangerPolicy();
 
         // Every RangerPolicy needs a unique id/guid (as a real Ranger Admin would assign) — two
@@ -85,10 +79,10 @@ class RangerPinotAccessControlTest {
 
     private static RangerPolicy rowFilterPolicy(String table, String user, String filterExpr) {
         RangerPolicy.RangerPolicyItemRowFilterInfo rowFilterInfo = new RangerPolicy.RangerPolicyItemRowFilterInfo(filterExpr);
-        RangerPolicy.RangerPolicyItemAccess    access   = new RangerPolicy.RangerPolicyItemAccess(ACCESS_QUERY, true);
-        RangerPolicy.RangerRowFilterPolicyItem item     = new RangerPolicy.RangerRowFilterPolicyItem(
+        RangerPolicy.RangerPolicyItemAccess access = new RangerPolicy.RangerPolicyItemAccess(ACCESS_QUERY, true);
+        RangerPolicy.RangerRowFilterPolicyItem item = new RangerPolicy.RangerRowFilterPolicyItem(
                 rowFilterInfo, Collections.singletonList(access), Collections.singletonList(user), null, null, null, false);
-        long         id     = POLICY_ID_SEQ.getAndIncrement();
+        long id = POLICY_ID_SEQ.getAndIncrement();
         RangerPolicy policy = new RangerPolicy();
 
         policy.setId(id);
@@ -103,8 +97,8 @@ class RangerPinotAccessControlTest {
     }
 
     private static RangerBasePlugin pluginWithPolicies(RangerPolicy... policies) throws IOException {
-        RangerBasePlugin plugin          = new RangerBasePlugin("pinot", "pinot");
-        ServicePolicies  servicePolicies = new ServicePolicies();
+        RangerBasePlugin plugin = new RangerBasePlugin("pinot", "pinot");
+        ServicePolicies servicePolicies = new ServicePolicies();
 
         servicePolicies.setServiceName(SERVICE_NAME);
         servicePolicies.setServiceDef(freshServiceDef());
@@ -115,7 +109,9 @@ class RangerPinotAccessControlTest {
         return plugin;
     }
 
-    /** Requester identity whose {@code getClientIp()} stands in as the request's user. */
+    /**
+     * Requester identity whose {@code getClientIp()} stands in as the request's user.
+     */
     private static RequesterIdentity identityFor(String user) {
         return new RequesterIdentity() {
             @Override
@@ -132,7 +128,7 @@ class RangerPinotAccessControlTest {
                 tablePolicy("shipments", "alice"));
 
         RangerPinotAccessControl accessControl = new RangerPinotAccessControl(new RangerPinotAuthorizer(plugin));
-        Set<String>               tables        = Set.of("orders", "shipments", "secret_table");
+        Set<String> tables = Set.of("orders", "shipments", "secret_table");
 
         TableAuthorizationResult result = accessControl.authorize(identityFor("alice"), tables);
 
@@ -142,8 +138,8 @@ class RangerPinotAccessControlTest {
 
     @Test
     void allAuthorizedTablesReportSuccess() throws IOException {
-        RangerBasePlugin          plugin        = pluginWithPolicies(tablePolicy("orders", "alice"));
-        RangerPinotAccessControl  accessControl = new RangerPinotAccessControl(new RangerPinotAuthorizer(plugin));
+        RangerBasePlugin plugin = pluginWithPolicies(tablePolicy("orders", "alice"));
+        RangerPinotAccessControl accessControl = new RangerPinotAccessControl(new RangerPinotAuthorizer(plugin));
 
         TableAuthorizationResult result = accessControl.authorize(identityFor("alice"), Set.of("orders"));
 

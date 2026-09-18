@@ -150,13 +150,15 @@ RESULT=$(pi-gsd-tools phase remove "${target}" --force)
 ```
 
 The CLI handles:
+
 - Deleting the phase directory
 - Renumbering all subsequent directories (in reverse order to avoid conflicts)
 - Renaming all files inside renumbered directories (PLAN.md, SUMMARY.md, etc.)
 - Updating ROADMAP.md (removing section, renumbering all phase references, updating dependencies)
 - Updating STATE.md (decrementing phase count)
 
-Extract from result: `removed`, `directory_deleted`, `renamed_directories`, `renamed_files`, `roadmap_updated`, `state_updated`.
+Extract from result: `removed`, `directory_deleted`, `renamed_directories`, `renamed_files`, `roadmap_updated`,
+`state_updated`.
 </step>
 
 <step name="commit">
@@ -192,6 +194,7 @@ Would you like to:
 
 ---
 ```
+
 </step>
 
 </process>
@@ -203,7 +206,7 @@ Would you like to:
 - Don't manually renumber - use `gsd-tools phase remove` which handles all renumbering
 - Don't add "removed phase" notes to STATE.md - git commit is the record
 - Don't modify completed phase directories
-</anti_patterns>
+  </anti_patterns>
 
 <success_criteria>
 Phase removal is complete when:
@@ -212,4 +215,4 @@ Phase removal is complete when:
 - [ ] `gsd-tools phase remove` executed successfully
 - [ ] Changes committed with descriptive message
 - [ ] User informed of changes
-</success_criteria>
+  </success_criteria>

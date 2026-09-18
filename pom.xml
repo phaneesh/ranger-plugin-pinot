@@ -178,8 +178,11 @@
                         <configuration>
                             <consoleOutput>true</consoleOutput>
                             <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                            <configLocation>${maven.multiModuleProjectDirectory}/dev-support/checkstyle.xml</configLocation>
-                            <suppressionsLocation>${maven.multiModuleProjectDirectory}/dev-support/checkstyle-suppressions.xml</suppressionsLocation>
+                            <configLocation>${maven.multiModuleProjectDirectory}/dev-support/checkstyle.xml
+                            </configLocation>
+                            <suppressionsLocation>
+                                ${maven.multiModuleProjectDirectory}/dev-support/checkstyle-suppressions.xml
+                            </suppressionsLocation>
                             <skip>${checkstyle.skip}</skip>
                             <failOnViolation>${checkstyle.failOnViolation}</failOnViolation>
                         </configuration>
@@ -241,7 +244,9 @@
                         </goals>
                         <configuration>
                             <failOnError>${spotbugs.failOnViolation}</failOnError>
-                            <includeFilterFile>${maven.multiModuleProjectDirectory}/dev-support/spotbugsIncludeFile.xml</includeFilterFile>
+                            <includeFilterFile>
+                                ${maven.multiModuleProjectDirectory}/dev-support/spotbugsIncludeFile.xml
+                            </includeFilterFile>
                         </configuration>
                     </execution>
                 </executions>

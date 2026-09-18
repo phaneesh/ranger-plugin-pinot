@@ -67,13 +67,15 @@ Extract workspace name from $ARGUMENTS.
 
 <!-- Context pre-injected above via WXP - variables available via <gsd-paste name="..."> -->
 
-Parse JSON for: `workspace_name`, `workspace_path`, `has_manifest`, `strategy`, `repos`, `repo_count`, `dirty_repos`, `has_dirty_repos`.
+Parse JSON for: `workspace_name`, `workspace_path`, `has_manifest`, `strategy`, `repos`, `repo_count`, `dirty_repos`,
+`has_dirty_repos`.
 
 **If no workspace name provided:**
 
 First run `/gsd-list-workspaces` to show available workspaces, then ask:
 
 Use AskUserQuestion:
+
 - header: "Remove Workspace"
 - question: "Which workspace do you want to remove?"
 - requireAnswer: true
@@ -100,8 +102,10 @@ Exit. Do NOT proceed.
 ## 3. Confirm Removal
 
 Use AskUserQuestion:
+
 - header: "Confirm Removal"
-- question: "Remove workspace '$WORKSPACE_NAME' at $WORKSPACE_PATH? This will delete all files in the workspace directory. Type the workspace name to confirm:"
+- question: "Remove workspace '$WORKSPACE_NAME' at $WORKSPACE_PATH? This will delete all files in the workspace
+  directory. Type the workspace name to confirm:"
 - requireAnswer: true
 
 **If answer does not match `$WORKSPACE_NAME`:** Exit with "Removal cancelled."
@@ -118,6 +122,7 @@ git worktree remove "$WORKSPACE_PATH/$REPO_NAME" 2>&1 || true
 ```
 
 If `git worktree remove` fails, warn but continue:
+
 ```
 Warning: Could not remove worktree for $REPO_NAME - source repo may have been moved or deleted.
 ```

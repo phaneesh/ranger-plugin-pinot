@@ -81,6 +81,7 @@ blocked: [N]
 <section_rules>
 
 **Frontmatter:**
+
 - `status`: OVERWRITE - "testing", "partial", or "complete"
 - `phase`: IMMUTABLE - set on creation
 - `source`: IMMUTABLE - SUMMARY files being tested
@@ -88,11 +89,13 @@ blocked: [N]
 - `updated`: OVERWRITE - update on every change
 
 **Current Test:**
+
 - OVERWRITE entirely on each test transition
 - Shows which test is active and what's awaited
 - On completion: "[testing complete]"
 
 **Tests:**
+
 - Each test: OVERWRITE result field when user responds
 - `result` values: [pending], pass, issue, skipped, blocked
 - If issue: add `reported` (verbatim) and `severity` (inferred)
@@ -100,10 +103,12 @@ blocked: [N]
 - If blocked: add `blocked_by` (tag) and `reason` (if provided)
 
 **Summary:**
+
 - OVERWRITE counts after each response
 - Tracks: total, passed, issues, pending, skipped
 
 **Gaps:**
+
 - APPEND only when issue found (YAML format)
 - After diagnosis: fill `root_cause`, `artifacts`, `missing`, `debug_session`
 - This section feeds directly into /gsd-plan-phase --gaps
@@ -118,11 +123,12 @@ blocked: [N]
 2. diagnose-issues workflow spawns parallel debug agents
 3. Each agent investigates one gap, returns root cause
 4. UAT.md Gaps section updated with diagnosis:
-   - Each gap gets `root_cause`, `artifacts`, `missing`, `debug_session` filled
+    - Each gap gets `root_cause`, `artifacts`, `missing`, `debug_session` filled
 5. status → "diagnosed"
 6. Ready for /gsd-plan-phase --gaps with root causes
 
 **After diagnosis:**
+
 ```yaml
 ## Gaps
 
@@ -145,12 +151,14 @@ blocked: [N]
 <lifecycle>
 
 **Creation:** When /gsd-verify-work starts new session
+
 - Extract tests from SUMMARY.md files
 - Set status to "testing"
 - Current Test points to test 1
 - All tests have result: [pending]
 
 **During testing:**
+
 - Present test from Current Test section
 - User responds with pass confirmation or issue description
 - Update test result (pass/issue/skipped)
@@ -159,22 +167,26 @@ blocked: [N]
 - Move Current Test to next pending test
 
 **On completion:**
+
 - status → "complete"
 - Current Test → "[testing complete]"
 - Commit file
 - Present summary with next steps
 
 **Partial completion:**
+
 - status → "partial" (if pending, blocked, or unresolved skipped tests remain)
 - Current Test → "[testing paused - {N} items outstanding]"
 - Commit file
 - Present summary with outstanding items highlighted
 
 **Resuming partial session:**
+
 - `/gsd-verify-work {phase}` picks up from first pending/blocked test
 - When all items resolved, status advances to "complete"
 
 **Resume after /new:**
+
 1. Read frontmatter → know phase and status
 2. Read Current Test → know where we are
 3. Find first [pending] result → continue from there
@@ -187,7 +199,7 @@ blocked: [N]
 Severity is INFERRED from user's natural language, never asked.
 
 | User describes                                         | Infer    |
-| ------------------------------------------------------ | -------- |
+|--------------------------------------------------------|----------|
 | Crash, error, exception, fails completely, unusable    | blocker  |
 | Doesn't work, nothing happens, wrong behavior, missing | major    |
 | Works but..., slow, weird, minor, small issue          | minor    |
@@ -198,6 +210,7 @@ Default: **major** (safe default, user can clarify if wrong)
 </severity_guide>
 
 <good_example>
+
 ```markdown
 ---
 status: diagnosed
@@ -262,4 +275,5 @@ skipped: 0
     - "Add commentCount to useEffect dependency array"
   debug_session: ".planning/debug/comment-not-refreshing.md"
 ```
+
 </good_example>

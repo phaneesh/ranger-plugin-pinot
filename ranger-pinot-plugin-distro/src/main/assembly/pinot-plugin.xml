@@ -163,7 +163,8 @@
              resolved from the local repo, not a reactor module) -->
         <fileSet>
             <outputDirectory>lib</outputDirectory>
-            <directory>${settings.localRepository}/org/apache/ranger/ranger-plugin-classloader/${ranger.version}</directory>
+            <directory>${settings.localRepository}/org/apache/ranger/ranger-plugin-classloader/${ranger.version}
+            </directory>
             <includes>
                 <include>ranger-plugin-classloader-${ranger.version}.jar</include>
             </includes>

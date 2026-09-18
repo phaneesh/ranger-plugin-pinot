@@ -48,11 +48,11 @@ import org.slf4j.LoggerFactory;
 public class RangerPinotAccessControlFactory implements AccessControlFactory {
     private static final Logger LOG = LoggerFactory.getLogger(RangerPinotAccessControlFactory.class);
 
-    private static final String RANGER_PLUGIN_TYPE                           = "pinot";
+    private static final String RANGER_PLUGIN_TYPE = "pinot";
     private static final String RANGER_ACCESS_CONTROL_FACTORY_IMPL_CLASSNAME = "org.apache.ranger.authorization.pinot.authorizer.controller.RangerPinotAccessControlFactory";
 
     private final RangerPluginClassLoader pluginClassLoader;
-    private final AccessControlFactory    implFactory;
+    private final AccessControlFactory implFactory;
 
     public RangerPinotAccessControlFactory() {
         LOG.debug("==> RangerPinotAccessControlFactory.RangerPinotAccessControlFactory()");
