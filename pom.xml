@@ -46,7 +46,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
+        <!-- release 11, not 17: the SAME impl jar must load in the Pinot images (JDK 21)
+        AND inside the Ranger Admin webapp (JDK 11 in the IT-derived image; the impl's
+        PinotClient uses java.net.http.HttpClient so 8 is impossible). Classfile 55 runs
+        on both. -->
+        <maven.compiler.release>11</maven.compiler.release>
 
         <ranger.version>2.8.0</ranger.version>
         <pinot.version>1.4.0</pinot.version>
@@ -83,8 +87,18 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.ranger</groupId>
+                <artifactId>ranger-audit-dest-log4j</artifactId>
+                <version>${ranger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ranger</groupId>
                 <artifactId>ranger-plugins-cred</artifactId>
                 <version>${ranger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>32.1.3-jre</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ranger</groupId>

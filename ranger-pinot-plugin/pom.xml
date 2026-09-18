@@ -47,6 +47,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ranger</groupId>
+            <artifactId>ranger-audit-dest-log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ranger</groupId>
             <artifactId>ranger-plugins-cred</artifactId>
         </dependency>
         <dependency>
@@ -61,6 +65,12 @@
         <dependency>
             <groupId>org.apache.pinot</groupId>
             <artifactId>pinot-broker</artifactId>
+        </dependency>
+        <!-- HttpRequesterIdentity.getHttpHeaders() references real guava in its
+             signature; the pinot docker image shades guava, so the impl carries its own -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.pinot</groupId>
