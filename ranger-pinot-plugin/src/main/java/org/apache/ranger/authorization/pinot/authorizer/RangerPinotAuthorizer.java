@@ -27,7 +27,11 @@ import org.apache.ranger.plugin.service.RangerBasePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Shared Ranger policy-engine wrapper for the Pinot plugin, used by both the broker (query-time)

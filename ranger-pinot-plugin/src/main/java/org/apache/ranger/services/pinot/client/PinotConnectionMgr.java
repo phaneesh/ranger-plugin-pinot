@@ -22,8 +22,10 @@ package org.apache.ranger.services.pinot.client;
 import java.util.Map;
 
 /**
- * Creates and caches {@link PinotClient} instances, mirroring the
- * ServiceKafkaConnectionMgr/ServiceKafkaClient split used by Ranger's Kafka plugin.
+ * Creates {@link PinotClient} instances for Ranger Admin's "Test Connection" and
+ * table-lookup calls, mirroring the ServiceKafkaConnectionMgr/ServiceKafkaClient split used by
+ * Ranger's Kafka plugin. Instances are not cached: they are cheap and used per admin-side
+ * operation, never on a query hot path.
  */
 public class PinotConnectionMgr {
     private PinotConnectionMgr() {

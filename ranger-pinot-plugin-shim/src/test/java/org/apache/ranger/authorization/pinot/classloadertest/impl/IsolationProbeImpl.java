@@ -20,11 +20,10 @@
 package org.apache.ranger.authorization.pinot.classloadertest.impl;
 
 import org.apache.ranger.authorization.pinot.classloadertest.IsolationProbe;
-import org.apache.ranger.authorization.pinot.classloadertest.RangerPluginClassLoaderIsolationTest;
 
 /**
  * The "ambient" implementation: compiled normally into this module's {@code target/test-classes},
- * reachable via the test JVM's ordinary classpath. {@link RangerPluginClassLoaderIsolationTest}
+ * reachable via the test JVM's ordinary classpath. {@link org.apache.ranger.authorization.pinot.classloadertest.RangerPluginClassLoaderIsolationTest}
  * proves isolation by showing that a {@code RangerPluginClassLoader} resolves a <em>different</em>
  * compiled class of this exact fully-qualified name from an isolated impl directory, instead of
  * this one.

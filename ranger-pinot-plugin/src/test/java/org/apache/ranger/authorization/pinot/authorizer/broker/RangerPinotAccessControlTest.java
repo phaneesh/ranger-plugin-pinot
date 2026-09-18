@@ -32,10 +32,18 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Exercises {@link RangerPinotAccessControl} itself (not just the {@link RangerPinotAuthorizer}
@@ -121,6 +129,47 @@ class RangerPinotAccessControlTest {
         };
     }
 
+    /**
+     * Identity carrying headers the way the runtime {@code HttpRequesterIdentity} does — a
+     * multimap-like object exposing {@code keySet()} and {@code get(Object)}. Guava's Multimap
+     * cannot be named here (shading differs per image), so the accessor reflection resolves
+     * against this duck-typed stand-in, which is exactly the protocol the production code uses.
+     */
+    private static RequesterIdentity identityWithAuthHeader(String user) {
+        String basic = "Basic " + Base64.getEncoder().encodeToString((user + ":secret").getBytes(StandardCharsets.UTF_8));
+
+        return new RequesterIdentity() {
+            @Override
+            public String getClientIp() {
+                return "10.0.0.1";
+            }
+
+            // duck-typed stand-in for the guava Multimap
+            public HeaderMultimap getHttpHeaders() {
+                return new HeaderMultimap("Authorization", basic);
+            }
+        };
+    }
+
+    /** Minimal multimap protocol: {@code keySet()} + {@code get(Object)}. */
+    private static final class HeaderMultimap {
+        private final String key;
+        private final String value;
+
+        HeaderMultimap(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public Set<String> keySet() {
+            return Collections.singleton(key);
+        }
+
+        public List<String> get(Object k) {
+            return key.equals(k) ? Collections.singletonList(value) : Collections.emptyList();
+        }
+    }
+
     @Test
     void reportsOnlyTheTablesThatFailedAuthorization() throws IOException {
         RangerBasePlugin plugin = pluginWithPolicies(
@@ -144,6 +193,37 @@ class RangerPinotAccessControlTest {
         TableAuthorizationResult result = accessControl.authorize(identityFor("alice"), Set.of("orders"));
 
         assertTrue(result.hasAccess());
+    }
+
+    /**
+     * Regression test for the cached-MethodHandle path: an identity carrying an Authorization
+     * header multimap (as the runtime HttpRequesterIdentity does) must authorize as the
+     * Basic-auth username, via the cached accessors — not the client-IP fallback.
+     */
+    @Test
+    void identityWithAuthHeaderAuthorizesAsTheBasicAuthUser() throws IOException {
+        RangerBasePlugin plugin = pluginWithPolicies(tablePolicy("orders", "alice"));
+        RangerPinotAccessControl accessControl = new RangerPinotAccessControl(new RangerPinotAuthorizer(plugin));
+
+        assertTrue(accessControl.authorize(identityWithAuthHeader("alice"), Set.of("orders")).hasAccess(),
+                "Basic-auth user alice is granted on orders");
+        assertFalse(accessControl.authorize(identityWithAuthHeader("bob"), Set.of("orders")).hasAccess(),
+                "Basic-auth user bob has no grant — the client-IP fallback must NOT kick in");
+    }
+
+    /** Same path through the RLS hook: the row filter must be evaluated for the header user. */
+    @Test
+    void rowFilterUsesTheBasicAuthUserFromHeaders() throws IOException {
+        RangerBasePlugin plugin = pluginWithPolicies(
+                tablePolicy("orders", "alice"),
+                rowFilterPolicy("orders", "alice", "region = 'emea'"));
+
+        RangerPinotAccessControl accessControl = new RangerPinotAccessControl(new RangerPinotAuthorizer(plugin));
+
+        assertEquals(List.of("region = 'emea'"),
+                accessControl.getRowColFilters(identityWithAuthHeader("alice"), "orders").getRLSFilters().orElse(null));
+        assertFalse(accessControl.getRowColFilters(identityWithAuthHeader("bob"), "orders").getRLSFilters().isPresent(),
+                "bob has no row-filter policy — must be unrestricted, not alice's filter");
     }
 
     @Test
