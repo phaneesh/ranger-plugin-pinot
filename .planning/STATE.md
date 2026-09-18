@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: completed
 stopped_at: "Phases 1-4 complete and committed. Next up is Phase 5 (packaging & release: distro tarball with `lib/ranger-pinot-plugin-impl/` layout, install scripts, conf templates, GitHub Actions release automation, integration tests). Notebook pages `pinot-auth-spi`, `ranger-plugin-architecture`, `ranger-plugin-api-facts`, `phase-3-row-filtering` hold prior research; Phase 4 added the cluster-resource + Actions-accessType service-def model (see `service-defs/ranger-servicedef-pinot.json`) and the tag-policy test harness pattern (`RangerFileBasedTagRetriever` + classpath ServiceTags JSON + tag-serviceDef with `pinot:`-prefixed accessTypes, prefix stripped by normalization)."
-last_updated: "2026-09-18T04:09:28.639Z"
+last_updated: "2026-09-18T04:10:41.742Z"
 last_activity: "260918-001: Created README.md (full plugin docs: installation, configuration, policies, tests)"
 progress:
   total_phases: 5
@@ -89,7 +89,7 @@ None yet.
 
 | # | Description | Date | Commit | Directory |
 | --- | ----------- | ---- | ------ | --------- |
-| 260918-001 | create README.md which contains elaborate plugin documentation including installation and configuration steps. | 260918 | | [260918-001-readme-plugin-docs](./quick/260918-001-readme-plugin-docs/) |
+| 260918-001 | create README.md which contains elaborate plugin documentation including installation and configuration steps. | 260918 | e36a028 | [260918-001-readme-plugin-docs](./quick/260918-001-readme-plugin-docs/) |
 
 ## Session Continuity
 
