@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: completed
 stopped_at: "Phases 1-4 complete and committed. Next up is Phase 5 (packaging & release: distro tarball with `lib/ranger-pinot-plugin-impl/` layout, install scripts, conf templates, GitHub Actions release automation, integration tests). Notebook pages `pinot-auth-spi`, `ranger-plugin-architecture`, `ranger-plugin-api-facts`, `phase-3-row-filtering` hold prior research; Phase 4 added the cluster-resource + Actions-accessType service-def model (see `service-defs/ranger-servicedef-pinot.json`) and the tag-policy test harness pattern (`RangerFileBasedTagRetriever` + classpath ServiceTags JSON + tag-serviceDef with `pinot:`-prefixed accessTypes, prefix stripped by normalization)."
-last_updated: "2026-09-18T04:10:41.742Z"
-last_activity: "260918-001: Created README.md (full plugin docs: installation, configuration, policies, tests)"
+last_updated: "2026-09-18T04:37:01.918Z"
+last_activity: "260918-002: Upgraded all maven plugins to latest versions (compiler 3.16.0, surefire/failsafe 3.6.0, checkstyle 3.6.0 + engine 8.45.1, rat 0.18, spotbugs 4.10.4.1, antrun 3.2.0, assembly 3.8.0, exec 3.6.4)"
 progress:
   total_phases: 5
   completed_phases: 1
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-17)
 Phase: 05 of 1 (packaging release)
 Plan: 1 of 1
 Status: Milestone complete
-Last activity: 260918-001: Created README.md (full plugin docs: installation, configuration, policies, tests)
+Last activity: 260918-002: Upgraded all maven plugins to latest versions (compiler 3.16.0, surefire/failsafe 3.6.0, checkstyle 3.6.0 + engine 8.45.1, rat 0.18, spotbugs 4.10.4.1, antrun 3.2.0, assembly 3.8.0, exec 3.6.4)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -90,6 +90,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 | --- | ----------- | ---- | ------ | --------- |
 | 260918-001 | create README.md which contains elaborate plugin documentation including installation and configuration steps. | 260918 | e36a028 | [260918-001-readme-plugin-docs](./quick/260918-001-readme-plugin-docs/) |
+| 260918-002 | Upgrade all maven plugins to the latest available version | 260918 | 9463723 | [260918-002-maven-plugin-upgrade](./quick/260918-002-maven-plugin-upgrade/) |
 
 ## Session Continuity
 
