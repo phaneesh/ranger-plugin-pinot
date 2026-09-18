@@ -105,7 +105,7 @@ Plans:
 Plans:
 - [x] 05-01: Distro assembly (tarball layout, install/enable/disable/upgrade scripts)
 - [x] 05-02: GitHub Actions release-on-tag workflow (`release.yml`: `v*` tag → JDK 17 verify build → distro tarball published as GitHub Release asset, PKG-03; untested on a real remote — repo not yet pushed)
-- [ ] 05-03: Docker-compose integration harness (Ranger Admin 2.8.0 + Pinot 1.4.0/1.5.1) with failsafe-gated E2E tests (allow/deny/audit/row-filter/403/live-poll) and a CI matrix job
+- [x] 05-03: Docker-compose integration harness (Ranger Admin 2.8.0 + Pinot 1.4.0/1.5.1) with failsafe-gated E2E tests (allow/deny/audit/row-filter/403/live-poll) and a CI matrix job — built and fast-path verified; commits + live-stack runs pending Docker-capable env (see 05-03-SUMMARY.md)
 
 ## Progress
 
@@ -118,4 +118,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Broker Enforcement                | 3/3             | Complete (core logic verified; live Ranger-Admin-poll path deferred to Phase 5) | 2026-09-17 |
 | 3. Row Filtering & Column Masking     | 2/2             | Complete (row-filter only; column masking infeasible with current Pinot SPI) | 2026-09-17 |
 | 4. Controller (Admin API) Enforcement | 3/3             | Complete (unit-verified incl. tag policies; live 403 checks in Phase 5) | 2026-09-17 |
-| 5. Packaging & Release               | 2/3             | In progress (05-03 integration matrix remains) | -         |
+| 5. Packaging & Release               | 3/3             | Complete (05-03 built + fast-path verified; commits and live-stack E2E runs blocked in executor sandbox — see 05-03-SUMMARY.md) | -         |

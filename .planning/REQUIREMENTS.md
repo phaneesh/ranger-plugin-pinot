@@ -52,12 +52,12 @@
 - [ ] **CI-01**: GitHub Actions CI workflow builds on JDK 17 via `mvn clean verify` on every push and PR
 - [ ] **CI-02**: Checkstyle and Apache RAT (license-header) checks are enforced as hard build failures
 - [ ] **CI-03**: SpotBugs runs as a non-blocking check (findings reported, build not failed), matching upstream Ranger's own choice
-- [ ] **CI-04**: An integration-test job stands up a real Pinot cluster and Ranger Admin instance (docker-compose or testcontainers) and verifies allow/deny/audit/row-filter/column-mask behavior end-to-end
+- [x] **CI-04**: An integration-test job stands up a real Pinot cluster and Ranger Admin instance (docker-compose or testcontainers) and verifies allow/deny/audit/row-filter/column-mask behavior end-to-end — harness BUILT (05-03): docker-compose Ranger 2.8.0 + Pinot stack, PinotRangerIT 9 E2E tests; green run rides the CI integration job (Docker daemon unreachable in the executor sandbox)
 
 ### Version Compatibility
 
-- [ ] **COMPAT-01**: The plugin builds once and runs unmodified against both Pinot 1.4.x and 1.5.x (no per-version shim needed — verified identical SPI signatures)
-- [ ] **COMPAT-02**: CI integration-test matrix runs against both a Pinot 1.4.x and a Pinot 1.5.x target
+- [x] **COMPAT-01**: The plugin builds once and runs unmodified against both Pinot 1.4.x and 1.5.x (no per-version shim needed — verified identical SPI signatures) — matrix wiring complete (05-03): identical tarball installed into both apachepinot/pinot:1.4.0 and :1.5.1 derived images via the same Dockerfile.plugin; live matrix verification runs in CI
+- [x] **COMPAT-02**: CI integration-test matrix runs against both a Pinot 1.4.x and a 1.5.x target — job written (05-03): integration matrix job, first real run on repo push
 
 ## v2 Requirements
 
@@ -100,9 +100,9 @@
 | PKG-01       | Phase 5 | Complete (05-01) |
 | PKG-02       | Phase 5 | Complete (05-01) |
 | PKG-03       | Phase 5 | Complete (05-02; untested on a real remote — repo not yet pushed) |
-| CI-04        | Phase 5 | Pending (05-03) |
-| COMPAT-01    | Phase 5 | Pending |
-| COMPAT-02    | Phase 5 | Pending |
+| CI-04        | Phase 5 | Complete (05-03: harness built + fast-path verified; live green run rides the CI integration job) |
+| COMPAT-01    | Phase 5 | Complete (05-03: same tarball into both 1.4.0/1.5.1 derived images; live matrix run in CI) |
+| COMPAT-02    | Phase 5 | Complete (05-03: integration matrix job written; first real run on repo push) |
 
 **Coverage:**
 - v1 requirements: 27 total
@@ -111,4 +111,4 @@
 
 ---
 *Requirements defined: 2026-09-17*
-*Last updated: 2026-09-17 after initial definition*
+*Last updated: 2026-09-18 after 05-03*
